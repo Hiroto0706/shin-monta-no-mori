@@ -12,7 +12,7 @@ func main() {
 	router := gin.Default()
 	router.Use(CORSMiddleware())
 	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "Hello World from server.")
+		c.JSON(http.StatusOK, "new Hello World from server.")
 	})
 
 	router.Run()
