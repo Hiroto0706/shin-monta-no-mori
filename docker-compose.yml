@@ -2,6 +2,7 @@ version: '3.9'
 
 services:
   server:
+    container_name: shin-monta-no-mori-server
     build: ./server
     volumes:
       - ./server:/app
@@ -11,6 +12,7 @@ services:
       - GO111MODULE=on
 
   client:
+    container_name: shin-monta-no-mori-client
     build: ./client
     volumes:
       - ./client:/app
@@ -20,9 +22,10 @@ services:
     command: npm run dev
 
   db:
+    container_name: shin-monta-no-mori-db
     image: postgres:14-alpine
     environment:
-      POSTGRES_DB: monta-no-mori
+      POSTGRES_DB: shin-monta-no-mori
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
