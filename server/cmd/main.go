@@ -1,25 +1,27 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	fmt.Println("Hello World.")
 	router := gin.Default()
 	router.Use(CORSMiddleware())
 	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "new Hello World from server.")
+		c.JSON(http.StatusOK, gin.H{
+			"message": "new Hello World from server.",
+		})
 	})
+	// router.GET("/", handlers.Greet)
 
 	router.Run()
 }
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// TODO: local, stg, prdで値を変更する
 		allowedOrigins := []string{"http://localhost:3000", "http://localhost:3030"}
 		origin := c.GetHeader("Origin")
 

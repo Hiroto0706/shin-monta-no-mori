@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 const FetchData = async () => {
   try {
     const response = await axios.get("http://localhost:8080/");
-    return response.data;
+    return response.data.message;
   } catch (error) {
     console.error(error);
     return null;
