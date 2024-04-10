@@ -26,3 +26,9 @@ dc-up:
 
 dc-down:
 	docker compose down
+
+serve:
+	cd ./server && air -c .air.toml
+
+tidy:
+	cd ./server && go mod tidy

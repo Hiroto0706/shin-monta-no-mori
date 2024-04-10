@@ -5,7 +5,7 @@ COPY go.mod go.sum ./
 COPY . .
 RUN go build -o /build/main ./cmd/main.go
 
-FROM alpine:3.18
+FROM alpine:3.19
 WORKDIR /app
 COPY --from=builder /build/main /usr/local/bin/main
 # COPY app.env .
