@@ -19,7 +19,6 @@ services:
       - /app/node_modules
     ports:
       - "3000:3000"
-    command: npm run dev
 
   db:
     container_name: shin-monta-no-mori-db

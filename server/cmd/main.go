@@ -1,7 +1,7 @@
 package main
 
 import (
-	"net/http"
+	"shin-monta-no-mori/api/handlers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,12 +9,12 @@ import (
 func main() {
 	router := gin.Default()
 	router.Use(CORSMiddleware())
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "new Hello World from server.",
-		})
-	})
-	// router.GET("/", handlers.Greet)
+	// router.GET("/", func(c *gin.Context) {
+	// 	c.JSON(http.StatusOK, gin.H{
+	// 		"message": "new Hello World from server.",
+	// 	})
+	// })
+	router.GET("/", handlers.Greet)
 
 	router.Run()
 }

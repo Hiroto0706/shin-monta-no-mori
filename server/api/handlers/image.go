@@ -8,6 +8,6 @@ import (
 
 func Greet(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"message": "new Hello World from server.",
+		"message": "Hello World from server.",
 	})
 }

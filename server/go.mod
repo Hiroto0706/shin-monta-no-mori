@@ -1,4 +1,4 @@
-module monta-no-mori
+module shin-monta-no-mori
 
 go 1.21.2
 

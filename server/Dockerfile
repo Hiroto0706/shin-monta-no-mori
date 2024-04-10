@@ -1,15 +1,15 @@
-FROM golang:1.22.2-alpine3.19
+FROM golang:1.22.2-alpine3.19 AS builder
 
 WORKDIR /app
-
-# airをインストール
-RUN go install github.com/cosmtrek/air@latest
-
-COPY go.mod .
-COPY go.sum .
-
-RUN go mod download
-
+COPY go.mod go.sum ./
 COPY . .
+RUN go build -o /build/main ./cmd/main.go
 
-CMD ["air", "-c", ".air.toml"]
+FROM alpine:3.18
+WORKDIR /app
+COPY --from=builder /build/main /usr/local/bin/main
+# COPY app.env .
+# COPY credential.json .
+# COPY db/migration ./db/migration
+
+CMD [ "/usr/local/bin/main" ]
