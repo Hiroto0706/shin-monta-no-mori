@@ -1,4 +1,4 @@
-package handlers
+package admin_handlers
 
 import (
 	"net/http"
@@ -8,6 +8,6 @@ import (
 
 func Greet(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"message": "new Hello World from server.",
+		"message": "Hello World from server in admin.",
 	})
 }

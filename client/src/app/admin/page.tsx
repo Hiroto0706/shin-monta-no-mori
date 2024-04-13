@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 
 const FetchData = async () => {
   try {
-    const response = await axios.get("http://localhost:8080/api/v1/");
+    const response = await axios.get("http://localhost:8080/api/v1/admin/");
     return response.data.message;
   } catch (error) {
     console.error(error);
@@ -27,7 +27,7 @@ export default function Home() {
 
   return (
     <main>
-      <h1 className="m-10 text-4xl text-red-700">Hello World from client!!</h1>
+      <h1 className="m-10 text-4xl text-red-700">Hello World from admin!!</h1>
       <h1 className="m-10 text-4xl text-blue-500">{data}</h1>
     </main>
   );

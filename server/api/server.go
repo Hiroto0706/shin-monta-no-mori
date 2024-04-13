@@ -37,7 +37,9 @@ func NewServer(store *db.Store, config util.Config) (*Server, error) {
 	// }
 
 	// Userサイドのルート設定
-	SetRouters(router)
+	SetUserRouters(router)
+	// Adminサイドのルート設定
+	SetAdminRouters(router)
 	server.router = router
 
 	return server, nil

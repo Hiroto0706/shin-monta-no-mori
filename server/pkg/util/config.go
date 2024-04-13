@@ -16,7 +16,8 @@ type Config struct {
 	DBPassword           string        `mapstructure:"DB_PASSWORD"`
 	DBHost               string        `mapstructure:"DB_HOST"`
 	DBPort               int           `mapstructure:"DB_PORT"`
-	DBName               string        `mapstructure:"DB_Name"`
+	DBName               string        `mapstructure:"DB_NAME"`
+	TestDBName           string        `mapstructure:"TEST_DB_NAME"`
 	MigrationURL         string        `mapstructure:"MIGRATION_URL"`
 	JsonPath             string        `mapstructure:"JSON_PATH"`
 	BucketName           string        `mapstructure:"BUCKET_NAME"`

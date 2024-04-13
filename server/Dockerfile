@@ -11,5 +11,3 @@ COPY --from=builder /build/main /usr/local/bin/main
 # COPY app.env .
 # COPY credential.json .
 # COPY db/migration ./db/migration
-
-CMD [ "/usr/local/bin/main" ]
