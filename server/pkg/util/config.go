@@ -43,6 +43,5 @@ func LoadConfig(path string) (config Config, err error) {
 
 func MakeDBSource(username string, password string, host string, port int, dbname string) string {
 	source := fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=disable", username, password, host, port, dbname)
-	fmt.Println(source)
 	return source
 }

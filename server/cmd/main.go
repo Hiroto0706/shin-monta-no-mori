@@ -2,12 +2,10 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
-	"shin-monta-no-mori/api/handlers"
-	"shin-monta-no-mori/pkg/util"
-
-	"github.com/gin-gonic/gin"
+	"shin-monta-no-mori/server/api"
+	db "shin-monta-no-mori/server/internal/db/sqlc"
+	"shin-monta-no-mori/server/pkg/util"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -22,22 +20,25 @@ func main() {
 		log.Fatal("cannot load config :", err)
 	}
 
-	conn, err := sql.Open(config.DBDriver, util.MakeDBSource(config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBName))
+	dbSource := util.MakeDBSource(config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBName)
+	conn, err := sql.Open(config.DBDriver, dbSource)
 	if err != nil {
 		log.Fatal("cannot connect to db: ", err)
 	}
-	fmt.Println(conn)
 
-	router := gin.Default()
-	router.Use(CORSMiddleware())
-	// router.GET("/", func(c *gin.Context) {
-	// 	c.JSON(http.StatusOK, gin.H{
-	// 		"message": "new Hello World from server.",
-	// 	})
-	// })
-	router.GET("/", handlers.Greet)
+	// DBのマイグレーションを実行
+	runDBMigration(config.MigrationURL, dbSource)
 
-	router.Run()
+	store := db.NewStore(conn)
+	server, err := api.NewServer(store, config)
+	if err != nil {
+		log.Fatal("cannot connect to server: ", err)
+	}
+
+	err = server.Start(config.ServerAddress)
+	if err != nil {
+		log.Fatal("cannot start server: ", err)
+	}
 }
 
 func runDBMigration(migrationURL string, dbSource string) {
@@ -51,31 +52,4 @@ func runDBMigration(migrationURL string, dbSource string) {
 	}
 
 	log.Println("db migrated successfully")
-}
-
-func CORSMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// TODO: local, stg, prdで値を変更する
-		allowedOrigins := []string{"http://localhost:3000", "http://localhost:3030"}
-		origin := c.GetHeader("Origin")
-
-		for _, allowedOrigin := range allowedOrigins {
-			if origin == allowedOrigin {
-				c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-				c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
-				c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-				c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
-				c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-
-				break
-			}
-		}
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		c.Next()
-	}
 }

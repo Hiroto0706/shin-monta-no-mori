@@ -78,14 +78,32 @@ COMMENT ON COLUMN "images"."original_src" IS '文字ありの画像';
 
 COMMENT ON COLUMN "images"."simple_src" IS '文字無しの画像.オリジナルが文字無しの時もあるので、nullableにする.';
 
-ALTER TABLE "sessions" ADD FOREIGN KEY ("name") REFERENCES "operators" ("name");
+ALTER TABLE
+  "sessions"
+ADD
+  FOREIGN KEY ("name") REFERENCES "operators" ("name");
 
-ALTER TABLE "child_categories" ADD FOREIGN KEY ("parent_id") REFERENCES "parent_categories" ("id");
+ALTER TABLE
+  "child_categories"
+ADD
+  FOREIGN KEY ("parent_id") REFERENCES "parent_categories" ("id");
 
-ALTER TABLE "image_parent_categories_relations" ADD FOREIGN KEY ("image_id") REFERENCES "images" ("id");
+ALTER TABLE
+  "image_parent_categories_relations"
+ADD
+  FOREIGN KEY ("image_id") REFERENCES "images" ("id");
 
-ALTER TABLE "image_parent_categories_relations" ADD FOREIGN KEY ("parent_category_id") REFERENCES "parent_categories" ("id");
+ALTER TABLE
+  "image_parent_categories_relations"
+ADD
+  FOREIGN KEY ("parent_category_id") REFERENCES "parent_categories" ("id");
 
-ALTER TABLE "image_characters_relations" ADD FOREIGN KEY ("image_id") REFERENCES "images" ("id");
+ALTER TABLE
+  "image_characters_relations"
+ADD
+  FOREIGN KEY ("image_id") REFERENCES "images" ("id");
 
-ALTER TABLE "image_characters_relations" ADD FOREIGN KEY ("character_id") REFERENCES "characters" ("id");
+ALTER TABLE
+  "image_characters_relations"
+ADD
+  FOREIGN KEY ("character_id") REFERENCES "characters" ("id");

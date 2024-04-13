@@ -30,5 +30,5 @@ dc-down:
 serve:
 	cd ./server && air -c .air.toml
 
-tidy:
-	cd ./server && go mod tidy
+sqlc:
+	cd server/ && sqlc generate

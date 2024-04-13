@@ -1,7 +1,7 @@
 root = "."
 testdata_dir = "testdata"
 tmp_dir = "tmp"
-watch_dir = ["cmd", "internal", "api"]
+watch_dir = ["cmd", "internal", "api", "pkg"]
 
 [build]
 args_bin = []
