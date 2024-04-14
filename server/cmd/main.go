@@ -20,14 +20,13 @@ func main() {
 		log.Fatal("cannot load config :", err)
 	}
 
-	dbSource := util.MakeDBSource(config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBName)
-	conn, err := sql.Open(config.DBDriver, dbSource)
+	conn, err := sql.Open(config.DBDriver, config.DBUrl)
 	if err != nil {
 		log.Fatal("cannot connect to db: ", err)
 	}
 
 	// DBのマイグレーションを実行
-	runDBMigration(config.MigrationURL, dbSource)
+	runDBMigration(config.MigrationURL, config.DBUrl)
 
 	store := db.NewStore(conn)
 	server, err := api.NewServer(store, config)

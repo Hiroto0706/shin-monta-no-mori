@@ -18,8 +18,7 @@ func TestMain(m *testing.M) {
 		log.Fatal("cannot load config :", err)
 	}
 
-	dbSource := util.MakeDBSource(config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.TestDBName)
-	conn, err := sql.Open(config.DBDriver, dbSource)
+	conn, err := sql.Open(config.DBDriver, config.TestDBUrl)
 	if err != nil {
 		log.Fatal("cannot connect to db :", err)
 	}

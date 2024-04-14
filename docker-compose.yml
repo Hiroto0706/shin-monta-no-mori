@@ -3,13 +3,16 @@ version: '3.9'
 services:
   server:
     container_name: shin-monta-no-mori-server
-    build: ./server
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
     volumes:
       - ./server:/app
     ports:
       - "8080:8080"
     environment:
       - GO111MODULE=on
+      - DB_URL=postgresql://postgres:password@localhost:5432/shin-monta-no-mori?sslmode=disable
     depends_on:
       - db
     command: [ "/usr/local/bin/main" ]
