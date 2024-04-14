@@ -2,10 +2,14 @@ DB_URL=postgresql://postgres:password@localhost:5432/shin-monta-no-mori?sslmode=
 TEST_DB_URL=postgresql://postgres:password@localhost:5432/shin-monta-no-mori-test?sslmode=disable
 
 createdb:
+	docker exec -it shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori
+	docker exec -it shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
 	docker exec -it shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori
+	docker exec -it shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
 
 dropdb:
-	docker exec -it shin-monta-no-mori-db dropdb shin-monta-no-mori
+	docker exec -it shin-monta-no-mori-db dropdb --username=postgres  shin-monta-no-mori
+	docker exec -it shin-monta-no-mori-db dropdb --username=postgres shin-monta-no-mori-test
 
 new_migration:
 	migrate create -ext sql -dir server/internal/db/migration -seq $(name)
