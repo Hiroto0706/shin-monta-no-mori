@@ -43,12 +43,13 @@ func SetUp(t *testing.T, db DBTX) {
 		(20001, 'test_image_title_20001', 'test_image_original_src_20001', 'test_image_simple_src_20001'),
 		(20002, 'test_image_title_20002', 'test_image_original_src_20002', '');
 		`),
+		// listの時は最後の値を取得したいので、IDを大きくする
 		fmt.Sprintln(`
 		INSERT INTO images (id, title, original_src, simple_src)
 		VALUES
-		(30001, 'test_image_title_30001', 'test_image_original_src_30001', 'test_image_simple_src_30001'),
-		(30002, 'test_image_title_30002', 'test_image_original_src_30002', 'test_image_simple_src_30002'),
-		(30003, 'test_image_title_30003', 'test_image_original_src_30003', 'test_image_simple_src_30003');
+		(99990, 'test_image_title_99990', 'test_image_original_src_99990', 'test_image_simple_src_99990'),
+		(99991, 'test_image_title_99991', 'test_image_original_src_99991', 'test_image_simple_src_99991'),
+		(99992, 'test_image_title_99992', 'test_image_original_src_99992', 'test_image_simple_src_99992');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO images (id, title, original_src, simple_src)
@@ -67,6 +68,20 @@ func SetUp(t *testing.T, db DBTX) {
 		VALUES
 		(20001, 'test_character_name_20001', 'test_character_src_20001'),
 		(20002, 'test_character_name_20002', '');
+		`),
+		// listの時は最後の値を取得したいので、IDを大きくする
+		fmt.Sprintln(`
+		INSERT INTO characters (id, name, src)
+		VALUES
+		(99990, 'test_character_name_99990', 'test_character_src_99990'),
+		(99991, 'test_character_name_99991', 'test_character_src_99991'),
+		(99992, 'test_character_name_99992', '');
+		`),
+		fmt.Sprintln(`
+		INSERT INTO characters (id, name, src)
+		VALUES
+		(40001, 'test_character_name_40001', 'test_character_src_40001'),
+		(40002, 'test_character_name_40002', 'test_character_src_40002');
 		`),
 	}
 	for _, query := range queries {

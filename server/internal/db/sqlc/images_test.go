@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"log"
 	"shin-monta-no-mori/server/pkg/util"
 	"testing"
 
@@ -210,29 +209,29 @@ func TestListImage(t *testing.T) {
 			},
 			want: []wants{
 				{
-					ID:          30003,
-					Title:       "test_image_title_30003",
-					OriginalSrc: "test_image_original_src_30003",
+					ID:          99992,
+					Title:       "test_image_title_99992",
+					OriginalSrc: "test_image_original_src_99992",
 					SimpleSrc: sql.NullString{
-						String: "test_image_simple_src_30003",
+						String: "test_image_simple_src_99992",
 						Valid:  true,
 					},
 				},
 				{
-					ID:          30002,
-					Title:       "test_image_title_30002",
-					OriginalSrc: "test_image_original_src_30002",
+					ID:          99991,
+					Title:       "test_image_title_99991",
+					OriginalSrc: "test_image_original_src_99991",
 					SimpleSrc: sql.NullString{
-						String: "test_image_simple_src_30002",
+						String: "test_image_simple_src_99991",
 						Valid:  true,
 					},
 				},
 				{
-					ID:          30001,
-					Title:       "test_image_title_30001",
-					OriginalSrc: "test_image_original_src_30001",
+					ID:          99990,
+					Title:       "test_image_title_99990",
+					OriginalSrc: "test_image_original_src_99990",
 					SimpleSrc: sql.NullString{
-						String: "test_image_simple_src_30001",
+						String: "test_image_simple_src_99990",
 						Valid:  true,
 					},
 				},
@@ -261,12 +260,10 @@ func TestListImage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			images, err := testQueries.ListImage(context.Background(), tt.arg)
-			log.Println(images)
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {
 				for i, image := range images {
-					log.Println(i, image)
 					require.NoError(t, err)
 					require.Equal(t, tt.want[i].ID, image.ID)
 					require.Equal(t, tt.want[i].Title, image.Title)
@@ -286,7 +283,7 @@ func TestUpdateImage(t *testing.T) {
 	tests := []struct {
 		name    string
 		arg     UpdateImageParams
-		want    UpdateImageParams
+		want    Image
 		wantErr bool
 	}{
 		{
@@ -300,7 +297,7 @@ func TestUpdateImage(t *testing.T) {
 					Valid:  true,
 				},
 			},
-			want: UpdateImageParams{
+			want: Image{
 				ID:          40001,
 				Title:       "test_image_title_40001_edited",
 				OriginalSrc: "test_image_original_src_40001_edited",
@@ -337,10 +334,10 @@ func TestUpdateImage(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				require.NotEmpty(t, image)
+				require.Equal(t, tt.arg.ID, image.ID)
 				require.Equal(t, tt.arg.Title, image.Title)
 				require.Equal(t, tt.arg.OriginalSrc, image.OriginalSrc)
 				require.Equal(t, tt.arg.SimpleSrc.String, image.SimpleSrc.String)
-				require.NotZero(t, image.ID)
 				require.NotZero(t, image.CreatedAt)
 			}
 		})

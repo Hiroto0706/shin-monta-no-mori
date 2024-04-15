@@ -10,15 +10,28 @@ import (
 
 type Querier interface {
 	CreateCharacter(ctx context.Context, arg CreateCharacterParams) (Character, error)
+	CreateChildCategories(ctx context.Context, arg CreateChildCategoriesParams) (ChildCategory, error)
 	CreateImage(ctx context.Context, arg CreateImageParams) (Image, error)
+	CreateOperator(ctx context.Context, arg CreateOperatorParams) (Operator, error)
+	CreateParentCategories(ctx context.Context, arg CreateParentCategoriesParams) (ParentCategory, error)
 	DeleteCharacter(ctx context.Context, id int64) error
+	DeleteChildCategories(ctx context.Context, id int64) error
 	DeleteImage(ctx context.Context, id int64) error
+	DeleteParentCategories(ctx context.Context, id int64) error
 	GetCharacter(ctx context.Context, id int64) (Character, error)
+	GetChildCategories(ctx context.Context, id int64) (ChildCategory, error)
 	GetImage(ctx context.Context, id int64) (Image, error)
+	GetOperator(ctx context.Context, id int64) (Operator, error)
+	GetParentCategories(ctx context.Context, id int64) (ParentCategory, error)
 	ListCharacters(ctx context.Context, arg ListCharactersParams) ([]Character, error)
+	ListChildCategories(ctx context.Context, arg ListChildCategoriesParams) ([]ChildCategory, error)
 	ListImage(ctx context.Context, arg ListImageParams) ([]Image, error)
+	ListParentCategories(ctx context.Context, arg ListParentCategoriesParams) ([]ParentCategory, error)
 	UpdateCharacter(ctx context.Context, arg UpdateCharacterParams) (Character, error)
+	UpdateChildCategories(ctx context.Context, arg UpdateChildCategoriesParams) (ChildCategory, error)
 	UpdateImage(ctx context.Context, arg UpdateImageParams) (Image, error)
+	UpdateOperator(ctx context.Context, arg UpdateOperatorParams) (Operator, error)
+	UpdateParentCategories(ctx context.Context, arg UpdateParentCategoriesParams) (ParentCategory, error)
 }
 
 var _ Querier = (*Queries)(nil)

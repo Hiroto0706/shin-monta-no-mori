@@ -162,3 +162,134 @@ func TestGetCharacter(t *testing.T) {
 		})
 	}
 }
+
+func TestListCharacter(t *testing.T) {
+	SetUp(t, testQueries.db)
+	defer TearDown(t, testQueries.db)
+
+	tests := []struct {
+		name    string
+		arg     ListCharactersParams
+		want    []Character
+		wantErr bool
+	}{
+		{
+			name: "正常系",
+			arg: ListCharactersParams{
+				Limit:  3,
+				Offset: 0,
+			},
+			want: []Character{
+				{
+					ID:   99992,
+					Name: "test_character_name_99992",
+					Src:  "",
+				},
+				{
+					ID:   99991,
+					Name: "test_character_name_99991",
+					Src:  "test_character_src_99991",
+				},
+				{
+					ID:   99990,
+					Name: "test_character_name_99990",
+					Src:  "test_character_src_99990",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "正常系（returnが空の時）",
+			arg: ListCharactersParams{
+				Limit:  3,
+				Offset: 1000,
+			},
+			want:    []Character{{}},
+			wantErr: false,
+		},
+		{
+			name: "異常系（argsの値が不正な場合）",
+			arg: ListCharactersParams{
+				Limit:  -1,
+				Offset: 0,
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			characters, err := testQueries.ListCharacters(context.Background(), tt.arg)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				for i, character := range characters {
+					require.NoError(t, err)
+					require.Equal(t, tt.want[i].ID, character.ID)
+					require.Equal(t, tt.want[i].Name, character.Name)
+					require.Equal(t, tt.want[i].Src, character.Src)
+					require.NotZero(t, character.CreatedAt)
+				}
+			}
+		})
+	}
+}
+
+func TestUpdateCharacter(t *testing.T) {
+	SetUp(t, testQueries.db)
+	defer TearDown(t, testQueries.db)
+
+	tests := []struct {
+		name    string
+		arg     UpdateCharacterParams
+		want    Character
+		wantErr bool
+	}{
+		{
+			name: "正常系",
+			arg: UpdateCharacterParams{
+				ID:   40001,
+				Name: "test_character_name_40001_edited",
+				Src:  "test_character_src_40001_edited",
+			},
+			want: Character{
+				ID:   40001,
+				Name: "test_character_name_40001_edited",
+				Src:  "test_character_src_40001_edited",
+			},
+			wantErr: false,
+		},
+		{
+			name: "異常系（存在しないIDを指定している場合）",
+			arg: UpdateCharacterParams{
+				ID: 99999,
+			},
+			wantErr: true,
+		},
+		{
+			name: "異常系（titleが空になる場合）",
+			arg: UpdateCharacterParams{
+				ID:   40002,
+				Name: "",
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			character, err := testQueries.UpdateCharacter(context.Background(), tt.arg)
+
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				require.NotEmpty(t, character)
+				require.Equal(t, tt.arg.ID, character.ID)
+				require.Equal(t, tt.arg.Name, character.Name)
+				require.Equal(t, tt.arg.Src, character.Src)
+				require.NotZero(t, character.CreatedAt)
+			}
+		})
+	}
+}
