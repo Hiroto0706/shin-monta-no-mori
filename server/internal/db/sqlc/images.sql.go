@@ -11,10 +11,9 @@ import (
 )
 
 const createImage = `-- name: CreateImage :one
-INSERT INTO
-  images (title, original_src, simple_src)
-VALUES
-  ($1, $2, $3) RETURNING id, title, original_src, simple_src, updated_at, created_at
+INSERT INTO images (title, original_src, simple_src)
+VALUES ($1, $2, $3)
+RETURNING id, title, original_src, simple_src, updated_at, created_at
 `
 
 type CreateImageParams struct {
@@ -38,10 +37,8 @@ func (q *Queries) CreateImage(ctx context.Context, arg CreateImageParams) (Image
 }
 
 const deleteImage = `-- name: DeleteImage :exec
-DELETE FROM
-  images
-WHERE
-  id = $1
+DELETE FROM images
+WHERE id = $1
 `
 
 func (q *Queries) DeleteImage(ctx context.Context, id int64) error {
@@ -50,14 +47,10 @@ func (q *Queries) DeleteImage(ctx context.Context, id int64) error {
 }
 
 const getImage = `-- name: GetImage :one
-SELECT
-  id, title, original_src, simple_src, updated_at, created_at
-FROM
-  images
-WHERE
-  id = $1
-LIMIT
-  1
+SELECT id, title, original_src, simple_src, updated_at, created_at
+FROM images
+WHERE id = $1
+LIMIT 1
 `
 
 func (q *Queries) GetImage(ctx context.Context, id int64) (Image, error) {
@@ -75,14 +68,10 @@ func (q *Queries) GetImage(ctx context.Context, id int64) (Image, error) {
 }
 
 const listImage = `-- name: ListImage :many
-SELECT
-  id, title, original_src, simple_src, updated_at, created_at
-FROM
-  images
-ORDER BY
-  id DESC
-LIMIT
-  $1 OFFSET $2
+SELECT id, title, original_src, simple_src, updated_at, created_at
+FROM images
+ORDER BY id DESC
+LIMIT $1 OFFSET $2
 `
 
 type ListImageParams struct {
@@ -121,14 +110,12 @@ func (q *Queries) ListImage(ctx context.Context, arg ListImageParams) ([]Image, 
 }
 
 const updateImage = `-- name: UpdateImage :one
-UPDATE
-  images
-SET
-  title = $2,
+UPDATE images
+SET title = $2,
   original_src = $3,
   simple_src = $4
-WHERE
-  id = $1 RETURNING id, title, original_src, simple_src, updated_at, created_at
+WHERE id = $1
+RETURNING id, title, original_src, simple_src, updated_at, created_at
 `
 
 type UpdateImageParams struct {

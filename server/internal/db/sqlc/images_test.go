@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log"
 	"shin-monta-no-mori/server/pkg/util"
 	"testing"
@@ -11,50 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setup(t *testing.T, db DBTX) {
-	queries := []string{
-		fmt.Sprintln(`
-		INSERT INTO images (id, title, original_src, simple_src)
-		VALUES
-		(10001, 'test_image_title_10001', 'test_image_original_src_10001', 'test_image_simple_src_10001');
-		`),
-		fmt.Sprintln(`
-		INSERT INTO images (id, title, original_src, simple_src)
-		VALUES
-		(20001, 'test_image_title_20001', 'test_image_original_src_20001', 'test_image_simple_src_20001'),
-		(20002, 'test_image_title_20002', 'test_image_original_src_20002', '');
-		`),
-		fmt.Sprintln(`
-		INSERT INTO images (id, title, original_src, simple_src)
-		VALUES
-		(30001, 'test_image_title_30001', 'test_image_original_src_30001', 'test_image_simple_src_30001'),
-		(30002, 'test_image_title_30002', 'test_image_original_src_30002', 'test_image_simple_src_30002'),
-		(30003, 'test_image_title_30003', 'test_image_original_src_30003', 'test_image_simple_src_30003');
-		`),
-		fmt.Sprintln(`
-		INSERT INTO images (id, title, original_src, simple_src)
-		VALUES
-		(40001, 'test_image_title_40001', 'test_image_original_src_40001', 'test_image_simple_src_40001'),
-		(40002, 'test_image_title_40002', 'test_image_original_src_40002', 'test_image_simple_src_40002'),
-		(40003, 'test_image_title_40003', 'test_image_original_src_40003', 'test_image_simple_src_40003');
-		`),
-	}
-	for _, query := range queries {
-		if _, err := db.ExecContext(context.Background(), query); err != nil {
-			t.Fatalf("Failed to exec query: %v", err)
-		}
-	}
-}
-
-func tearDown(t *testing.T, db DBTX) {
-	query := "TRUNCATE TABLE images RESTART IDENTITY CASCADE;"
-	if _, err := db.ExecContext(context.Background(), query); err != nil {
-		t.Fatalf("Failed to truncate table: %v", err)
-	}
-}
-
 func TestCreateImage(t *testing.T) {
-	defer tearDown(t, testQueries.db)
+	defer TearDown(t, testQueries.db)
 
 	tests := []struct {
 		name    string
@@ -119,8 +76,8 @@ func TestCreateImage(t *testing.T) {
 }
 
 func TestDeleteImage(t *testing.T) {
-	setup(t, testQueries.db)
-	defer tearDown(t, testQueries.db)
+	SetUp(t, testQueries.db)
+	defer TearDown(t, testQueries.db)
 
 	tests := []struct {
 		name    string
@@ -152,8 +109,8 @@ func TestDeleteImage(t *testing.T) {
 }
 
 func TestGetImage(t *testing.T) {
-	setup(t, testQueries.db)
-	defer tearDown(t, testQueries.db)
+	SetUp(t, testQueries.db)
+	defer TearDown(t, testQueries.db)
 
 	type args struct {
 		id int64
@@ -230,8 +187,8 @@ func TestGetImage(t *testing.T) {
 }
 
 func TestListImage(t *testing.T) {
-	setup(t, testQueries.db)
-	defer tearDown(t, testQueries.db)
+	SetUp(t, testQueries.db)
+	defer TearDown(t, testQueries.db)
 
 	type wants struct {
 		ID          int64
@@ -323,8 +280,8 @@ func TestListImage(t *testing.T) {
 }
 
 func TestUpdateImage(t *testing.T) {
-	setup(t, testQueries.db)
-	defer tearDown(t, testQueries.db)
+	SetUp(t, testQueries.db)
+	defer TearDown(t, testQueries.db)
 
 	tests := []struct {
 		name    string
