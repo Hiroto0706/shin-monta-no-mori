@@ -83,6 +83,14 @@ func SetUp(t *testing.T, db DBTX) {
 		(40001, 'test_character_name_40001', 'test_character_src_40001'),
 		(40002, 'test_character_name_40002', 'test_character_src_40002');
 		`),
+		fmt.Sprintln(`
+		INSERT INTO operators (id, name, hashed_password, email)
+		VALUES
+		(10001, 'test_operator_name_10001', 'testtest', 'test_10001@test.com'),
+		(10002, 'test_operator_name_10002', 'testtest', 'test_10002@test.com'),
+		(10003, 'test_operator_name_10003', 'testtest', 'test_10003@test.com'),
+		(10004, 'test_operator_name_10004', 'testtest', 'test_10004@test.com');
+		`),
 	}
 	for _, query := range queries {
 		if _, err := db.ExecContext(context.Background(), query); err != nil {
@@ -95,6 +103,7 @@ func TearDown(t *testing.T, db DBTX) {
 	queries := []string{
 		"TRUNCATE TABLE images RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE characters RESTART IDENTITY CASCADE;",
+		"TRUNCATE TABLE operators RESTART IDENTITY CASCADE;",
 	}
 	for _, query := range queries {
 		if _, err := db.ExecContext(context.Background(), query); err != nil {
