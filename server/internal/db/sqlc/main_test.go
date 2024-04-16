@@ -91,6 +91,37 @@ func SetUp(t *testing.T, db DBTX) {
 		(10003, 'test_operator_name_10003', 'testtest', 'test_10003@test.com'),
 		(10004, 'test_operator_name_10004', 'testtest', 'test_10004@test.com');
 		`),
+		fmt.Sprintln(`
+		INSERT INTO parent_categories (id, name, src)
+		VALUES
+		(10001, 'test_parent_category_name_10001', 'test_parent_category_src_10001');
+		`),
+		fmt.Sprintln(`
+		INSERT INTO parent_categories (id, name, src)
+		VALUES
+		(20001, 'test_parent_category_name_20001', 'test_parent_category_src_20001'),
+		(20002, 'test_parent_category_name_20002', '');
+		`),
+		// listの時は最後の値を取得したいので、IDを大きくする
+		fmt.Sprintln(`
+		INSERT INTO parent_categories (id, name, src)
+		VALUES
+		(99990, 'test_parent_category_name_99990', 'test_parent_category_src_99990'),
+		(99991, 'test_parent_category_name_99991', 'test_parent_category_src_99991'),
+		(99992, 'test_parent_category_name_99992', 'test_parent_category_src_99992');
+		`),
+		fmt.Sprintln(`
+		INSERT INTO parent_categories (id, name, src)
+		VALUES
+		(40001, 'test_parent_category_name_40001', 'test_parent_category_src_40001'),
+		(40002, 'test_parent_category_name_40002', 'test_parent_category_src_40002'),
+		(40003, 'test_parent_category_name_40003', 'test_parent_category_src_40003');
+		`),
+		fmt.Sprintln(`
+		INSERT INTO parent_categories (id, name, src)
+		VALUES
+		(50001, 'test_parent_category_name_50001', 'test_parent_category_src_50001');
+		`),
 	}
 	for _, query := range queries {
 		if _, err := db.ExecContext(context.Background(), query); err != nil {
@@ -104,6 +135,8 @@ func TearDown(t *testing.T, db DBTX) {
 		"TRUNCATE TABLE images RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE characters RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE operators RESTART IDENTITY CASCADE;",
+		"TRUNCATE TABLE parent_categories RESTART IDENTITY CASCADE;",
+		"TRUNCATE TABLE child_categories RESTART IDENTITY CASCADE;",
 	}
 	for _, query := range queries {
 		if _, err := db.ExecContext(context.Background(), query); err != nil {
