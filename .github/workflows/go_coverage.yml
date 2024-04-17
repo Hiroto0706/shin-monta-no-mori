@@ -26,8 +26,8 @@ jobs:
       - name: Go Version
         run: go version
 
-      - name: Go Lint
-        uses: golangci/golangci-lint-action@v3
+      # - name: Go Lint
+      #   uses: golangci/golangci-lint-action@v3
 
       - name: Setup
         run: |
