@@ -7,56 +7,40 @@ on:
       - "**.go"
 
 jobs:
-  ci:
+  test_coverage:
+    name: Go Test and Coverage Report
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Setup Go
+      - name: Set up Go
         uses: actions/setup-go@v3
         with:
           go-version: "1.22.2"
-          cache: true
-          cache-dependency-path: go.sum
 
-      - name: OS Version
-        run: cat /etc/os-release
-
-      - name: Go Version
-        run: go version
-
-      # - name: Go Lint
-      #   uses: golangci/golangci-lint-action@v3
-
-      - name: Setup
+      - name: Run Go Test and generate coverage
         run: |
-          go install github.com/golang/mock/mockgen@latest
-          go install github.com/onsi/ginkgo/v2/ginkgo@latest
-          go get github.com/onsi/gomega/...
+          mkdir -p coverage
+          go test ./server/... -coverprofile=./coverage/coverage.out
+          go tool cover -func=./coverage/coverage.out > coverage/report.txt
+          go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
 
-      # - name: Regenerate mock file
-      #   run: |
-      #     rm -rf mock
-      #     go generate ./...
-
-      - name: Go Build
-        run: |
-          go build -v ./server/...
-
-      - name: Go Test
-        run: |
-          ginkgo -v --cover --coverprofile=coverage.out --race --coverpkg=./server/... --covermode=atomic --output-dir=/tmp
-
-      - name: Exclude auto-generated files from coverage
-        run: |
-          cat /tmp/coverage.out | grep -v "_mock.go" | grep -v ".pb.go" > coverage.out
-          go tool cover -func coverage.out
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+      - name: Upload Coverage HTML
+        uses: actions/upload-artifact@v3
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.out
-          fail_ci_if_error: true
-          verbose: true
+          name: coverage-report
+          path: coverage/coverage.html
+
+      - name: Post coverage results to PR
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## Test Coverage Report
+            ```plaintext
+            $(cat coverage/report.txt)
+            ```
+            [Coverage Report HTML](https://github.com/${{ github.repository }}/actions/artifacts)
