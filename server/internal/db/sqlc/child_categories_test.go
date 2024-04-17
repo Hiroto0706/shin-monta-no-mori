@@ -169,17 +169,17 @@ func TestListChildCategory(t *testing.T) {
 			want: []ChildCategory{
 				{
 					ID:       99993,
-					Name:     "test_parent_category_name_99993",
+					Name:     "test_child_category_name_99993",
 					ParentID: 80003,
 				},
 				{
 					ID:       99992,
-					Name:     "test_parent_category_name_99992",
+					Name:     "test_child_category_name_99992",
 					ParentID: 80002,
 				},
 				{
 					ID:       99991,
-					Name:     "test_parent_category_name_99991",
+					Name:     "test_child_category_name_99991",
 					ParentID: 80001,
 				},
 			},
@@ -244,12 +244,12 @@ func TestUpdateChildCategory(t *testing.T) {
 			name: "正常系",
 			arg: UpdateChildCategoriesParams{
 				ID:       30001,
-				Name:     "test_parent_category_name_30001_edited",
+				Name:     "test_child_category_name_30001_edited",
 				ParentID: 90001,
 			},
 			want: ChildCategory{
 				ID:       30001,
-				Name:     "test_parent_category_name_30001_edited",
+				Name:     "test_child_category_name_30001_edited",
 				ParentID: 90001,
 			},
 			wantErr: false,

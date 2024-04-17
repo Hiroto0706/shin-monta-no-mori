@@ -1,0 +1,47 @@
+name: Go Test Coverage by Directory
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "**.go"
+
+jobs:
+  coverage:
+    name: Compute and Post Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.22.2"
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Generate coverage data
+        run: |
+          echo "##[group]Coverage Reports" >> coverage.txt
+          for d in api internal pkg; do
+            if [ -d "$d" ]; then
+              go test -coverprofile=coverage.out ./$d/...
+              echo "Coverage for $d" >> coverage.txt
+              go tool cover -func=coverage.out | grep total >> coverage.txt
+            fi
+          done
+          echo "##[endgroup]" >> coverage.txt
+
+      - name: Post coverage results to PR
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## Test Coverage Report
+            ```
+            $(cat coverage.txt)
+            ```
