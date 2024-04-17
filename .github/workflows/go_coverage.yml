@@ -23,7 +23,8 @@ jobs:
       - name: Get dependencies
         run: go mod download
 
-      - name: Generate coverage data
+      - name: Generate coverage data and prepare comment
+        id: coverage_report
         run: |
           echo "##[group]Coverage Reports" >> coverage.txt
           for d in api internal pkg; do
@@ -34,6 +35,7 @@ jobs:
             fi
           done
           echo "##[endgroup]" >> coverage.txt
+          echo "::set-output name=coverage_report::$(cat coverage.txt)"
 
       - name: Post coverage results to PR
         uses: peter-evans/create-or-update-comment@v3
@@ -43,5 +45,6 @@ jobs:
           body: |
             ## Test Coverage Report
             ```
-            $(cat coverage.txt)
+            ${{ steps.coverage_report.outputs.coverage_report }}
             ```
+
