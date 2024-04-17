@@ -23,9 +23,7 @@ jobs:
       - name: Run Go Test and generate coverage
         run: |
           mkdir -p coverage
-          go test ./server/... -coverprofile=./coverage/coverage.out
-          go tool cover -func=./coverage/coverage.out > coverage/report.txt
-          go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
+          make test
 
       - name: Upload Coverage HTML
         uses: actions/upload-artifact@v3
