@@ -42,3 +42,5 @@ test:
 	docker exec -it shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
 	docker exec -it shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
 	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up
+	go test ./server/... -coverprofile=./coverage/coverage.out
+	go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
