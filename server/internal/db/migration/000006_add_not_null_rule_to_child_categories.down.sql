@@ -1,0 +1,1 @@
+ALTER TABLE "child_categories" DROP CONSTRAINT name_not_empty;

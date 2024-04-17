@@ -122,6 +122,53 @@ func SetUp(t *testing.T, db DBTX) {
 		VALUES
 		(50001, 'test_parent_category_name_50001', 'test_parent_category_src_50001');
 		`),
+		fmt.Sprintln(`
+		INSERT INTO parent_categories (id, name, src)
+		VALUES
+		(60001, 'test_parent_category_name_60001', 'test_parent_category_src_60001');
+		`),
+		fmt.Sprintln(`
+		INSERT INTO child_categories (id, name, parent_id)
+		VALUES
+		(10001, 'test_child_category_name_10001', 60001);
+		`),
+		fmt.Sprintln(`
+		INSERT INTO parent_categories (id, name, src)
+		VALUES
+		(70001, 'test_parent_category_name_70001', 'test_parent_category_src_70001');
+		`),
+		fmt.Sprintln(`
+		INSERT INTO child_categories (id, name, parent_id)
+		VALUES
+		(20001, 'test_child_category_name_20001', 70001);
+		`),
+		fmt.Sprintln(`
+		INSERT INTO parent_categories (id, name, src)
+		VALUES
+		(80001, 'test_parent_category_name_80001', 'test_parent_category_src_80001'),
+		(80002, 'test_parent_category_name_80002', 'test_parent_category_src_80002'),
+		(80003, 'test_parent_category_name_80003', 'test_parent_category_src_80003');
+		`),
+		fmt.Sprintln(`
+		INSERT INTO child_categories (id, name, parent_id)
+		VALUES
+		(99991, 'test_child_category_name_99991', 80001),
+		(99992, 'test_child_category_name_99992', 80002),
+		(99993, 'test_child_category_name_99993', 80003);
+		`),
+		fmt.Sprintln(`
+		INSERT INTO parent_categories (id, name, src)
+		VALUES
+		(90000, 'test_parent_category_name_90000', 'test_parent_category_src_90000'),
+		(90001, 'test_parent_category_name_90001', 'test_parent_category_src_90001');
+		`),
+		fmt.Sprintln(`
+		INSERT INTO child_categories (id, name, parent_id)
+		VALUES
+		(30001, 'test_child_category_name_30001', 90000),
+		(30002, 'test_child_category_name_30002', 90000),
+		(30003, 'test_child_category_name_30003', 90000);
+		`),
 	}
 	for _, query := range queries {
 		if _, err := db.ExecContext(context.Background(), query); err != nil {
