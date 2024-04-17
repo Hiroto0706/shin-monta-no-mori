@@ -7,44 +7,56 @@ on:
       - "**.go"
 
 jobs:
-  coverage:
-    name: Compute and Post Coverage
+  ci:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set up Go
-        uses: actions/setup-go@v2
+      - uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v3
         with:
           go-version: "1.22.2"
+          cache: true
+          cache-dependency-path: go.sum
 
-      - name: Check out code
-        uses: actions/checkout@v2
+      - name: OS Version
+        run: cat /etc/os-release
 
-      - name: Get dependencies
-        run: go mod download
+      - name: Go Version
+        run: go version
 
-      - name: Generate coverage data and prepare comment
-        id: coverage_report
+      - name: Go Lint
+        uses: golangci/golangci-lint-action@v3
+
+      - name: Setup
         run: |
-          echo "##[group]Coverage Reports" >> coverage.txt
-          for d in api internal pkg; do
-            if [ -d "$d" ]; then
-              go test -coverprofile=coverage.out ./$d/...
-              echo "Coverage for $d" >> coverage.txt
-              go tool cover -func=coverage.out | grep total >> coverage.txt
-            fi
-          done
-          echo "##[endgroup]" >> coverage.txt
-          echo "::set-output name=coverage_report::$(cat coverage.txt)"
+          go install github.com/golang/mock/mockgen@latest
+          go install github.com/onsi/ginkgo/v2/ginkgo@latest
+          go get github.com/onsi/gomega/...
 
-      - name: Post coverage results to PR
-        uses: peter-evans/create-or-update-comment@v3
+      # - name: Regenerate mock file
+      #   run: |
+      #     rm -rf mock
+      #     go generate ./...
+
+      - name: Go Build
+        run: |
+          go build -v ./server/...
+
+      - name: Go Test
+        run: |
+          ginkgo -v --cover --coverprofile=coverage.out --race --coverpkg=./server/... --covermode=atomic --output-dir=/tmp
+
+      - name: Exclude auto-generated files from coverage
+        run: |
+          cat /tmp/coverage.out | grep -v "_mock.go" | grep -v ".pb.go" > coverage.out
+          go tool cover -func coverage.out
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            ## Test Coverage Report
-            ```
-            ${{ steps.coverage_report.outputs.coverage_report }}
-            ```
-
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.out
+          fail_ci_if_error: true
+          verbose: true
