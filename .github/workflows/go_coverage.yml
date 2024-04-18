@@ -31,10 +31,7 @@ jobs:
           TEST_DB_URL: postgresql://postgres:password@localhost:5432/shin-monta-no-mori-test?sslmode=disable
         run: |
           mkdir -p coverage
-          migrate -path server/internal/db/migration -database "${{ env.TEST_DB_URL }}" -verbose up
-          go test ./server/... -coverprofile=./coverage/coverage.out
-          go tool cover -func=./coverage/coverage.out > coverage/report.txt
-          go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
+          make test
 
       - name: Stop and remove services
         run: docker-compose down
