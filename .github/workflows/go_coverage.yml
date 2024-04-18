@@ -35,6 +35,9 @@ jobs:
         with:
           go-version: "1.22.2"
 
+      - name: Install Migrate Tool
+        run: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
       - name: Run Go Test and generate coverage
         env:
           TEST_DB_URL: postgresql://postgres:password@postgres:5432/shin-monta-no-mori-test?sslmode=disable
