@@ -11,6 +11,21 @@ jobs:
     name: Go Test and Coverage Report
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: shin-monta-no-mori-test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -23,9 +38,7 @@ jobs:
       - name: Run Go Test and generate coverage
         run: |
           mkdir -p coverage
-          go test ./server/... -coverprofile=./coverage/coverage.out
-          go tool cover -func=./coverage/coverage.out > coverage/report.txt
-          go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
+          make test
 
       - name: Upload Coverage HTML
         uses: actions/upload-artifact@v3
