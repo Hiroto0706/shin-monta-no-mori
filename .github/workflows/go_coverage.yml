@@ -37,15 +37,10 @@ jobs:
           go test ./server/... -coverprofile=./coverage/coverage.out
           go tool cover -func=./coverage/coverage.out > coverage/report.txt
           go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
+          echo "::set-output name=coverage_report::$(cat coverage/report.txt)"
 
       - name: Stop and remove services
         run: docker-compose down
-
-      - name: Upload Coverage HTML
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-report
-          path: coverage/coverage.html
 
       - name: Post coverage results to PR
         uses: peter-evans/create-or-update-comment@v3
@@ -54,7 +49,6 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             ## Test Coverage Report
-            ```plaintext
-            $(cat coverage/report.txt)
             ```
-            [Coverage Report HTML](https://github.com/${{ github.repository }}/actions/artifacts)
+            ${{ steps.test_coverage.outputs.coverage_report }}
+            ```
