@@ -37,7 +37,7 @@ jobs:
           go test ./server/... -coverprofile=./coverage/coverage.out
           go tool cover -func=./coverage/coverage.out > coverage/report.txt
           go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
-          ./aggregate_coverage.sh coverage/report.txt > coverage/summary.txt
+          ./tools/aggregate_coverage.sh coverage/report.txt > coverage/summary.txt
           echo "COVERAGE_REPORT<<EOF" >> $GITHUB_ENV
           cat coverage/summary.txt >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
