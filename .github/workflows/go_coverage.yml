@@ -11,21 +11,6 @@ jobs:
     name: Go Test and Coverage Report
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:14-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: shin-monta-no-mori-test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -35,18 +20,24 @@ jobs:
         with:
           go-version: "1.22.2"
 
+      - name: Launch services
+        run: docker-compose -f ../docker-compose.yml up -d
+
       - name: Install Migrate Tool
         run: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
       - name: Run Go Test and generate coverage
         env:
-          TEST_DB_URL: postgresql://postgres:password@postgres:5432/shin-monta-no-mori-test?sslmode=disable
+          TEST_DB_URL: postgresql://postgres:password@localhost:5432/shin-monta-no-mori-test?sslmode=disable
         run: |
           mkdir -p coverage
           migrate -path server/internal/db/migration -database "${{ env.TEST_DB_URL }}" -verbose up
           go test ./server/... -coverprofile=./coverage/coverage.out
           go tool cover -func=./coverage/coverage.out > coverage/report.txt
           go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
+
+      - name: Stop and remove services
+        run: docker-compose down
 
       - name: Upload Coverage HTML
         uses: actions/upload-artifact@v3
