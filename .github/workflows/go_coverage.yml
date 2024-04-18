@@ -26,6 +26,9 @@ jobs:
       - name: Install Migrate Tool
         run: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
+      - name: Set execute permission for the script
+        run: chmod +x ./tools/aggregate_coverage.sh
+
       - name: Run Go Test and generate coverage
         env:
           TEST_DB_URL: postgresql://postgres:password@localhost:5432/shin-monta-no-mori-test?sslmode=disable
