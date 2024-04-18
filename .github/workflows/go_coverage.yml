@@ -21,7 +21,7 @@ jobs:
           go-version: "1.22.2"
 
       - name: Launch services
-        run: docker-compose -f ../../docker-compose.yml up -d
+        run: docker-compose up -d
 
       - name: Install Migrate Tool
         run: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
@@ -37,7 +37,7 @@ jobs:
           go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
 
       - name: Stop and remove services
-        run: docker-compose -f ../../docker-compose.yml down
+        run: docker-compose down
 
       - name: Upload Coverage HTML
         uses: actions/upload-artifact@v3
