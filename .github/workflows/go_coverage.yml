@@ -37,7 +37,7 @@ jobs:
           go test ./server/... -coverprofile=./coverage/coverage.out
           go tool cover -func=./coverage/coverage.out > coverage/report.txt
           go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
-          echo "::set-output name=coverage_report::$(cat coverage/report.txt)"
+          echo "coverage_report=$RESULT" >> coverage/report.txt
 
       - name: Stop and remove services
         run: docker-compose down
