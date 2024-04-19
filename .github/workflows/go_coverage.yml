@@ -1,0 +1,60 @@
+name: Go Test Coverage by Directory
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "**.go"
+
+jobs:
+  test_coverage:
+    name: Go Test and Coverage Report
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.22.2"
+
+      - name: Launch services
+        run: docker-compose up -d
+
+      - name: Install Migrate Tool
+        run: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+      - name: Set execute permission for the script
+        run: chmod +x ./tools/aggregate_coverage.sh
+
+      - name: Run Go Test and generate coverage
+        env:
+          TEST_DB_URL: postgresql://postgres:password@localhost:5432/shin-monta-no-mori-test?sslmode=disable
+        run: |
+          mkdir -p coverage
+          docker exec shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
+          docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
+          migrate -path server/internal/db/migration -database "${{ env.TEST_DB_URL }}" -verbose up
+          go test ./server/... -coverprofile=./coverage/coverage.out
+          go tool cover -func=./coverage/coverage.out > coverage/report.txt
+          go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
+          ./tools/aggregate_coverage.sh coverage/report.txt > coverage/summary.txt
+          echo "COVERAGE_REPORT<<EOF" >> $GITHUB_ENV
+          cat coverage/summary.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Stop and remove services
+        run: docker-compose down
+
+      - name: Post coverage results to PR
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## Test Coverage Report
+            ```
+            ${{ env.COVERAGE_REPORT }}
+            ```
