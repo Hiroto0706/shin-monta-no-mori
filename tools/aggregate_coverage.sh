@@ -11,6 +11,7 @@ awk -F'[:\t]+' '{
     # Extract the directory path from the filename
     dir = $1;
     sub("/[^/]*$", "", dir);  # Remove the file name, keep the directory path
+    if (dir == "total") next;  # Skip processing if directory is 'total'
 
     # Parse coverage percentage
     coverage = $4;  # Assumes that coverage percentage is in the fourth field
@@ -28,7 +29,6 @@ awk -F'[:\t]+' '{
 } END {
     # Print average coverage for each directory
     for (d in total) {
-        if (d == "total") continue; # d = totalの時はスキップ
         average = total[d] / count[d];
         printf "%s: %.2f%%\n", d, average;
     }
