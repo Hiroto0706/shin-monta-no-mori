@@ -45,3 +45,4 @@ test:
 	go test ./server/... -coverprofile=./coverage/coverage.out
 	go tool cover -func=./coverage/coverage.out > coverage/report.txt
 	go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
+	./tools/aggregate_coverage.sh ./coverage/report.txt
