@@ -36,6 +36,6 @@ awk -F'[:\t]+' '{
     # Calculate and print the overall average coverage
     if (overall_count > 0) {
         overall_average = overall_total / overall_count;
-        printf "Total average coverage: %.2f%%\n", overall_average;
+        printf "\nTotal average coverage: %.2f%%\n", overall_average;
     }
 }' "$1"
