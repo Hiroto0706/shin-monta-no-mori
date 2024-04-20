@@ -28,7 +28,7 @@ type Config struct {
 	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
 }
 
-func LoadConfig(path string) (config Config, err error) {
+func LoadConfig(path string) (config *Config, err error) {
 	viper.AddConfigPath(path)
 	viper.SetConfigName("app")
 	viper.SetConfigType("env")
