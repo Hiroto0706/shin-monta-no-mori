@@ -9,38 +9,32 @@ import (
 )
 
 type Server struct {
-	config *util.Config
-	store  *db.Store
-	router *gin.Engine
+	Config util.Config
+	Store  *db.Store
+	Router *gin.Engine
 	// tokenMaker token.Maker
 }
 
 // NewServer creates a new HTTP server and setup routing
-func NewServer(store *db.Store, config *util.Config) (*Server, error) {
+func NewServer(store *db.Store, config util.Config) (*Server, error) {
 	// token, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	// if err != nil {
 	// 	return nil, fmt.Errorf("cannot create token maker : %w", err)
 	// }
 	server := &Server{
-		config: config,
-		store:  store,
+		Config: config,
+		Store:  store,
 		// tokenMaker: token,
 	}
 
 	router := gin.Default()
 	router.Use(CORSMiddleware())
-
-	// // MasterUserの作成
-	// err = insertMasterUser(server)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	server.Router = router
 
 	// Userサイドのルート設定
-	SetUserRouters(router)
+	SetUserRouters(server)
 	// Adminサイドのルート設定
-	SetAdminRouters(router)
-	server.router = router
+	SetAdminRouters(server)
 
 	return server, nil
 }
@@ -73,8 +67,8 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func (server *Server) Start(address string) error {
-	if server.router == nil {
+	if server.Router == nil {
 		return fmt.Errorf("router is nil")
 	}
-	return server.router.Run(address)
+	return server.Router.Run(address)
 }
