@@ -1,4 +1,4 @@
-package db
+package db_test
 
 import (
 	"context"
@@ -6,13 +6,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	db "shin-monta-no-mori/server/internal/db/sqlc"
 	"shin-monta-no-mori/server/pkg/util"
 	"testing"
 
 	_ "github.com/lib/pq"
 )
 
-var testQueries *Queries
+var testQueries *db.Queries
 
 func TestMain(m *testing.M) {
 	config, err := util.LoadConfig("../../../")
@@ -25,12 +26,12 @@ func TestMain(m *testing.M) {
 		log.Fatal("cannot connect to test db :", err)
 	}
 
-	testQueries = New(conn)
+	testQueries = db.New(conn)
 
 	os.Exit(m.Run())
 }
 
-func SetUp(t *testing.T, db DBTX) {
+func SetUp(t *testing.T, db *db.Queries) {
 	queries := []string{
 		fmt.Sprintln(`
 		INSERT INTO images (id, title, original_src, simple_src)
@@ -171,13 +172,13 @@ func SetUp(t *testing.T, db DBTX) {
 		`),
 	}
 	for _, query := range queries {
-		if _, err := db.ExecContext(context.Background(), query); err != nil {
+		if _, err := db.ExecQuery(context.Background(), query); err != nil {
 			t.Fatalf("Failed to exec query: %v", err)
 		}
 	}
 }
 
-func TearDown(t *testing.T, db DBTX) {
+func TearDown(t *testing.T, db *db.Queries) {
 	queries := []string{
 		"TRUNCATE TABLE images RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE characters RESTART IDENTITY CASCADE;",
@@ -186,7 +187,7 @@ func TearDown(t *testing.T, db DBTX) {
 		"TRUNCATE TABLE child_categories RESTART IDENTITY CASCADE;",
 	}
 	for _, query := range queries {
-		if _, err := db.ExecContext(context.Background(), query); err != nil {
+		if _, err := db.ExecQuery(context.Background(), query); err != nil {
 			t.Fatalf("Failed to truncate table: %v", err)
 		}
 	}

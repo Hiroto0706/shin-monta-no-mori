@@ -1,29 +1,30 @@
-package db
+package db_test
 
 import (
 	"context"
+	db "shin-monta-no-mori/server/internal/db/sqlc"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestCreateChildCategory(t *testing.T) {
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	tests := []struct {
 		name    string
-		arg     CreateChildCategoriesParams
-		want    ChildCategory
+		arg     db.CreateChildCategoriesParams
+		want    db.ChildCategory
 		wantErr bool
 	}{
 		{
 			name: "正常系",
-			arg: CreateChildCategoriesParams{
+			arg: db.CreateChildCategoriesParams{
 				Name:     "test_child_category_name_00001",
 				ParentID: 50001,
 			},
-			want: ChildCategory{
+			want: db.ChildCategory{
 				Name:     "test_child_category_name_00001",
 				ParentID: 50001,
 			},
@@ -31,17 +32,17 @@ func TestCreateChildCategory(t *testing.T) {
 		},
 		{
 			name: "異常系（ParentIDがnullの場合）",
-			arg: CreateChildCategoriesParams{
+			arg: db.CreateChildCategoriesParams{
 				Name: "test_child_category_name_00010",
 			},
-			want: ChildCategory{
+			want: db.ChildCategory{
 				Name: "test_child_category_name_00010",
 			},
 			wantErr: true,
 		},
 		{
 			name: "異常系（nameが空文字の場合）",
-			arg: CreateChildCategoriesParams{
+			arg: db.CreateChildCategoriesParams{
 				Name: "",
 			},
 			wantErr: true,
@@ -67,8 +68,8 @@ func TestCreateChildCategory(t *testing.T) {
 }
 
 func TestDeleteChildCategory(t *testing.T) {
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	tests := []struct {
 		name    string
@@ -100,8 +101,8 @@ func TestDeleteChildCategory(t *testing.T) {
 }
 
 func TestGetChildCategory(t *testing.T) {
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	type args struct {
 		id int64
@@ -109,7 +110,7 @@ func TestGetChildCategory(t *testing.T) {
 	tests := []struct {
 		name    string
 		arg     args
-		want    ChildCategory
+		want    db.ChildCategory
 		wantErr bool
 	}{
 		{
@@ -117,7 +118,7 @@ func TestGetChildCategory(t *testing.T) {
 			arg: args{
 				id: 20001,
 			},
-			want: ChildCategory{
+			want: db.ChildCategory{
 				ID:       20001,
 				Name:     "test_child_category_name_20001",
 				ParentID: 70001,
@@ -151,22 +152,22 @@ func TestGetChildCategory(t *testing.T) {
 }
 
 func TestListChildCategory(t *testing.T) {
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	tests := []struct {
 		name    string
-		arg     ListChildCategoriesParams
-		want    []ChildCategory
+		arg     db.ListChildCategoriesParams
+		want    []db.ChildCategory
 		wantErr bool
 	}{
 		{
 			name: "正常系",
-			arg: ListChildCategoriesParams{
+			arg: db.ListChildCategoriesParams{
 				Limit:  3,
 				Offset: 0,
 			},
-			want: []ChildCategory{
+			want: []db.ChildCategory{
 				{
 					ID:       99993,
 					Name:     "test_child_category_name_99993",
@@ -187,16 +188,16 @@ func TestListChildCategory(t *testing.T) {
 		},
 		{
 			name: "正常系（returnが空の時）",
-			arg: ListChildCategoriesParams{
+			arg: db.ListChildCategoriesParams{
 				Limit:  3,
 				Offset: 1000,
 			},
-			want:    []ChildCategory{{}},
+			want:    []db.ChildCategory{{}},
 			wantErr: false,
 		},
 		{
 			name: "異常系（argsのLimitの値が不正な場合）",
-			arg: ListChildCategoriesParams{
+			arg: db.ListChildCategoriesParams{
 				Limit:  -1,
 				Offset: 0,
 			},
@@ -204,7 +205,7 @@ func TestListChildCategory(t *testing.T) {
 		},
 		{
 			name: "異常系（argsのOffsetの値が不正な場合）",
-			arg: ListChildCategoriesParams{
+			arg: db.ListChildCategoriesParams{
 				Limit:  3,
 				Offset: -1,
 			},
@@ -231,23 +232,23 @@ func TestListChildCategory(t *testing.T) {
 }
 
 func TestUpdateChildCategory(t *testing.T) {
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	tests := []struct {
 		name    string
-		arg     UpdateChildCategoriesParams
-		want    ChildCategory
+		arg     db.UpdateChildCategoriesParams
+		want    db.ChildCategory
 		wantErr bool
 	}{
 		{
 			name: "正常系",
-			arg: UpdateChildCategoriesParams{
+			arg: db.UpdateChildCategoriesParams{
 				ID:       30001,
 				Name:     "test_child_category_name_30001_edited",
 				ParentID: 90001,
 			},
-			want: ChildCategory{
+			want: db.ChildCategory{
 				ID:       30001,
 				Name:     "test_child_category_name_30001_edited",
 				ParentID: 90001,
@@ -256,14 +257,14 @@ func TestUpdateChildCategory(t *testing.T) {
 		},
 		{
 			name: "異常系（存在しないIDを指定している場合）",
-			arg: UpdateChildCategoriesParams{
+			arg: db.UpdateChildCategoriesParams{
 				ID: 99999,
 			},
 			wantErr: true,
 		},
 		{
 			name: "異常系（titleが空になる場合）",
-			arg: UpdateChildCategoriesParams{
+			arg: db.UpdateChildCategoriesParams{
 				ID:   30002,
 				Name: "",
 			},
@@ -271,7 +272,7 @@ func TestUpdateChildCategory(t *testing.T) {
 		},
 		{
 			name: "異常系（ParentIDが不正な場合）",
-			arg: UpdateChildCategoriesParams{
+			arg: db.UpdateChildCategoriesParams{
 				ID:       30003,
 				ParentID: -1,
 			},

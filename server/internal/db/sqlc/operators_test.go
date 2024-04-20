@@ -1,7 +1,8 @@
-package db
+package db_test
 
 import (
 	"context"
+	db "shin-monta-no-mori/server/internal/db/sqlc"
 	"shin-monta-no-mori/server/pkg/util"
 	"testing"
 
@@ -11,22 +12,22 @@ import (
 func TestCreateOperator(t *testing.T) {
 	hashedPassword, err := util.HashPassword(util.RandomString(6))
 	require.NoError(t, err)
-	defer TearDown(t, testQueries.db)
+	defer TearDown(t, testQueries)
 
 	tests := []struct {
 		name    string
-		arg     CreateOperatorParams
-		want    Operator
+		arg     db.CreateOperatorParams
+		want    db.Operator
 		wantErr bool
 	}{
 		{
 			name: "正常系",
-			arg: CreateOperatorParams{
+			arg: db.CreateOperatorParams{
 				Name:           "test_operator_name_10001",
 				HashedPassword: hashedPassword,
 				Email:          "test_10001@test.com",
 			},
-			want: Operator{
+			want: db.Operator{
 				Name:           "test_operator_name_10001",
 				HashedPassword: hashedPassword,
 				Email:          "test_10001@test.com",
@@ -35,14 +36,14 @@ func TestCreateOperator(t *testing.T) {
 		},
 		{
 			name: "異常系（nameが空文字の場合）",
-			arg: CreateOperatorParams{
+			arg: db.CreateOperatorParams{
 				Name: "test_operator_name_10001",
 			},
 			wantErr: true,
 		},
 		{
 			name: "異常系（hashed_passwordが空文字の場合）",
-			arg: CreateOperatorParams{
+			arg: db.CreateOperatorParams{
 				Name:           "test_operator_name_10002",
 				HashedPassword: "",
 			},
@@ -50,7 +51,7 @@ func TestCreateOperator(t *testing.T) {
 		},
 		{
 			name: "異常系（emailが空文字の場合）",
-			arg: CreateOperatorParams{
+			arg: db.CreateOperatorParams{
 				Name:           "test_operator_name_10002",
 				HashedPassword: hashedPassword,
 				Email:          "",
@@ -81,30 +82,30 @@ func TestCreateOperator(t *testing.T) {
 func TestGetOperator(t *testing.T) {
 	hashedPassword, err := util.HashPassword(util.RandomString(6))
 	require.NoError(t, err)
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	type args struct {
 		id     int64
-		params CreateOperatorParams
+		params db.CreateOperatorParams
 	}
 	tests := []struct {
 		name    string
 		arg     args
-		want    Operator
+		want    db.Operator
 		wantErr bool
 	}{
 		{
 			name: "正常系",
 			arg: args{
 				id: 10001,
-				params: CreateOperatorParams{
+				params: db.CreateOperatorParams{
 					Name:           "test_operator_name_00001",
 					HashedPassword: hashedPassword,
 					Email:          "test_00001@test.com",
 				},
 			},
-			want: Operator{
+			want: db.Operator{
 				ID:             10001,
 				Name:           "test_operator_name_00001",
 				HashedPassword: hashedPassword,
@@ -139,24 +140,24 @@ func TestGetOperator(t *testing.T) {
 func TestUpdateOperator(t *testing.T) {
 	hashedPassword, err := util.HashPassword(util.RandomString(6))
 	require.NoError(t, err)
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	tests := []struct {
 		name    string
-		arg     UpdateOperatorParams
-		want    Operator
+		arg     db.UpdateOperatorParams
+		want    db.Operator
 		wantErr bool
 	}{
 		{
 			name: "正常系",
-			arg: UpdateOperatorParams{
+			arg: db.UpdateOperatorParams{
 				ID:             10001,
 				Name:           "test_operator_name_10001_edited",
 				HashedPassword: hashedPassword,
 				Email:          "test_10001+100@test.com",
 			},
-			want: Operator{
+			want: db.Operator{
 				ID:             10001,
 				Name:           "test_operator_name_10001_edited",
 				HashedPassword: hashedPassword,
@@ -166,14 +167,14 @@ func TestUpdateOperator(t *testing.T) {
 		},
 		{
 			name: "異常系（存在しないIDを指定している場合）",
-			arg: UpdateOperatorParams{
+			arg: db.UpdateOperatorParams{
 				ID: 99999,
 			},
 			wantErr: true,
 		},
 		{
 			name: "異常系（titleが空になる場合）",
-			arg: UpdateOperatorParams{
+			arg: db.UpdateOperatorParams{
 				ID:   10002,
 				Name: "",
 			},
@@ -181,7 +182,7 @@ func TestUpdateOperator(t *testing.T) {
 		},
 		{
 			name: "異常系（hashed_passwordが空になる場合）",
-			arg: UpdateOperatorParams{
+			arg: db.UpdateOperatorParams{
 				ID:             10003,
 				HashedPassword: "",
 			},
@@ -189,7 +190,7 @@ func TestUpdateOperator(t *testing.T) {
 		},
 		{
 			name: "異常系（emailが空になる場合）",
-			arg: UpdateOperatorParams{
+			arg: db.UpdateOperatorParams{
 				ID:    10004,
 				Email: "",
 			},

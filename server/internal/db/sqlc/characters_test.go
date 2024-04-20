@@ -1,28 +1,29 @@
-package db
+package db_test
 
 import (
 	"context"
+	db "shin-monta-no-mori/server/internal/db/sqlc"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestCreateCharacter(t *testing.T) {
-	defer TearDown(t, testQueries.db)
+	defer TearDown(t, testQueries)
 
 	tests := []struct {
 		name    string
-		arg     CreateCharacterParams
-		want    Character
+		arg     db.CreateCharacterParams
+		want    db.Character
 		wantErr bool
 	}{
 		{
 			name: "正常系",
-			arg: CreateCharacterParams{
+			arg: db.CreateCharacterParams{
 				Name: "test_character_name_10001",
 				Src:  "test_character_src_10001",
 			},
-			want: Character{
+			want: db.Character{
 				Name: "test_character_name_10001",
 				Src:  "test_character_src_10001",
 			},
@@ -30,11 +31,11 @@ func TestCreateCharacter(t *testing.T) {
 		},
 		{
 			name: "正常系（Srcが空文字の場合）",
-			arg: CreateCharacterParams{
+			arg: db.CreateCharacterParams{
 				Name: "test_character_name_10001",
 				Src:  "",
 			},
-			want: Character{
+			want: db.Character{
 				Name: "test_character_name_10001",
 				Src:  "",
 			},
@@ -42,7 +43,7 @@ func TestCreateCharacter(t *testing.T) {
 		},
 		{
 			name: "異常系（nameが空文字の場合）",
-			arg: CreateCharacterParams{
+			arg: db.CreateCharacterParams{
 				Name: "",
 			},
 			wantErr: true,
@@ -68,8 +69,8 @@ func TestCreateCharacter(t *testing.T) {
 }
 
 func TestDeleteCharacter(t *testing.T) {
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	tests := []struct {
 		name    string
@@ -101,8 +102,8 @@ func TestDeleteCharacter(t *testing.T) {
 }
 
 func TestGetCharacter(t *testing.T) {
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	type args struct {
 		id int64
@@ -110,7 +111,7 @@ func TestGetCharacter(t *testing.T) {
 	tests := []struct {
 		name    string
 		arg     args
-		want    Character
+		want    db.Character
 		wantErr bool
 	}{
 		{
@@ -118,7 +119,7 @@ func TestGetCharacter(t *testing.T) {
 			arg: args{
 				id: 20001,
 			},
-			want: Character{
+			want: db.Character{
 				ID:   20001,
 				Name: "test_character_name_20001",
 				Src:  "test_character_src_20001",
@@ -130,7 +131,7 @@ func TestGetCharacter(t *testing.T) {
 			arg: args{
 				id: 20002,
 			},
-			want: Character{
+			want: db.Character{
 				ID:   20002,
 				Name: "test_character_name_20002",
 				Src:  "",
@@ -164,22 +165,22 @@ func TestGetCharacter(t *testing.T) {
 }
 
 func TestListCharacter(t *testing.T) {
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	tests := []struct {
 		name    string
-		arg     ListCharactersParams
-		want    []Character
+		arg     db.ListCharactersParams
+		want    []db.Character
 		wantErr bool
 	}{
 		{
 			name: "正常系",
-			arg: ListCharactersParams{
+			arg: db.ListCharactersParams{
 				Limit:  3,
 				Offset: 0,
 			},
-			want: []Character{
+			want: []db.Character{
 				{
 					ID:   99992,
 					Name: "test_character_name_99992",
@@ -200,16 +201,16 @@ func TestListCharacter(t *testing.T) {
 		},
 		{
 			name: "正常系（returnが空の時）",
-			arg: ListCharactersParams{
+			arg: db.ListCharactersParams{
 				Limit:  3,
 				Offset: 1000,
 			},
-			want:    []Character{{}},
+			want:    []db.Character{{}},
 			wantErr: false,
 		},
 		{
 			name: "異常系（argsの値が不正な場合）",
-			arg: ListCharactersParams{
+			arg: db.ListCharactersParams{
 				Limit:  -1,
 				Offset: 0,
 			},
@@ -236,23 +237,23 @@ func TestListCharacter(t *testing.T) {
 }
 
 func TestUpdateCharacter(t *testing.T) {
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	tests := []struct {
 		name    string
-		arg     UpdateCharacterParams
-		want    Character
+		arg     db.UpdateCharacterParams
+		want    db.Character
 		wantErr bool
 	}{
 		{
 			name: "正常系",
-			arg: UpdateCharacterParams{
+			arg: db.UpdateCharacterParams{
 				ID:   40001,
 				Name: "test_character_name_40001_edited",
 				Src:  "test_character_src_40001_edited",
 			},
-			want: Character{
+			want: db.Character{
 				ID:   40001,
 				Name: "test_character_name_40001_edited",
 				Src:  "test_character_src_40001_edited",
@@ -261,14 +262,14 @@ func TestUpdateCharacter(t *testing.T) {
 		},
 		{
 			name: "異常系（存在しないIDを指定している場合）",
-			arg: UpdateCharacterParams{
+			arg: db.UpdateCharacterParams{
 				ID: 99999,
 			},
 			wantErr: true,
 		},
 		{
 			name: "異常系（titleが空になる場合）",
-			arg: UpdateCharacterParams{
+			arg: db.UpdateCharacterParams{
 				ID:   40002,
 				Name: "",
 			},

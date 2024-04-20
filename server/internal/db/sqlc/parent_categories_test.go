@@ -1,28 +1,29 @@
-package db
+package db_test
 
 import (
 	"context"
+	db "shin-monta-no-mori/server/internal/db/sqlc"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestCreateParentCategory(t *testing.T) {
-	defer TearDown(t, testQueries.db)
+	defer TearDown(t, testQueries)
 
 	tests := []struct {
 		name    string
-		arg     CreateParentCategoriesParams
-		want    ParentCategory
+		arg     db.CreateParentCategoriesParams
+		want    db.ParentCategory
 		wantErr bool
 	}{
 		{
 			name: "正常系",
-			arg: CreateParentCategoriesParams{
+			arg: db.CreateParentCategoriesParams{
 				Name: "test_parent_category_name_00001",
 				Src:  "test_parent_category_src_00001",
 			},
-			want: ParentCategory{
+			want: db.ParentCategory{
 				Name: "test_parent_category_name_00001",
 				Src:  "test_parent_category_src_00001",
 			},
@@ -30,11 +31,11 @@ func TestCreateParentCategory(t *testing.T) {
 		},
 		{
 			name: "正常系（Srcが空文字の場合）",
-			arg: CreateParentCategoriesParams{
+			arg: db.CreateParentCategoriesParams{
 				Name: "test_parent_category_name_00010",
 				Src:  "",
 			},
-			want: ParentCategory{
+			want: db.ParentCategory{
 				Name: "test_parent_category_name_00010",
 				Src:  "",
 			},
@@ -42,7 +43,7 @@ func TestCreateParentCategory(t *testing.T) {
 		},
 		{
 			name: "異常系（nameが空文字の場合）",
-			arg: CreateParentCategoriesParams{
+			arg: db.CreateParentCategoriesParams{
 				Name: "",
 			},
 			wantErr: true,
@@ -68,8 +69,8 @@ func TestCreateParentCategory(t *testing.T) {
 }
 
 func TestDeleteParentCategory(t *testing.T) {
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	tests := []struct {
 		name    string
@@ -101,8 +102,8 @@ func TestDeleteParentCategory(t *testing.T) {
 }
 
 func TestGetParentCategory(t *testing.T) {
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	type args struct {
 		id int64
@@ -110,7 +111,7 @@ func TestGetParentCategory(t *testing.T) {
 	tests := []struct {
 		name    string
 		arg     args
-		want    ParentCategory
+		want    db.ParentCategory
 		wantErr bool
 	}{
 		{
@@ -118,7 +119,7 @@ func TestGetParentCategory(t *testing.T) {
 			arg: args{
 				id: 20001,
 			},
-			want: ParentCategory{
+			want: db.ParentCategory{
 				ID:   20001,
 				Name: "test_parent_category_name_20001",
 				Src:  "test_parent_category_src_20001",
@@ -130,7 +131,7 @@ func TestGetParentCategory(t *testing.T) {
 			arg: args{
 				id: 20002,
 			},
-			want: ParentCategory{
+			want: db.ParentCategory{
 				ID:   20002,
 				Name: "test_parent_category_name_20002",
 				Src:  "",
@@ -164,22 +165,22 @@ func TestGetParentCategory(t *testing.T) {
 }
 
 func TestListParentCategory(t *testing.T) {
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	tests := []struct {
 		name    string
-		arg     ListParentCategoriesParams
-		want    []ParentCategory
+		arg     db.ListParentCategoriesParams
+		want    []db.ParentCategory
 		wantErr bool
 	}{
 		{
 			name: "正常系",
-			arg: ListParentCategoriesParams{
+			arg: db.ListParentCategoriesParams{
 				Limit:  3,
 				Offset: 0,
 			},
-			want: []ParentCategory{
+			want: []db.ParentCategory{
 				{
 					ID:   99992,
 					Name: "test_parent_category_name_99992",
@@ -200,16 +201,16 @@ func TestListParentCategory(t *testing.T) {
 		},
 		{
 			name: "正常系（returnが空の時）",
-			arg: ListParentCategoriesParams{
+			arg: db.ListParentCategoriesParams{
 				Limit:  3,
 				Offset: 1000,
 			},
-			want:    []ParentCategory{{}},
+			want:    []db.ParentCategory{{}},
 			wantErr: false,
 		},
 		{
 			name: "異常系（argsのLimitの値が不正な場合）",
-			arg: ListParentCategoriesParams{
+			arg: db.ListParentCategoriesParams{
 				Limit:  -1,
 				Offset: 0,
 			},
@@ -217,7 +218,7 @@ func TestListParentCategory(t *testing.T) {
 		},
 		{
 			name: "異常系（argsのOffsetの値が不正な場合）",
-			arg: ListParentCategoriesParams{
+			arg: db.ListParentCategoriesParams{
 				Limit:  3,
 				Offset: -1,
 			},
@@ -244,23 +245,23 @@ func TestListParentCategory(t *testing.T) {
 }
 
 func TestUpdateParentCategory(t *testing.T) {
-	SetUp(t, testQueries.db)
-	defer TearDown(t, testQueries.db)
+	SetUp(t, testQueries)
+	defer TearDown(t, testQueries)
 
 	tests := []struct {
 		name    string
-		arg     UpdateParentCategoriesParams
-		want    ParentCategory
+		arg     db.UpdateParentCategoriesParams
+		want    db.ParentCategory
 		wantErr bool
 	}{
 		{
 			name: "正常系",
-			arg: UpdateParentCategoriesParams{
+			arg: db.UpdateParentCategoriesParams{
 				ID:   40001,
 				Name: "test_parent_category_name_40001_edited",
 				Src:  "test_parent_category_src_40001_edited",
 			},
-			want: ParentCategory{
+			want: db.ParentCategory{
 				ID:   40001,
 				Name: "test_parent_category_name_40001_edited",
 				Src:  "test_parent_category_src_40001_edited",
@@ -269,12 +270,12 @@ func TestUpdateParentCategory(t *testing.T) {
 		},
 		{
 			name: "正常系（srcが空になる場合）",
-			arg: UpdateParentCategoriesParams{
+			arg: db.UpdateParentCategoriesParams{
 				ID:   40002,
 				Name: "test_parent_category_name_40002_edited",
 				Src:  "",
 			},
-			want: ParentCategory{
+			want: db.ParentCategory{
 				ID:   40002,
 				Name: "test_parent_category_name_40002_edited",
 				Src:  "",
@@ -283,14 +284,14 @@ func TestUpdateParentCategory(t *testing.T) {
 		},
 		{
 			name: "異常系（存在しないIDを指定している場合）",
-			arg: UpdateParentCategoriesParams{
+			arg: db.UpdateParentCategoriesParams{
 				ID: 99999,
 			},
 			wantErr: true,
 		},
 		{
 			name: "異常系（titleが空になる場合）",
-			arg: UpdateParentCategoriesParams{
+			arg: db.UpdateParentCategoriesParams{
 				ID:   40003,
 				Name: "",
 			},
