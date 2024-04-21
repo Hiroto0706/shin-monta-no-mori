@@ -23,6 +23,7 @@ func (server *Server) ListIllustrations(c *gin.Context) {
 	page, err := strconv.Atoi(c.Query("p"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse page number from query param : %w", err)))
+		return
 	}
 
 	illustrations := []*model.Illustration{}
@@ -35,9 +36,11 @@ func (server *Server) ListIllustrations(c *gin.Context) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to ListImage() : %w", err)))
+			return
 		}
 
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListImage() : %w", err)))
+		return
 	}
 
 	for _, i := range images {
@@ -47,4 +50,27 @@ func (server *Server) ListIllustrations(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, illustrations)
+}
+func (server *Server) GetIllustration(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse id number from from path parameter : %w", err)))
+		return
+	}
+
+	image, err := server.Store.GetImage(c, int64(id))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+		return
+	}
+
+	illustration := &model.Illustration{}
+	illustration = service.FetchRelationInfoForIllustrations(c, server.Store, image)
+
+	c.JSON(http.StatusOK, illustration)
 }
