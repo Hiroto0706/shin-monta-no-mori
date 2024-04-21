@@ -62,7 +62,7 @@ func (server *Server) ListIllustrations(c *gin.Context) {
 		}
 
 		// カテゴリーの取得
-		_, err = server.Store.ListImageParentCategoryRelationsByImageID(c, i.ID)
+		ipcrs, err := server.Store.ListImageParentCategoryRelationsByImageID(c, i.ID)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.JSON(http.StatusNotFound, NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
@@ -72,18 +72,26 @@ func (server *Server) ListIllustrations(c *gin.Context) {
 		}
 
 		categories := []*model.Category{}
-		// for _, ipcr := range ipcrs {
-		// 	pCate, err := server.Store.GetParentCategory(c, ipcr.ParentCategoryID)
-		// 	if err != nil {
-		// 		c.JSON(http.StatusNotFound, NewErrorResponse(fmt.Errorf("failed to GetParentCategory() : %w", err)))
-		// 	}
-		// 	cCates , err := server.Store.
+		for _, ipcr := range ipcrs {
+			pCate, err := server.Store.GetParentCategory(c, ipcr.ParentCategoryID)
+			if err != nil {
+				c.JSON(http.StatusNotFound, NewErrorResponse(fmt.Errorf("failed to GetParentCategory() : %w", err)))
+			}
+			cCates, err := server.Store.GetChildCategoriesByParentID(c, ipcr.ParentCategoryID)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					c.JSON(http.StatusNotFound, NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
+				}
 
-		// pc := model.NewCategory()
-		// pc.ParentCategory = pCate
+				c.JSON(http.StatusInternalServerError, NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
+			}
 
-		// categories = append(categories, pc)
-		// }
+			cate := model.NewCategory()
+			cate.ParentCategory = pCate
+			cate.ChildCategory = cCates
+
+			categories = append(categories, cate)
+		}
 
 		il := model.NewIllustration()
 
