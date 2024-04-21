@@ -43,7 +43,7 @@ func UploadToGCS(ctx *gin.Context, config util.Config, file *multipart.FileHeade
 		return "", fmt.Errorf("error closing file : %w", err)
 	}
 
-	err = updateMetadata(ctx, client, bucket, obj)
+	err = updateMetadata(ctx, obj)
 	if err != nil {
 		return "", fmt.Errorf("error update storage metadata : %w", err)
 	}
@@ -84,7 +84,7 @@ func createGCSClient(ctx *gin.Context, config util.Config) (*storage.Client, err
 	return client, err
 }
 
-func updateMetadata(ctx *gin.Context, client *storage.Client, bucket *storage.BucketHandle, object *storage.ObjectHandle) error {
+func updateMetadata(ctx *gin.Context, object *storage.ObjectHandle) error {
 	// メタデータの更新
 	attrsToUpdate := storage.ObjectAttrsToUpdate{
 		CacheControl: "no-cache",
