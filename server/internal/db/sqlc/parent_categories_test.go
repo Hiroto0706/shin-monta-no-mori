@@ -13,13 +13,13 @@ func TestCreateParentCategory(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		arg     db.CreateParentCategoriesParams
+		arg     db.CreateParentCategoryParams
 		want    db.ParentCategory
 		wantErr bool
 	}{
 		{
 			name: "正常系",
-			arg: db.CreateParentCategoriesParams{
+			arg: db.CreateParentCategoryParams{
 				Name: "test_parent_category_name_00001",
 				Src:  "test_parent_category_src_00001",
 			},
@@ -31,7 +31,7 @@ func TestCreateParentCategory(t *testing.T) {
 		},
 		{
 			name: "正常系（Srcが空文字の場合）",
-			arg: db.CreateParentCategoriesParams{
+			arg: db.CreateParentCategoryParams{
 				Name: "test_parent_category_name_00010",
 				Src:  "",
 			},
@@ -43,7 +43,7 @@ func TestCreateParentCategory(t *testing.T) {
 		},
 		{
 			name: "異常系（nameが空文字の場合）",
-			arg: db.CreateParentCategoriesParams{
+			arg: db.CreateParentCategoryParams{
 				Name: "",
 			},
 			wantErr: true,
@@ -52,7 +52,7 @@ func TestCreateParentCategory(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p_category, err := testQueries.CreateParentCategories(context.Background(), tt.arg)
+			p_category, err := testQueries.CreateParentCategory(context.Background(), tt.arg)
 
 			if tt.wantErr {
 				require.Error(t, err)
@@ -91,10 +91,10 @@ func TestDeleteParentCategory(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := testQueries.DeleteParentCategories(context.Background(), tt.id)
+			err := testQueries.DeleteParentCategory(context.Background(), tt.id)
 			if !tt.wantErr {
 				require.NoError(t, err)
-				_, err := testQueries.GetParentCategories(context.Background(), tt.id)
+				_, err := testQueries.GetParentCategory(context.Background(), tt.id)
 				require.Error(t, err, "The parent_category should no longer exist.")
 			}
 		})
@@ -149,7 +149,7 @@ func TestGetParentCategory(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p_category, err := testQueries.GetParentCategories(context.Background(), tt.arg.id)
+			p_category, err := testQueries.GetParentCategory(context.Background(), tt.arg.id)
 
 			if tt.wantErr {
 				require.Error(t, err)
@@ -250,13 +250,13 @@ func TestUpdateParentCategory(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		arg     db.UpdateParentCategoriesParams
+		arg     db.UpdateParentCategoryParams
 		want    db.ParentCategory
 		wantErr bool
 	}{
 		{
 			name: "正常系",
-			arg: db.UpdateParentCategoriesParams{
+			arg: db.UpdateParentCategoryParams{
 				ID:   40001,
 				Name: "test_parent_category_name_40001_edited",
 				Src:  "test_parent_category_src_40001_edited",
@@ -270,7 +270,7 @@ func TestUpdateParentCategory(t *testing.T) {
 		},
 		{
 			name: "正常系（srcが空になる場合）",
-			arg: db.UpdateParentCategoriesParams{
+			arg: db.UpdateParentCategoryParams{
 				ID:   40002,
 				Name: "test_parent_category_name_40002_edited",
 				Src:  "",
@@ -284,14 +284,14 @@ func TestUpdateParentCategory(t *testing.T) {
 		},
 		{
 			name: "異常系（存在しないIDを指定している場合）",
-			arg: db.UpdateParentCategoriesParams{
+			arg: db.UpdateParentCategoryParams{
 				ID: 99999,
 			},
 			wantErr: true,
 		},
 		{
 			name: "異常系（titleが空になる場合）",
-			arg: db.UpdateParentCategoriesParams{
+			arg: db.UpdateParentCategoryParams{
 				ID:   40003,
 				Name: "",
 			},
@@ -301,7 +301,7 @@ func TestUpdateParentCategory(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p_category, err := testQueries.UpdateParentCategories(context.Background(), tt.arg)
+			p_category, err := testQueries.UpdateParentCategory(context.Background(), tt.arg)
 
 			if tt.wantErr {
 				require.Error(t, err)

@@ -6,76 +6,75 @@ import (
 	"fmt"
 	"log"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
-	model "shin-monta-no-mori/server/internal/domains/models"
 	"shin-monta-no-mori/server/pkg/util"
 	"testing"
 
 	_ "github.com/lib/pq"
 )
 
-func TestListImages(t *testing.T) {
-	config, err := util.LoadConfig("../")
-	if err != nil {
-		log.Fatal("cannot load config :", err)
-	}
-	setUp(t, config)
-	// defer tearDown(t, config)
+// func TestListImages(t *testing.T) {
+// 	config, err := util.LoadConfig("../")
+// 	if err != nil {
+// 		log.Fatal("cannot load config :", err)
+// 	}
+// 	setUp(t, config)
+// 	// defer tearDown(t, config)
 
-	type ListIllustrationsParams struct {
-		Limit  int
-		Offset int
-	}
+// 	type ListIllustrationsParams struct {
+// 		Limit  int
+// 		Offset int
+// 	}
 
-	tests := []struct {
-		name    string
-		arg     ListIllustrationsParams
-		want    []model.Illustration
-		wantErr bool
-	}{
-		{
-			name: "正常系",
-			arg: ListIllustrationsParams{
-				Limit:  config.ImageFetchLimit,
-				Offset: 0,
-			},
-			want: []model.Illustration{
-				{
-					Image: db.Image{
-						ID:          10001,
-						Title:       "test_image_title_10001",
-						OriginalSrc: "test_image_original_src_10001.com",
-						SimpleSrc: sql.NullString{
-							String: "test_image_simple_src_10001.com",
-							Valid:  true,
-						},
-					},
-					Character: []db.Character{
-						{
-							ID:   10001,
-							Name: "test_character_name_10001",
-							Src:  "test_character_src_10001.com",
-						},
-					},
-					ParentCategory: []db.ParentCategory{
-						{
-							ID:   10001,
-							Name: "test_parent_category_name_10001",
-							Src:  "test_parent_category_src_10001.com",
-						},
-					},
-					ChildCategory: []db.ChildCategory{
-						{
-							ID:   10001,
-							Name: "test_child_category_name_10001",
-						},
-					},
-				},
-			},
-			wantErr: false,
-		},
-	}
-	log.Println(tests)
-}
+// 	tests := []struct {
+// 		name    string
+// 		arg     ListIllustrationsParams
+// 		want    []model.Illustration
+// 		wantErr bool
+// 	}{
+// 		{
+// 			name: "正常系",
+// 			arg: ListIllustrationsParams{
+// 				Limit:  config.ImageFetchLimit,
+// 				Offset: 0,
+// 			},
+// 			want: []model.Illustration{
+// 				{
+// 					Image: db.Image{
+// 						ID:          10001,
+// 						Title:       "test_image_title_10001",
+// 						OriginalSrc: "test_image_original_src_10001.com",
+// 						SimpleSrc: sql.NullString{
+// 							String: "test_image_simple_src_10001.com",
+// 							Valid:  true,
+// 						},
+// 					},
+// 					Character: []db.Character{
+// 						{
+// 							ID:   10001,
+// 							Name: "test_character_name_10001",
+// 							Src:  "test_character_src_10001.com",
+// 						},
+// 					},
+// 					// ParentCategory: []db.ParentCategory{
+// 					// 	{
+// 					// 		ID:   10001,
+// 					// 		Name: "test_parent_category_name_10001",
+// 					// 		Src:  "test_parent_category_src_10001.com",
+// 					// 	},
+// 					// },
+// 					// ChildCategory: []db.ChildCategory{
+// 					// 	{
+// 					// 		ID:   10001,
+// 					// 		Name: "test_child_category_name_10001",
+// 					// 	},
+// 					// },
+// 				},
+// 			},
+// 			wantErr: false,
+// 		},
+// 	}
+// 	log.Println(tests)
+// }
 
 func createConn(config util.Config) *db.Store {
 	conn, err := sql.Open(config.DBDriver, config.TestDBUrl)

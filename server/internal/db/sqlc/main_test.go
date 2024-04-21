@@ -170,6 +170,17 @@ func SetUp(t *testing.T, db *db.Queries) {
 		(30002, 'test_child_category_name_30002', 90000),
 		(30003, 'test_child_category_name_30003', 90000);
 		`),
+		fmt.Sprintln(`
+		INSERT INTO parent_categories (id, name, src)
+		VALUES
+		(90003, 'test_parent_category_name_90003', 'test_parent_category_src_90003');
+		`),
+		fmt.Sprintln(`
+		INSERT INTO child_categories (id, name, parent_id)
+		VALUES
+		(40001, 'test_child_category_name_40001', 90003),
+		(40002, 'test_child_category_name_40002', 90003);
+		`),
 	}
 	for _, query := range queries {
 		if _, err := db.ExecQuery(context.Background(), query); err != nil {
@@ -180,11 +191,13 @@ func SetUp(t *testing.T, db *db.Queries) {
 
 func TearDown(t *testing.T, db *db.Queries) {
 	queries := []string{
-		"TRUNCATE TABLE images RESTART IDENTITY CASCADE;",
+		"TRUNCATE TABLE image_parent_categories_relations RESTART IDENTITY CASCADE;",
+		"TRUNCATE TABLE image_characters_relations RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE characters RESTART IDENTITY CASCADE;",
-		"TRUNCATE TABLE operators RESTART IDENTITY CASCADE;",
-		"TRUNCATE TABLE parent_categories RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE child_categories RESTART IDENTITY CASCADE;",
+		"TRUNCATE TABLE parent_categories RESTART IDENTITY CASCADE;",
+		"TRUNCATE TABLE images RESTART IDENTITY CASCADE;",
+		"TRUNCATE TABLE operators RESTART IDENTITY CASCADE;",
 	}
 	for _, query := range queries {
 		if _, err := db.ExecQuery(context.Background(), query); err != nil {

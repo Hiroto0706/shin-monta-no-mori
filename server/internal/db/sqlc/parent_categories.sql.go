@@ -9,19 +9,19 @@ import (
 	"context"
 )
 
-const createParentCategories = `-- name: CreateParentCategories :one
+const createParentCategory = `-- name: CreateParentCategory :one
 INSERT INTO parent_categories (name, src)
 VALUES ($1, $2)
 RETURNING id, name, src, updated_at, created_at
 `
 
-type CreateParentCategoriesParams struct {
+type CreateParentCategoryParams struct {
 	Name string `json:"name"`
 	Src  string `json:"src"`
 }
 
-func (q *Queries) CreateParentCategories(ctx context.Context, arg CreateParentCategoriesParams) (ParentCategory, error) {
-	row := q.db.QueryRowContext(ctx, createParentCategories, arg.Name, arg.Src)
+func (q *Queries) CreateParentCategory(ctx context.Context, arg CreateParentCategoryParams) (ParentCategory, error) {
+	row := q.db.QueryRowContext(ctx, createParentCategory, arg.Name, arg.Src)
 	var i ParentCategory
 	err := row.Scan(
 		&i.ID,
@@ -33,25 +33,25 @@ func (q *Queries) CreateParentCategories(ctx context.Context, arg CreateParentCa
 	return i, err
 }
 
-const deleteParentCategories = `-- name: DeleteParentCategories :exec
+const deleteParentCategory = `-- name: DeleteParentCategory :exec
 DELETE FROM parent_categories
 WHERE id = $1
 `
 
-func (q *Queries) DeleteParentCategories(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteParentCategories, id)
+func (q *Queries) DeleteParentCategory(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteParentCategory, id)
 	return err
 }
 
-const getParentCategories = `-- name: GetParentCategories :one
+const getParentCategory = `-- name: GetParentCategory :one
 SELECT id, name, src, updated_at, created_at
 FROM parent_categories
 WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetParentCategories(ctx context.Context, id int64) (ParentCategory, error) {
-	row := q.db.QueryRowContext(ctx, getParentCategories, id)
+func (q *Queries) GetParentCategory(ctx context.Context, id int64) (ParentCategory, error) {
+	row := q.db.QueryRowContext(ctx, getParentCategory, id)
 	var i ParentCategory
 	err := row.Scan(
 		&i.ID,
@@ -104,7 +104,7 @@ func (q *Queries) ListParentCategories(ctx context.Context, arg ListParentCatego
 	return items, nil
 }
 
-const updateParentCategories = `-- name: UpdateParentCategories :one
+const updateParentCategory = `-- name: UpdateParentCategory :one
 UPDATE parent_categories
 SET name = $2,
   src = $3
@@ -112,14 +112,14 @@ WHERE id = $1
 RETURNING id, name, src, updated_at, created_at
 `
 
-type UpdateParentCategoriesParams struct {
+type UpdateParentCategoryParams struct {
 	ID   int64  `json:"id"`
 	Name string `json:"name"`
 	Src  string `json:"src"`
 }
 
-func (q *Queries) UpdateParentCategories(ctx context.Context, arg UpdateParentCategoriesParams) (ParentCategory, error) {
-	row := q.db.QueryRowContext(ctx, updateParentCategories, arg.ID, arg.Name, arg.Src)
+func (q *Queries) UpdateParentCategory(ctx context.Context, arg UpdateParentCategoryParams) (ParentCategory, error) {
+	row := q.db.QueryRowContext(ctx, updateParentCategory, arg.ID, arg.Name, arg.Src)
 	var i ParentCategory
 	err := row.Scan(
 		&i.ID,
