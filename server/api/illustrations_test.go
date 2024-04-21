@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestListImages(t *testing.T) {
+func TestListIllustrations(t *testing.T) {
 	config, err := util.LoadConfig("../")
 	if err != nil {
 		log.Fatal("cannot load config :", err)
