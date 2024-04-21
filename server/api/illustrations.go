@@ -22,7 +22,7 @@ func (server *Server) Greet(c *gin.Context) {
 func (server *Server) ListIllustrations(c *gin.Context) {
 	page, err := strconv.Atoi(c.Query("p"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse page number from query param : %w", err)))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse 'page' number from query param : %w", err)))
 		return
 	}
 
@@ -54,7 +54,7 @@ func (server *Server) ListIllustrations(c *gin.Context) {
 func (server *Server) GetIllustration(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse id number from from path parameter : %w", err)))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
 		return
 	}
 
