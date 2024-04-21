@@ -74,3 +74,9 @@ func (server *Server) GetIllustration(c *gin.Context) {
 
 	c.JSON(http.StatusOK, illustration)
 }
+
+func (server *Server) CreateIllustration(c *gin.Context) {}
+
+func (server *Server) EditIllustration(c *gin.Context) {}
+
+func (server *Server) DeleteIllustration(c *gin.Context) {}
