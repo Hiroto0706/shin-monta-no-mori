@@ -29,14 +29,9 @@ func TestListImages(t *testing.T) {
 	server := setUp(t, config)
 	defer tearDown(t, config)
 
-	type ListIllustrationsParams struct {
-		Limit  int
-		Offset int
-	}
-
 	type args struct {
-		params ListIllustrationsParams
-		page   string
+		page            string
+		imageFetchLimit int
 	}
 
 	tests := []struct {
@@ -47,13 +42,55 @@ func TestListImages(t *testing.T) {
 		expectedCode int
 	}{
 		{
-			name: "正常系",
+			name: "正常系（p=0のとき）",
 			arg: args{
-				params: ListIllustrationsParams{
-					Limit:  config.ImageFetchLimit,
-					Offset: 0,
+				page:            "0",
+				imageFetchLimit: 1,
+			},
+			want: []model.Illustration{
+				{
+					Image: db.Image{
+						ID:          999991,
+						Title:       "test_image_title_999991",
+						OriginalSrc: "test_image_original_src_999991.com",
+						SimpleSrc: sql.NullString{
+							String: "test_image_simple_src_999991.com",
+							Valid:  true,
+						},
+					},
+					Character: []db.Character{
+						{
+							ID:   11001,
+							Name: "test_character_name_11001",
+							Src:  "test_character_src_11001.com",
+						},
+					},
+					Category: []*model.Category{
+						{
+							ParentCategory: db.ParentCategory{
+								ID:   11001,
+								Name: "test_parent_category_name_11001",
+								Src:  "test_parent_category_src_11001.com",
+							},
+							ChildCategory: []db.ChildCategory{
+								{
+									ID:       11001,
+									Name:     "test_child_category_name_11001",
+									ParentID: 11001,
+								},
+							},
+						},
+					},
 				},
-				page: "0",
+			},
+			wantErr:      false,
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "正常系（p=1のとき）",
+			arg: args{
+				page:            "1",
+				imageFetchLimit: 1,
 			},
 			want: []model.Illustration{
 				{
@@ -94,9 +131,21 @@ func TestListImages(t *testing.T) {
 			wantErr:      false,
 			expectedCode: http.StatusOK,
 		},
+		{
+			name: "異常系（クエリパラメータの値が不正な場合)",
+			arg: args{
+				page:            "a",
+				imageFetchLimit: 1,
+			},
+			want:         []model.Illustration{},
+			wantErr:      true,
+			expectedCode: http.StatusBadRequest,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// 取得するイメージの数を1にする
+			server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/list/?p="+tt.arg.page, nil)
 			server.Router.ServeHTTP(w, req)
@@ -177,7 +226,8 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 		fmt.Sprintln(`
 		INSERT INTO images (id, title, original_src, simple_src)
 		VALUES
-		(999990, 'test_image_title_999990', 'test_image_original_src_999990.com', 'test_image_simple_src_999990.com');
+		(999990, 'test_image_title_999990', 'test_image_original_src_999990.com', 'test_image_simple_src_999990.com'),
+		(999991, 'test_image_title_999991', 'test_image_original_src_999991.com', 'test_image_simple_src_999991.com');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO characters (id, name, src)
@@ -187,7 +237,8 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 		fmt.Sprintln(`
 		INSERT INTO image_characters_relations (id, image_id, character_id)
 		VALUES
-		(11001, 999990, 11001);
+		(11001, 999990, 11001),
+		(11002, 999991, 11001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO parent_categories (id, name, src)
@@ -197,7 +248,8 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 		fmt.Sprintln(`
 		INSERT INTO image_parent_categories_relations (id, image_id, parent_category_id)
 		VALUES
-		(11001, 999990, 11001);
+		(11001, 999990, 11001),
+		(11002, 999991, 11001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO child_categories (id, name, parent_id)
