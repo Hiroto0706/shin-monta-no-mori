@@ -14,6 +14,6 @@ func SetAdminRouters(s *Server) {
 	// admin.Use(authMiddleware(s.tokenMaker))
 	{
 		// admin.GET("/", s.Greet)
-		admin.GET("/", s.ListIllustrations)
+		admin.GET("/illustrations/list/", s.ListIllustrations)
 	}
 }

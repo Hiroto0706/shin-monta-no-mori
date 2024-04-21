@@ -3,10 +3,11 @@ package api
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"net/http"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
+	"shin-monta-no-mori/server/internal/domains/service"
+	"shin-monta-no-mori/server/pkg/util"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +22,7 @@ func (server *Server) Greet(c *gin.Context) {
 func (server *Server) ListIllustrations(c *gin.Context) {
 	page, err := strconv.Atoi(c.Query("p"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, NewErrorResponse(fmt.Errorf("failed to parse page number from query param : %w", err)))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse page number from query param : %w", err)))
 	}
 
 	illustrations := []*model.Illustration{}
@@ -33,76 +34,17 @@ func (server *Server) ListIllustrations(c *gin.Context) {
 	images, err := server.Store.ListImage(c, arg)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, NewErrorResponse(fmt.Errorf("failed to ListImage() : %w", err)))
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to ListImage() : %w", err)))
 		}
 
-		c.JSON(http.StatusInternalServerError, NewErrorResponse(fmt.Errorf("failed to ListImage() : %w", err)))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListImage() : %w", err)))
 	}
 
 	for _, i := range images {
-		// キャラクターの取得
-		icrs, err := server.Store.ListImageCharacterRelationsByImageID(c, i.ID)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				c.JSON(http.StatusNotFound, NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
-			}
-
-			c.JSON(http.StatusInternalServerError, NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
-		}
-
-		log.Println(icrs)
-		characters := []db.Character{}
-		for _, icr := range icrs {
-			char, err := server.Store.GetCharacter(c, icr.CharacterID)
-			if err != nil {
-				c.JSON(http.StatusNotFound, NewErrorResponse(fmt.Errorf("failed to GetCharacter() : %w", err)))
-			}
-
-			characters = append(characters, char)
-		}
-
-		// カテゴリーの取得
-		ipcrs, err := server.Store.ListImageParentCategoryRelationsByImageID(c, i.ID)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				c.JSON(http.StatusNotFound, NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
-			}
-
-			c.JSON(http.StatusInternalServerError, NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
-		}
-
-		categories := []*model.Category{}
-		for _, ipcr := range ipcrs {
-			pCate, err := server.Store.GetParentCategory(c, ipcr.ParentCategoryID)
-			if err != nil {
-				c.JSON(http.StatusNotFound, NewErrorResponse(fmt.Errorf("failed to GetParentCategory() : %w", err)))
-			}
-			cCates, err := server.Store.GetChildCategoriesByParentID(c, ipcr.ParentCategoryID)
-			if err != nil {
-				if err == sql.ErrNoRows {
-					c.JSON(http.StatusNotFound, NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
-				}
-
-				c.JSON(http.StatusInternalServerError, NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
-			}
-
-			cate := model.NewCategory()
-			cate.ParentCategory = pCate
-			cate.ChildCategory = cCates
-
-			categories = append(categories, cate)
-		}
-
-		il := model.NewIllustration()
-
-		il.Image = i
-		il.Character = characters
-		il.Category = categories
+		il := service.FetchRelationInfoForIllustrations(c, server.Store, i)
 
 		illustrations = append(illustrations, il)
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"illustrations": illustrations,
-	})
+	c.JSON(http.StatusOK, illustrations)
 }
