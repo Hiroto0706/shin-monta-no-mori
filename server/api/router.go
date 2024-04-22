@@ -18,7 +18,7 @@ func SetAdminRouters(s *Server) {
 			illustrations.GET("/list/", s.ListIllustrations)
 			illustrations.GET("/search/", s.SearchIllustrations)
 			illustrations.GET("/:id", s.GetIllustration)
-			illustrations.POST("/:id", s.CreateIllustration)
+			illustrations.POST("/create/", s.CreateIllustration)
 		}
 	}
 }

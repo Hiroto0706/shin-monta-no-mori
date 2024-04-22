@@ -336,24 +336,6 @@ func TestCreateIllustration(t *testing.T) {
 			wantErr:      false,
 			expectedCode: http.StatusOK,
 		},
-		{
-			name: "異常系（idが不正な値の場合）",
-			arg: args{
-				id: "aaa",
-			},
-			want:         model.Illustration{},
-			wantErr:      true,
-			expectedCode: http.StatusBadRequest,
-		},
-		{
-			name: "異常系（存在しないidを指定している場合）",
-			arg: args{
-				id: "999999",
-			},
-			want:         model.Illustration{},
-			wantErr:      true,
-			expectedCode: http.StatusNotFound,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -9,6 +9,7 @@ import (
 	"shin-monta-no-mori/server/internal/domains/service"
 	"shin-monta-no-mori/server/pkg/util"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -115,7 +116,22 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 	c.JSON(http.StatusOK, illustrations)
 }
 
-func (server *Server) CreateIllustration(c *gin.Context) {}
+func (server *Server) CreateIllustration(c *gin.Context) {
+	title := c.PostForm("title")
+	filename := strings.ReplaceAll(c.PostForm("filename"), " ", "-")
+	// characters , pCategories , cCategories format-> '[1,2,3,4...]'
+	characters := c.PostFormArray("characters")
+	pCategories := c.PostFormArray("parentCategories")
+	cCategories := c.PostFormArray("childCategories")
+
+	c.JSON(http.StatusOK, gin.H{
+		"title":       title,
+		"filename":    filename,
+		"characters":  characters,
+		"pCategories": pCategories,
+		"cCategories": cCategories,
+	})
+}
 
 func (server *Server) EditIllustration(c *gin.Context) {}
 
