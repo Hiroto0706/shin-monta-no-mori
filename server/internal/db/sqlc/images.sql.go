@@ -109,6 +109,50 @@ func (q *Queries) ListImage(ctx context.Context, arg ListImageParams) ([]Image, 
 	return items, nil
 }
 
+const searchImages = `-- name: SearchImages :many
+SELECT id, title, original_src, simple_src, updated_at, created_at
+FROM images
+WHERE title LIKE '%' || COALESCE($3) || '%'
+ORDER BY id DESC
+LIMIT $1 OFFSET $2
+`
+
+type SearchImagesParams struct {
+	Limit  int32          `json:"limit"`
+	Offset int32          `json:"offset"`
+	Title  sql.NullString `json:"title"`
+}
+
+func (q *Queries) SearchImages(ctx context.Context, arg SearchImagesParams) ([]Image, error) {
+	rows, err := q.db.QueryContext(ctx, searchImages, arg.Limit, arg.Offset, arg.Title)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Image{}
+	for rows.Next() {
+		var i Image
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.OriginalSrc,
+			&i.SimpleSrc,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateImage = `-- name: UpdateImage :one
 UPDATE images
 SET title = $2,

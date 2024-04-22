@@ -15,6 +15,7 @@ func SetAdminRouters(s *Server) {
 	{
 		// admin.GET("/", s.Greet)
 		admin.GET("/illustrations/list/", s.ListIllustrations)
+		admin.GET("/illustrations/search/", s.SearchIllustration)
 		admin.GET("/illustrations/:id", s.GetIllustration)
 	}
 }

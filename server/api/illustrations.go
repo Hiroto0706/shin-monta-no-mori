@@ -51,6 +51,7 @@ func (server *Server) ListIllustrations(c *gin.Context) {
 
 	c.JSON(http.StatusOK, illustrations)
 }
+
 func (server *Server) GetIllustration(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -75,9 +76,44 @@ func (server *Server) GetIllustration(c *gin.Context) {
 	c.JSON(http.StatusOK, illustration)
 }
 
-func (server *Server) CreateIllustration(c *gin.Context) {
+func (server *Server) SearchIllustration(c *gin.Context) {
+	page, err := strconv.Atoi(c.Query("p"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse 'page' number from query param : %w", err)))
+		return
+	}
+	title := c.Query("p")
+	arg := db.SearchImagesParams{
+		Limit:  int32(server.Config.ImageFetchLimit),
+		Offset: int32(page * server.Config.ImageFetchLimit),
+		Title: sql.NullString{
+			String: title,
+			Valid:  true,
+		},
+	}
 
+	images, err := server.Store.SearchImages(c, arg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to SearchImages() : %w", err)))
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to SearchImages() : %w", err)))
+		return
+	}
+
+	illustrations := []*model.Illustration{}
+	for _, i := range images {
+		il := service.FetchRelationInfoForIllustrations(c, server.Store, i)
+
+		illustrations = append(illustrations, il)
+	}
+
+	c.JSON(http.StatusOK, illustrations)
 }
+
+func (server *Server) CreateIllustration(c *gin.Context) {}
 
 func (server *Server) EditIllustration(c *gin.Context) {}
 
