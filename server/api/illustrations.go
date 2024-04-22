@@ -76,7 +76,9 @@ func (server *Server) GetIllustration(c *gin.Context) {
 	c.JSON(http.StatusOK, illustration)
 }
 
-func (server *Server) SearchIllustration(c *gin.Context) {
+// TODO: imageだけでなく、カテゴリでも検索ができるようにする。
+// また、検索結果をtrimし、被りがないようにする
+func (server *Server) SearchIllustrations(c *gin.Context) {
 	page, err := strconv.Atoi(c.Query("p"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse 'page' number from query param : %w", err)))

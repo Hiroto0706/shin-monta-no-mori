@@ -13,9 +13,12 @@ func SetAdminRouters(s *Server) {
 	// ログイン認証
 	// admin.Use(authMiddleware(s.tokenMaker))
 	{
-		// admin.GET("/", s.Greet)
-		admin.GET("/illustrations/list/", s.ListIllustrations)
-		admin.GET("/illustrations/search/", s.SearchIllustration)
-		admin.GET("/illustrations/:id", s.GetIllustration)
+		illustrations := admin.Group("/illustrations")
+		{
+			illustrations.GET("/list/", s.ListIllustrations)
+			illustrations.GET("/search/", s.SearchIllustrations)
+			illustrations.GET("/:id", s.GetIllustration)
+			illustrations.POST("/:id", s.CreateIllustration)
+		}
 	}
 }

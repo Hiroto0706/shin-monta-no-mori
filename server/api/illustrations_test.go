@@ -188,7 +188,105 @@ func TestGetIllustration(t *testing.T) {
 	type args struct {
 		id string
 	}
+	tests := []struct {
+		name         string
+		arg          args
+		want         model.Illustration
+		wantErr      bool
+		expectedCode int
+	}{
+		{
+			name: "正常系",
+			arg: args{
+				id: "11001",
+			},
+			want: model.Illustration{
+				Image: db.Image{
+					ID:          11001,
+					Title:       "test_image_title_11001",
+					OriginalSrc: "test_image_original_src_11001.com",
+					SimpleSrc: sql.NullString{
+						String: "test_image_simple_src_11001.com",
+						Valid:  true,
+					},
+				},
+				Character: []db.Character{
+					{
+						ID:   11002,
+						Name: "test_character_name_11002",
+						Src:  "test_character_src_11002.com",
+					},
+				},
+				Category: []*model.Category{
+					{
+						ParentCategory: db.ParentCategory{
+							ID:   11002,
+							Name: "test_parent_category_name_11002",
+							Src:  "test_parent_category_src_11002.com",
+						},
+						ChildCategory: []db.ChildCategory{
+							{
+								ID:       11002,
+								Name:     "test_child_category_name_11002",
+								ParentID: 11002,
+							},
+						},
+					},
+				},
+			},
+			wantErr:      false,
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "異常系（idが不正な値の場合）",
+			arg: args{
+				id: "aaa",
+			},
+			want:         model.Illustration{},
+			wantErr:      true,
+			expectedCode: http.StatusBadRequest,
+		},
+		{
+			name: "異常系（存在しないidを指定している場合）",
+			arg: args{
+				id: "999999",
+			},
+			want:         model.Illustration{},
+			wantErr:      true,
+			expectedCode: http.StatusNotFound,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/"+tt.arg.id, nil)
+			server.Router.ServeHTTP(w, req)
 
+			require.Equal(t, tt.expectedCode, w.Code)
+
+			if tt.wantErr {
+				require.NotEmpty(t, w.Body.String())
+			} else {
+				var got model.Illustration
+				err := json.Unmarshal(w.Body.Bytes(), &got)
+				require.NoError(t, err)
+				compareIllustrationsObjects(t, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCreateIllustration(t *testing.T) {
+	config, err := util.LoadConfig("../")
+	if err != nil {
+		log.Fatal("cannot load config :", err)
+	}
+	server := setUp(t, config)
+	defer tearDown(t, config)
+
+	type args struct {
+		id string
+	}
 	tests := []struct {
 		name         string
 		arg          args
@@ -311,7 +409,6 @@ func createConn(config util.Config) *db.Store {
 	if err != nil {
 		log.Fatal("cannot connect to test db: ", err)
 	}
-
 	return db.NewStore(conn)
 }
 
@@ -325,13 +422,9 @@ func newTestServer(store *db.Store, config util.Config) (*api.Server, error) {
 		Config: config,
 		Store:  store,
 	}
-
 	router := gin.Default()
-	// router.Use(api.CORSMiddleware())
 	server.Router = router
-
 	api.SetAdminRouters(server)
-
 	return server, nil
 }
 
