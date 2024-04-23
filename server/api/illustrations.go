@@ -138,18 +138,11 @@ type createIllustrationRequest struct {
 }
 
 func (server *Server) CreateIllustration(c *gin.Context) {
-	// title := c.PostForm("title")
-	// filename := strings.ReplaceAll(c.PostForm("filename"), " ", "-")
-	// // characters , pCategories , cCategories format-> '[1,2,3,4...]'
-	// characters := c.PostFormArray("characters")
-	// parentCategories := c.PostFormArray("parent_categories")
-	// childCategories := c.PostFormArray("child_categories")
 	var req createIllustrationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
 	c.JSON(http.StatusOK, gin.H{

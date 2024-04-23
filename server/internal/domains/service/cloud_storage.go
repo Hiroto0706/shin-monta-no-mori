@@ -13,19 +13,28 @@ import (
 	"google.golang.org/api/option"
 )
 
+type StorageService interface {
+	UploadFile(ctx *gin.Context, file *multipart.FileHeader, filename string, fileType string) (string, error)
+	DeleteFile(ctx *gin.Context, filePath string) error
+}
+
+type GCSStorageService struct {
+	Config util.Config
+}
+
 // GCSアップロード
-func UploadToGCS(ctx *gin.Context, config util.Config, file *multipart.FileHeader, filename string, fileType string) (string, error) {
+func (g *GCSStorageService) UploadFile(ctx *gin.Context, file *multipart.FileHeader, filename string, fileType string) (string, error) {
 	// setting for upload request
-	client, err := createGCSClient(ctx, config)
+	client, err := createClient(ctx, g.Config)
 	if err != nil {
 		return "", fmt.Errorf("cannot create client : %w", err)
 	}
 
-	bucket := client.Bucket(config.BucketName)
+	bucket := client.Bucket(g.Config.BucketName)
 	if filename == "" {
 		filename = time.Now().Format("20060102150405")
 	}
-	gcsFileName := fmt.Sprintf("%s/%s/%s.png", fileType, config.Environment, filename)
+	gcsFileName := fmt.Sprintf("%s/%s/%s.png", fileType, g.Config.Environment, filename)
 
 	src, err := file.Open()
 	if err != nil {
@@ -48,19 +57,19 @@ func UploadToGCS(ctx *gin.Context, config util.Config, file *multipart.FileHeade
 		return "", fmt.Errorf("error update storage metadata : %w", err)
 	}
 
-	resImagePath := fmt.Sprintf("https://storage.googleapis.com/%s/%s", config.BucketName, gcsFileName)
+	resImagePath := fmt.Sprintf("https://storage.googleapis.com/%s/%s", g.Config.BucketName, gcsFileName)
 	return resImagePath, nil
 }
 
 // GCS上の画像を削除する
-func DeleteFileFromGCS(ctx *gin.Context, deleteSrcPath string, config util.Config) error {
-	client, err := createGCSClient(ctx, config)
+func (g *GCSStorageService) DeleteFile(ctx *gin.Context, deleteSrcPath string) error {
+	client, err := createClient(ctx, g.Config)
 	if err != nil {
 		return fmt.Errorf("failed to create : %w", err)
 	}
 
-	bucket := client.Bucket(config.BucketName)
-	objectPath := strings.TrimPrefix(deleteSrcPath, fmt.Sprintf("https://storage.googleapis.com/%s/", config.BucketName))
+	bucket := client.Bucket(g.Config.BucketName)
+	objectPath := strings.TrimPrefix(deleteSrcPath, fmt.Sprintf("https://storage.googleapis.com/%s/", g.Config.BucketName))
 	obj := bucket.Object(objectPath)
 
 	err = obj.Delete(ctx)
@@ -72,7 +81,7 @@ func DeleteFileFromGCS(ctx *gin.Context, deleteSrcPath string, config util.Confi
 }
 
 // GCSクライアントとの接続
-func createGCSClient(ctx *gin.Context, config util.Config) (*storage.Client, error) {
+func createClient(ctx *gin.Context, config util.Config) (*storage.Client, error) {
 	credentialFilePath := config.JsonPath
 	client, err := storage.NewClient(ctx, option.WithCredentialsFile(credentialFilePath))
 	if err != nil {
