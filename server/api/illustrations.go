@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
@@ -20,10 +21,14 @@ func (server *Server) Greet(c *gin.Context) {
 	})
 }
 
+type listIllustrationsRequest struct {
+	Page int64 `json:"p" form:"p"`
+}
+
 func (server *Server) ListIllustrations(c *gin.Context) {
-	page, err := strconv.Atoi(c.Query("p"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse 'page' number from query param : %w", err)))
+	var req listIllustrationsRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
 		return
 	}
 
@@ -31,7 +36,7 @@ func (server *Server) ListIllustrations(c *gin.Context) {
 
 	arg := db.ListImageParams{
 		Limit:  int32(server.Config.ImageFetchLimit),
-		Offset: int32(page * server.Config.ImageFetchLimit),
+		Offset: int32(int(req.Page) * server.Config.ImageFetchLimit),
 	}
 	images, err := server.Store.ListImage(c, arg)
 	if err != nil {
@@ -77,23 +82,31 @@ func (server *Server) GetIllustration(c *gin.Context) {
 	c.JSON(http.StatusOK, illustration)
 }
 
+type searchIllustrationsRequest struct {
+	Page  int    `json:"p" form:"p"`
+	Query string `json:"q" form:"q"`
+}
+
 // TODO: imageだけでなく、カテゴリでも検索ができるようにする。
 // また、検索結果をtrimし、被りがないようにする
 func (server *Server) SearchIllustrations(c *gin.Context) {
-	page, err := strconv.Atoi(c.Query("p"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse 'page' number from query param : %w", err)))
+	var req searchIllustrationsRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
 		return
 	}
-	title := c.Query("p")
 	arg := db.SearchImagesParams{
 		Limit:  int32(server.Config.ImageFetchLimit),
-		Offset: int32(page * server.Config.ImageFetchLimit),
+		Offset: int32(req.Page * server.Config.ImageFetchLimit),
 		Title: sql.NullString{
-			String: title,
+			String: req.Query,
 			Valid:  true,
 		},
 	}
+
+	log.Println("query ->", req.Query)
+	log.Println("page ->", req.Page)
+	log.Println("arg ->", arg)
 
 	images, err := server.Store.SearchImages(c, arg)
 	if err != nil {
@@ -125,11 +138,11 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 	cCategories := c.PostFormArray("childCategories")
 
 	c.JSON(http.StatusOK, gin.H{
-		"title":       title,
-		"filename":    filename,
-		"characters":  characters,
-		"pCategories": pCategories,
-		"cCategories": cCategories,
+		"title":            title,
+		"filename":         filename,
+		"characters":       characters,
+		"parentCategories": pCategories,
+		"childCategories":  cCategories,
 	})
 }
 
