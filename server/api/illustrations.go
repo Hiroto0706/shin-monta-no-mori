@@ -22,7 +22,7 @@ func (server *Server) Greet(c *gin.Context) {
 }
 
 type listIllustrationsRequest struct {
-	Page int64 `json:"p" form:"p"`
+	Page int64 `form:"p"`
 }
 
 func (server *Server) ListIllustrations(c *gin.Context) {
@@ -83,8 +83,8 @@ func (server *Server) GetIllustration(c *gin.Context) {
 }
 
 type searchIllustrationsRequest struct {
-	Page  int    `json:"p" form:"p"`
-	Query string `json:"q" form:"q"`
+	Page  int    `form:"p"`
+	Query string `form:"q"`
 }
 
 // TODO: imageだけでなく、カテゴリでも検索ができるようにする。
@@ -129,20 +129,35 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 	c.JSON(http.StatusOK, illustrations)
 }
 
+type createIllustrationRequest struct {
+	Title            string  `json:"title"`
+	Filename         string  `json:"filename"`
+	Characters       []int64 `json:"characters"`
+	ParentCategories []int64 `json:"parent_categories"`
+	ChildCategories  []int64 `json:"child_categories"`
+}
+
 func (server *Server) CreateIllustration(c *gin.Context) {
-	title := c.PostForm("title")
-	filename := strings.ReplaceAll(c.PostForm("filename"), " ", "-")
-	// characters , pCategories , cCategories format-> '[1,2,3,4...]'
-	characters := c.PostFormArray("characters")
-	pCategories := c.PostFormArray("parentCategories")
-	cCategories := c.PostFormArray("childCategories")
+	// title := c.PostForm("title")
+	// filename := strings.ReplaceAll(c.PostForm("filename"), " ", "-")
+	// // characters , pCategories , cCategories format-> '[1,2,3,4...]'
+	// characters := c.PostFormArray("characters")
+	// parentCategories := c.PostFormArray("parent_categories")
+	// childCategories := c.PostFormArray("child_categories")
+	var req createIllustrationRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
 	c.JSON(http.StatusOK, gin.H{
-		"title":            title,
-		"filename":         filename,
-		"characters":       characters,
-		"parentCategories": pCategories,
-		"childCategories":  cCategories,
+		"title":            req.Title,
+		"filename":         req.Filename,
+		"characters":       req.Characters,
+		"parentCategories": req.ParentCategories,
+		"childCategories":  req.ChildCategories,
 	})
 }
 
