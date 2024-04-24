@@ -24,7 +24,6 @@ type GCSStorageService struct {
 
 // GCSアップロード
 func (g *GCSStorageService) UploadFile(ctx *gin.Context, file *multipart.FileHeader, filename string, fileType string) (string, error) {
-	// setting for upload request
 	client, err := createClient(ctx, g.Config)
 	if err != nil {
 		return "", fmt.Errorf("cannot create client : %w", err)
@@ -43,7 +42,6 @@ func (g *GCSStorageService) UploadFile(ctx *gin.Context, file *multipart.FileHea
 	defer src.Close()
 	obj := bucket.Object(gcsFileName)
 
-	// write file to gcs
 	wc := obj.NewWriter(ctx)
 	if _, err = io.Copy(wc, src); err != nil {
 		return "", fmt.Errorf("error writing file : %w", err)

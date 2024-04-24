@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"mime/multipart"
 	"net/http"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
@@ -130,11 +131,12 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 }
 
 type createIllustrationRequest struct {
-	Title            string  `json:"title"`
-	Filename         string  `json:"filename"`
-	Characters       []int64 `json:"characters"`
-	ParentCategories []int64 `json:"parent_categories"`
-	ChildCategories  []int64 `json:"child_categories"`
+	Title            string                `json:"title"`
+	Filename         string                `json:"filename"`
+	Characters       []int64               `json:"characters"`
+	ParentCategories []int64               `json:"parent_categories"`
+	ChildCategories  []int64               `json:"child_categories"`
+	ImageFile        *multipart.FileHeader `json:"image_file"`
 }
 
 func (server *Server) CreateIllustration(c *gin.Context) {
@@ -144,6 +146,7 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 		return
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
+	req.ImageFile = &multipart.FileHeader{}
 
 	c.JSON(http.StatusOK, gin.H{
 		"title":            req.Title,

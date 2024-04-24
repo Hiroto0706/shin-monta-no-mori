@@ -6,8 +6,11 @@ import { useState, useEffect } from "react";
 
 const FetchData = async () => {
   try {
-    const response = await axios.get("http://localhost:8080/api/v1/admin/");
-    return response.data.message;
+    const response = await axios.get(
+      "http://localhost:8080/api/v1/admin/illustrations/list/?p=0"
+    );
+    console.log(response.data);
+    return response.data;
   } catch (error) {
     console.error(error);
     return null;
@@ -15,12 +18,14 @@ const FetchData = async () => {
 };
 
 export default function Home() {
-  const [data, setData] = useState();
+  const [iData, setIData] = useState([]);
+  const [cData, setCData] = useState([]);
+  const [CaData, setCaData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       const result = await FetchData();
-      setData(result);
+      setIData(result);
     };
     fetchData();
   }, []);
@@ -28,7 +33,22 @@ export default function Home() {
   return (
     <main>
       <h1 className="m-10 text-4xl text-red-700">Hello World from admin!!</h1>
-      <h1 className="m-10 text-4xl text-blue-500">{data}</h1>
+      {iData.map((item) => (
+        <>
+          <div key={item.Image.id}>{item.Image.title}</div>
+          {item.Character.map((c) => (
+            <>
+              <div key={c.id}>{c.name}</div>
+            </>
+          ))}
+          {item.Category.map((c) => (
+            <>
+              <div key={c.ParentCategory.id}>{c.ParentCategory.name}</div>
+              <div key={c.ChildCategory[0].id}>{c.ChildCategory[0].name}</div>
+            </>
+          ))}
+        </>
+      ))}
     </main>
   );
 }
