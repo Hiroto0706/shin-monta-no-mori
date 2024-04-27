@@ -131,22 +131,32 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 }
 
 type createIllustrationRequest struct {
-	Title            string                `json:"title"`
-	Filename         string                `json:"filename"`
-	Characters       []int64               `json:"characters"`
-	ParentCategories []int64               `json:"parent_categories"`
-	ChildCategories  []int64               `json:"child_categories"`
-	ImageFile        *multipart.FileHeader `json:"image_file"`
+	Title            string               `json:"title" form:"title"`
+	Filename         string               `json:"filename" form:"filename"`
+	Characters       []int64              `json:"characters" form:"characters"`
+	ParentCategories []int64              `json:"parent_categories" form:"parent_categories"`
+	ChildCategories  []int64              `json:"child_categories" form:"child_categories"`
+	ImageFile        multipart.FileHeader `json:"image_file" form:"image_file"`
 }
 
 func (server *Server) CreateIllustration(c *gin.Context) {
 	var req createIllustrationRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := c.ShouldBind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
 		return
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
-	req.ImageFile = &multipart.FileHeader{}
+	f, err := c.FormFile("image_file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
+		return
+	}
+	file, err := f.Open()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
+		return
+	}
+	defer file.Close()
 
 	c.JSON(http.StatusOK, gin.H{
 		"title":            req.Title,
@@ -154,6 +164,7 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 		"characters":       req.Characters,
 		"parentCategories": req.ParentCategories,
 		"childCategories":  req.ChildCategories,
+		"file":             file,
 	})
 }
 

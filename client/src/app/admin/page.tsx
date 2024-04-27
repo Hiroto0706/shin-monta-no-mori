@@ -18,14 +18,12 @@ const FetchData = async () => {
 };
 
 export default function Home() {
-  const [iData, setIData] = useState([]);
-  const [cData, setCData] = useState([]);
-  const [CaData, setCaData] = useState([]);
+  const [data, setData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       const result = await FetchData();
-      setIData(result);
+      setData(result);
     };
     fetchData();
   }, []);
@@ -33,7 +31,7 @@ export default function Home() {
   return (
     <main>
       <h1 className="m-10 text-4xl text-red-700">Hello World from admin!!</h1>
-      {iData.map((item) => (
+      {data.map((item) => (
         <>
           <div key={item.Image.id}>{item.Image.title}</div>
           {item.Character.map((c) => (

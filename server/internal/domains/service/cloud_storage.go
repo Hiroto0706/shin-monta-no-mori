@@ -14,7 +14,7 @@ import (
 )
 
 type StorageService interface {
-	UploadFile(ctx *gin.Context, file *multipart.FileHeader, filename string, fileType string) (string, error)
+	UploadFile(ctx *gin.Context, file multipart.File, filename string, fileType string) (string, error)
 	DeleteFile(ctx *gin.Context, filePath string) error
 }
 
@@ -23,7 +23,7 @@ type GCSStorageService struct {
 }
 
 // GCSアップロード
-func (g *GCSStorageService) UploadFile(ctx *gin.Context, file *multipart.FileHeader, filename string, fileType string) (string, error) {
+func (g *GCSStorageService) UploadFile(ctx *gin.Context, file multipart.File, filename string, fileType string) (string, error) {
 	client, err := createClient(ctx, g.Config)
 	if err != nil {
 		return "", fmt.Errorf("cannot create client : %w", err)
@@ -35,15 +35,10 @@ func (g *GCSStorageService) UploadFile(ctx *gin.Context, file *multipart.FileHea
 	}
 	gcsFileName := fmt.Sprintf("%s/%s/%s.png", fileType, g.Config.Environment, filename)
 
-	src, err := file.Open()
-	if err != nil {
-		return "", fmt.Errorf("error opening file : %w", err)
-	}
-	defer src.Close()
 	obj := bucket.Object(gcsFileName)
 
 	wc := obj.NewWriter(ctx)
-	if _, err = io.Copy(wc, src); err != nil {
+	if _, err = io.Copy(wc, file); err != nil {
 		return "", fmt.Errorf("error writing file : %w", err)
 	}
 	if err = wc.Close(); err != nil {
