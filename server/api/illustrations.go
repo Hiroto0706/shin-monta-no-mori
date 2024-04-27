@@ -16,6 +16,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	IMAGE_TYPE_IMAGE = "image"
+)
+
 func (server *Server) Greet(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "new Hello World from server.",
@@ -158,13 +162,22 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 	}
 	defer file.Close()
 
+	storageService := &service.GCSStorageService{
+		Config: server.Config,
+	}
+	src, err := storageService.UploadFile(c, file, req.Filename, IMAGE_TYPE_IMAGE)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"title":            req.Title,
 		"filename":         req.Filename,
 		"characters":       req.Characters,
 		"parentCategories": req.ParentCategories,
 		"childCategories":  req.ChildCategories,
-		"file":             file,
+		"src":              src,
 	})
 }
 

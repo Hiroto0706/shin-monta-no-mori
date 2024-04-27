@@ -24,7 +24,7 @@ type GCSStorageService struct {
 
 // GCSアップロード
 func (g *GCSStorageService) UploadFile(ctx *gin.Context, file multipart.File, filename string, fileType string) (string, error) {
-	client, err := createClient(ctx, g.Config)
+	client, err := createClient(ctx)
 	if err != nil {
 		return "", fmt.Errorf("cannot create client : %w", err)
 	}
@@ -56,7 +56,7 @@ func (g *GCSStorageService) UploadFile(ctx *gin.Context, file multipart.File, fi
 
 // GCS上の画像を削除する
 func (g *GCSStorageService) DeleteFile(ctx *gin.Context, deleteSrcPath string) error {
-	client, err := createClient(ctx, g.Config)
+	client, err := createClient(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to create : %w", err)
 	}
@@ -74,9 +74,8 @@ func (g *GCSStorageService) DeleteFile(ctx *gin.Context, deleteSrcPath string) e
 }
 
 // GCSクライアントとの接続
-func createClient(ctx *gin.Context, config util.Config) (*storage.Client, error) {
-	credentialFilePath := config.JsonPath
-	client, err := storage.NewClient(ctx, option.WithCredentialsFile(credentialFilePath))
+func createClient(ctx *gin.Context) (*storage.Client, error) {
+	client, err := storage.NewClient(ctx, option.WithCredentialsFile("../credential.json"))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create : %w", err)
 	}
