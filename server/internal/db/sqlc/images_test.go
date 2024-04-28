@@ -27,30 +27,27 @@ func TestCreateImage(t *testing.T) {
 					String: util.RandomTitle(),
 					Valid:  true,
 				},
+				OriginalFilename: util.RandomTitle(),
+				SimpleFilename: sql.NullString{
+					String: util.RandomTitle(),
+					Valid:  true,
+				},
 			},
 			wantErr: false,
 		},
 		{
 			name: "正常系（SimpleSrcが空文字の場合）",
 			arg: db.CreateImageParams{
-				Title:       util.RandomTitle(),
-				OriginalSrc: util.RandomTitle(),
-				SimpleSrc: sql.NullString{
-					String: "",
-					Valid:  false,
-				},
+				Title:            util.RandomTitle(),
+				OriginalSrc:      util.RandomTitle(),
+				OriginalFilename: util.RandomTitle(),
 			},
 			wantErr: false,
 		},
 		{
 			name: "異常系（titleが空文字の場合）",
 			arg: db.CreateImageParams{
-				Title:       "",
-				OriginalSrc: util.RandomTitle(),
-				SimpleSrc: sql.NullString{
-					String: util.RandomTitle(),
-					Valid:  true,
-				},
+				Title: "",
 			},
 			wantErr: true,
 		},
@@ -68,6 +65,8 @@ func TestCreateImage(t *testing.T) {
 				require.Equal(t, tt.arg.Title, image.Title)
 				require.Equal(t, tt.arg.OriginalSrc, image.OriginalSrc)
 				require.Equal(t, tt.arg.SimpleSrc.String, image.SimpleSrc.String)
+				require.Equal(t, tt.arg.OriginalFilename, image.OriginalFilename)
+				require.Equal(t, tt.arg.SimpleFilename, image.SimpleFilename)
 				require.NotZero(t, image.ID)
 				require.NotZero(t, image.CreatedAt)
 			}

@@ -72,3 +72,25 @@ func FetchRelationInfoForIllustrations(c *gin.Context, store *db.Store, i db.Ima
 
 	return il
 }
+
+// isSimpleはGCSにアップロードする時に画像に'_s'をつけるために使用する
+func UploadImage(c *gin.Context, config *util.Config, formKey string, filename string, fileType string, isSimple bool) (string, error) {
+	f, err := c.FormFile(formKey)
+	if err != nil {
+		if err == http.ErrMissingFile {
+			return "", nil
+		}
+		return "", fmt.Errorf("failed to get file: %w", err)
+	}
+
+	file, err := f.Open()
+	if err != nil {
+		return "", fmt.Errorf("failed to open file: %w", err)
+	}
+	defer file.Close()
+
+	storageService := &GCSStorageService{
+		Config: *config,
+	}
+	return storageService.UploadFile(c, file, filename, fileType, isSimple)
+}

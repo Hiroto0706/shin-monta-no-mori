@@ -3,7 +3,6 @@ package api
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"mime/multipart"
 	"net/http"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
@@ -109,10 +108,6 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 		},
 	}
 
-	log.Println("query ->", req.Query)
-	log.Println("page ->", req.Page)
-	log.Println("arg ->", arg)
-
 	images, err := server.Store.SearchImages(c, arg)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -135,12 +130,13 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 }
 
 type createIllustrationRequest struct {
-	Title            string               `json:"title" form:"title"`
-	Filename         string               `json:"filename" form:"filename"`
-	Characters       []int64              `json:"characters" form:"characters"`
-	ParentCategories []int64              `json:"parent_categories" form:"parent_categories"`
-	ChildCategories  []int64              `json:"child_categories" form:"child_categories"`
-	ImageFile        multipart.FileHeader `json:"image_file" form:"image_file"`
+	Title             string               `json:"title" form:"title"`
+	Filename          string               `json:"filename" form:"filename"`
+	Characters        []int64              `json:"characters" form:"characters"`
+	ParentCategories  []int64              `json:"parent_categories" form:"parent_categories"`
+	ChildCategories   []int64              `json:"child_categories" form:"child_categories"`
+	OriginalImageFile multipart.FileHeader `json:"original_image_file" form:"image_file"`
+	SimpleImageFile   multipart.FileHeader `json:"simple_image_file" form:"image_file"`
 }
 
 func (server *Server) CreateIllustration(c *gin.Context) {
@@ -150,34 +146,43 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 		return
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
-	f, err := c.FormFile("image_file")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
-		return
-	}
-	file, err := f.Open()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
-		return
-	}
-	defer file.Close()
 
-	storageService := &service.GCSStorageService{
-		Config: server.Config,
-	}
-	src, err := storageService.UploadFile(c, file, req.Filename, IMAGE_TYPE_IMAGE)
+	originalSrc, err := service.UploadImage(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(err))
+		return
+	}
+
+	simpleSrc, err := service.UploadImage(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(err))
+		return
+	}
+
+	arg := db.CreateImageParams{
+		Title:       req.Title,
+		OriginalSrc: originalSrc,
+		SimpleSrc: sql.NullString{
+			String: simpleSrc,
+			Valid:  true,
+		},
+		OriginalFilename: req.Filename,
+	}
+
+	image, err := server.Store.CreateImage(c, arg)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(err))
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"title":            req.Title,
-		"filename":         req.Filename,
+		"title":            image.Title,
+		"filename":         image.OriginalFilename,
 		"characters":       req.Characters,
 		"parentCategories": req.ParentCategories,
 		"childCategories":  req.ChildCategories,
-		"src":              src,
+		"o_src":            image.OriginalSrc,
+		"s_src":            image.SimpleSrc,
 	})
 }
 

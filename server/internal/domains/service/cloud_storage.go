@@ -23,7 +23,7 @@ type GCSStorageService struct {
 }
 
 // GCSアップロード
-func (g *GCSStorageService) UploadFile(ctx *gin.Context, file multipart.File, filename string, fileType string) (string, error) {
+func (g *GCSStorageService) UploadFile(ctx *gin.Context, file multipart.File, filename string, fileType string, isSimple bool) (string, error) {
 	client, err := createClient(ctx)
 	if err != nil {
 		return "", fmt.Errorf("cannot create client : %w", err)
@@ -33,7 +33,12 @@ func (g *GCSStorageService) UploadFile(ctx *gin.Context, file multipart.File, fi
 	if filename == "" {
 		filename = time.Now().Format("20060102150405")
 	}
-	gcsFileName := fmt.Sprintf("%s/%s/%s.png", fileType, g.Config.Environment, filename)
+	var gcsFileName string
+	if !isSimple {
+		gcsFileName = fmt.Sprintf("%s/%s/%s.png", fileType, g.Config.Environment, filename)
+	} else {
+		gcsFileName = fmt.Sprintf("%s/%s/%s_s.png", fileType, g.Config.Environment, filename)
+	}
 
 	obj := bucket.Object(gcsFileName)
 

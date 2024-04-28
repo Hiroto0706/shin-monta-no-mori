@@ -16,15 +16,19 @@ new_migration:
 
 migrateup:
 	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose up
+	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up
 
 migrateup1:
 	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose up 1
+	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up 1
 
 migratedown:
 	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose down
+	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose down
 
 migratedown1:
 	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose down 1
+	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose down 1
 
 dc-up:
 	docker compose up --build
