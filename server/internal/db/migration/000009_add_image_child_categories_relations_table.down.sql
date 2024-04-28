@@ -1,0 +1,3 @@
+ALTER TABLE "image_child_categories_relations" DROP CONSTRAINT IF EXISTS image_child_categories_relations_parent_category_id_fkey;
+ALTER TABLE "image_child_categories_relations" DROP CONSTRAINT IF EXISTS image_child_categories_relations_image_id_fkey;
+DROP TABLE IF EXISTS "image_child_categories_relations";

@@ -6,6 +6,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 type Querier interface {
@@ -13,6 +14,7 @@ type Querier interface {
 	CreateChildCategory(ctx context.Context, arg CreateChildCategoryParams) (ChildCategory, error)
 	CreateImage(ctx context.Context, arg CreateImageParams) (Image, error)
 	CreateImageCharacterRelations(ctx context.Context, arg CreateImageCharacterRelationsParams) (ImageCharactersRelation, error)
+	CreateImageChildCategoryRelations(ctx context.Context, arg CreateImageChildCategoryRelationsParams) (ImageChildCategoriesRelation, error)
 	CreateImageParentCategoryRelations(ctx context.Context, arg CreateImageParentCategoryRelationsParams) (ImageParentCategoriesRelation, error)
 	CreateOperator(ctx context.Context, arg CreateOperatorParams) (Operator, error)
 	CreateParentCategory(ctx context.Context, arg CreateParentCategoryParams) (ParentCategory, error)
@@ -20,9 +22,11 @@ type Querier interface {
 	DeleteChildCategory(ctx context.Context, id int64) error
 	DeleteImage(ctx context.Context, id int64) error
 	DeleteImageCharacterRelations(ctx context.Context, id int64) error
+	DeleteImageChildCategoryRelations(ctx context.Context, id int64) error
 	DeleteImageParentCategoryRelations(ctx context.Context, id int64) error
 	DeleteParentCategory(ctx context.Context, id int64) error
 	GetCharacter(ctx context.Context, id int64) (Character, error)
+	GetChildCategoriesByImageID(ctx context.Context, imageID sql.NullInt64) ([]ChildCategory, error)
 	GetChildCategoriesByParentID(ctx context.Context, parentID int64) ([]ChildCategory, error)
 	GetChildCategory(ctx context.Context, id int64) (ChildCategory, error)
 	GetImage(ctx context.Context, id int64) (Image, error)
@@ -33,6 +37,8 @@ type Querier interface {
 	ListImage(ctx context.Context, arg ListImageParams) ([]Image, error)
 	ListImageCharacterRelationsByImageID(ctx context.Context, imageID int64) ([]ImageCharactersRelation, error)
 	ListImageCharacterRelationsByParentCategoryID(ctx context.Context, characterID int64) ([]ImageCharactersRelation, error)
+	ListImageChildCategoryRelationsByImageID(ctx context.Context, imageID int64) ([]ImageChildCategoriesRelation, error)
+	ListImageChildCategoryRelationsByParentCategoryID(ctx context.Context, childCategoryID int64) ([]ImageChildCategoriesRelation, error)
 	ListImageParentCategoryRelationsByImageID(ctx context.Context, imageID int64) ([]ImageParentCategoriesRelation, error)
 	ListImageParentCategoryRelationsByParentCategoryID(ctx context.Context, parentCategoryID int64) ([]ImageParentCategoriesRelation, error)
 	ListParentCategories(ctx context.Context, arg ListParentCategoriesParams) ([]ParentCategory, error)
@@ -41,6 +47,7 @@ type Querier interface {
 	UpdateChildCategory(ctx context.Context, arg UpdateChildCategoryParams) (ChildCategory, error)
 	UpdateImage(ctx context.Context, arg UpdateImageParams) (Image, error)
 	UpdateImageCharacterRelations(ctx context.Context, arg UpdateImageCharacterRelationsParams) (ImageCharactersRelation, error)
+	UpdateImageChildCategoryRelations(ctx context.Context, arg UpdateImageChildCategoryRelationsParams) (ImageChildCategoriesRelation, error)
 	UpdateImageParentCategoryRelations(ctx context.Context, arg UpdateImageParentCategoryRelationsParams) (ImageParentCategoriesRelation, error)
 	UpdateOperator(ctx context.Context, arg UpdateOperatorParams) (Operator, error)
 	UpdateParentCategory(ctx context.Context, arg UpdateParentCategoryParams) (ParentCategory, error)

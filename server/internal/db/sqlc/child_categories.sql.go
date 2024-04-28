@@ -7,12 +7,13 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createChildCategory = `-- name: CreateChildCategory :one
 INSERT INTO child_categories (name, parent_id)
 VALUES ($1, $2)
-RETURNING id, name, parent_id, updated_at, created_at
+RETURNING id, name, parent_id, updated_at, created_at, image_id
 `
 
 type CreateChildCategoryParams struct {
@@ -29,6 +30,7 @@ func (q *Queries) CreateChildCategory(ctx context.Context, arg CreateChildCatego
 		&i.ParentID,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.ImageID,
 	)
 	return i, err
 }
@@ -43,8 +45,44 @@ func (q *Queries) DeleteChildCategory(ctx context.Context, id int64) error {
 	return err
 }
 
+const getChildCategoriesByImageID = `-- name: GetChildCategoriesByImageID :many
+SELECT id, name, parent_id, updated_at, created_at, image_id
+FROM child_categories
+WHERE image_id = $1
+`
+
+func (q *Queries) GetChildCategoriesByImageID(ctx context.Context, imageID sql.NullInt64) ([]ChildCategory, error) {
+	rows, err := q.db.QueryContext(ctx, getChildCategoriesByImageID, imageID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ChildCategory{}
+	for rows.Next() {
+		var i ChildCategory
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.ParentID,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+			&i.ImageID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getChildCategoriesByParentID = `-- name: GetChildCategoriesByParentID :many
-SELECT id, name, parent_id, updated_at, created_at
+SELECT id, name, parent_id, updated_at, created_at, image_id
 FROM child_categories
 WHERE parent_id = $1
 `
@@ -64,6 +102,7 @@ func (q *Queries) GetChildCategoriesByParentID(ctx context.Context, parentID int
 			&i.ParentID,
 			&i.UpdatedAt,
 			&i.CreatedAt,
+			&i.ImageID,
 		); err != nil {
 			return nil, err
 		}
@@ -79,7 +118,7 @@ func (q *Queries) GetChildCategoriesByParentID(ctx context.Context, parentID int
 }
 
 const getChildCategory = `-- name: GetChildCategory :one
-SELECT id, name, parent_id, updated_at, created_at
+SELECT id, name, parent_id, updated_at, created_at, image_id
 FROM child_categories
 WHERE id = $1
 LIMIT 1
@@ -94,12 +133,13 @@ func (q *Queries) GetChildCategory(ctx context.Context, id int64) (ChildCategory
 		&i.ParentID,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.ImageID,
 	)
 	return i, err
 }
 
 const listChildCategories = `-- name: ListChildCategories :many
-SELECT id, name, parent_id, updated_at, created_at
+SELECT id, name, parent_id, updated_at, created_at, image_id
 FROM child_categories
 ORDER BY id DESC
 LIMIT $1 OFFSET $2
@@ -125,6 +165,7 @@ func (q *Queries) ListChildCategories(ctx context.Context, arg ListChildCategori
 			&i.ParentID,
 			&i.UpdatedAt,
 			&i.CreatedAt,
+			&i.ImageID,
 		); err != nil {
 			return nil, err
 		}
@@ -144,7 +185,7 @@ UPDATE child_categories
 SET name = $2,
   parent_id = $3
 WHERE id = $1
-RETURNING id, name, parent_id, updated_at, created_at
+RETURNING id, name, parent_id, updated_at, created_at, image_id
 `
 
 type UpdateChildCategoryParams struct {
@@ -162,6 +203,7 @@ func (q *Queries) UpdateChildCategory(ctx context.Context, arg UpdateChildCatego
 		&i.ParentID,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.ImageID,
 	)
 	return i, err
 }

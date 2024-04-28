@@ -20,11 +20,12 @@ type Character struct {
 }
 
 type ChildCategory struct {
-	ID        int64     `json:"id"`
-	Name      string    `json:"name"`
-	ParentID  int64     `json:"parent_id"`
-	UpdatedAt time.Time `json:"updated_at"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        int64         `json:"id"`
+	Name      string        `json:"name"`
+	ParentID  int64         `json:"parent_id"`
+	UpdatedAt time.Time     `json:"updated_at"`
+	CreatedAt time.Time     `json:"created_at"`
+	ImageID   sql.NullInt64 `json:"image_id"`
 }
 
 type Image struct {
@@ -44,6 +45,12 @@ type ImageCharactersRelation struct {
 	ID          int64 `json:"id"`
 	ImageID     int64 `json:"image_id"`
 	CharacterID int64 `json:"character_id"`
+}
+
+type ImageChildCategoriesRelation struct {
+	ID              int64 `json:"id"`
+	ImageID         int64 `json:"image_id"`
+	ChildCategoryID int64 `json:"child_category_id"`
 }
 
 type ImageParentCategoriesRelation struct {

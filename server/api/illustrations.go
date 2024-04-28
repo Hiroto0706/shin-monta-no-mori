@@ -147,31 +147,75 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
-	originalSrc, err := service.UploadImage(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(err))
-		return
-	}
+	var image db.Image
+	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+		originalSrc, err := service.UploadImage(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
+		if err != nil {
+			return err
+		}
 
-	simpleSrc, err := service.UploadImage(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(err))
-		return
-	}
+		simpleSrc, err := service.UploadImage(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
+		if err != nil {
+			return err
+		}
 
-	arg := db.CreateImageParams{
-		Title:       req.Title,
-		OriginalSrc: originalSrc,
-		SimpleSrc: sql.NullString{
-			String: simpleSrc,
-			Valid:  true,
-		},
-		OriginalFilename: req.Filename,
-	}
+		arg := db.CreateImageParams{
+			Title:       req.Title,
+			OriginalSrc: originalSrc,
+			SimpleSrc: sql.NullString{
+				String: simpleSrc,
+				Valid:  true,
+			},
+			OriginalFilename: req.Filename,
+		}
 
-	image, err := server.Store.CreateImage(c, arg)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(err))
+		image, err = server.Store.CreateImage(c, arg)
+		if err != nil {
+			return err
+		}
+
+		// ImageCharacterRelationsの保存
+		for _, c_id := range req.ChildCategories {
+			arg := db.CreateImageCharacterRelationsParams{
+				ImageID:     image.ID,
+				CharacterID: c_id,
+			}
+			_, err := server.Store.CreateImageCharacterRelations(c, arg)
+			if err != nil {
+				return err
+			}
+		}
+
+		// ImageParentCategoryRelationsの保存
+		for _, pc_id := range req.ParentCategories {
+			arg := db.CreateImageParentCategoryRelationsParams{
+				ImageID:          image.ID,
+				ParentCategoryID: pc_id,
+			}
+
+			_, err := server.Store.CreateImageParentCategoryRelations(c, arg)
+			if err != nil {
+				return err
+			}
+		}
+
+		// ImageChildCategoryRelationsの保存
+		for _, cc_id := range req.ChildCategories {
+			arg := db.CreateImageChildCategoryRelationsParams{
+				ImageID:         image.ID,
+				ChildCategoryID: cc_id,
+			}
+			_, err := server.Store.CreateImageChildCategoryRelations(c, arg)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	if txErr != nil {
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(txErr))
 		return
 	}
 
@@ -184,6 +228,16 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 		"o_src":            image.OriginalSrc,
 		"s_src":            image.SimpleSrc,
 	})
+}
+
+type editIllustrationRequest struct {
+	Title             string               `json:"title" form:"title"`
+	Filename          string               `json:"filename" form:"filename"`
+	Characters        []int64              `json:"characters" form:"characters"`
+	ParentCategories  []int64              `json:"parent_categories" form:"parent_categories"`
+	ChildCategories   []int64              `json:"child_categories" form:"child_categories"`
+	OriginalImageFile multipart.FileHeader `json:"original_image_file" form:"image_file"`
+	SimpleImageFile   multipart.FileHeader `json:"simple_image_file" form:"image_file"`
 }
 
 func (server *Server) EditIllustration(c *gin.Context) {}
