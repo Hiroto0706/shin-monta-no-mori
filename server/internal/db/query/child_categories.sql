@@ -11,10 +11,6 @@ LIMIT 1;
 SELECT *
 FROM child_categories
 WHERE parent_id = $1;
--- name: GetChildCategoriesByImageID :many
-SELECT *
-FROM child_categories
-WHERE image_id = $1;
 -- name: ListChildCategories :many
 SELECT *
 FROM child_categories

@@ -48,17 +48,23 @@ func FetchRelationInfoForIllustrations(c *gin.Context, store *db.Store, i db.Ima
 		if err != nil {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetParentCategory() : %w", err)))
 		}
-		arg := sql.NullInt64{
-			Int64: i.ID,
-			Valid: true,
-		}
-		cCates, err := store.GetChildCategoriesByImageID(c, arg)
+
+		iccrs, err := store.ListImageChildCategoryRelationsByImageID(c, i.ID)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
 			}
 
 			c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
+		}
+
+		cCates := []db.ChildCategory{}
+		for _, iccr := range iccrs {
+			cCate, err := store.GetChildCategory(c, iccr.ChildCategoryID)
+			if err != nil {
+				c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategory() : %w", err)))
+			}
+			cCates = append(cCates, cCate)
 		}
 
 		cate := model.NewCategory()

@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"mime/multipart"
 	"net/http"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
@@ -132,9 +133,9 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 type createIllustrationRequest struct {
 	Title             string               `json:"title" form:"title" binding:"required"`
 	Filename          string               `json:"filename" form:"filename" binding:"required"`
-	Characters        []int64              `json:"characters" form:"characters"`
-	ParentCategories  []int64              `json:"parent_categories" form:"parent_categories"`
-	ChildCategories   []int64              `json:"child_categories" form:"child_categories"`
+	Characters        []int64              `form:"characters[]"`
+	ParentCategories  []int64              `form:"parent_categories[]"`
+	ChildCategories   []int64              `form:"child_categories[]"`
 	OriginalImageFile multipart.FileHeader `json:"original_image_file" form:"image_file" binding:"required"`
 	SimpleImageFile   multipart.FileHeader `json:"simple_image_file" form:"image_file"`
 }
@@ -145,18 +146,19 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
 		return
 	}
+	log.Println("req", req)
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
 	var image db.Image
 	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
 		originalSrc, err := service.UploadImage(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to UploadImage: %w", err)
 		}
 
 		simpleSrc, err := service.UploadImage(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to UploadImage: %w", err)
 		}
 
 		arg := db.CreateImageParams{
@@ -173,21 +175,24 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 
 		image, err = server.Store.CreateImage(c, arg)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to CreateImage: %w", err)
 		}
 
+		log.Println("ここまできている1")
+		log.Println("characters", req.Characters)
 		// ImageCharacterRelationsの保存
-		for _, c_id := range req.ChildCategories {
+		for _, c_id := range req.Characters {
 			arg := db.CreateImageCharacterRelationsParams{
 				ImageID:     image.ID,
 				CharacterID: c_id,
 			}
 			_, err := server.Store.CreateImageCharacterRelations(c, arg)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to CreateImageCharacterRelations: %w", err)
 			}
 		}
 
+		log.Println("ここまできている2")
 		// ImageParentCategoryRelationsの保存
 		for _, pc_id := range req.ParentCategories {
 			arg := db.CreateImageParentCategoryRelationsParams{
@@ -197,10 +202,12 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 
 			_, err := server.Store.CreateImageParentCategoryRelations(c, arg)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to CreateImageParentCategoryRelations: %w", err)
 			}
 		}
 
+		log.Println("ここまできている3")
+		fmt.Println("categories c", req.ChildCategories)
 		// ImageChildCategoryRelationsの保存
 		for _, cc_id := range req.ChildCategories {
 			arg := db.CreateImageChildCategoryRelationsParams{
@@ -209,7 +216,8 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 			}
 			_, err := server.Store.CreateImageChildCategoryRelations(c, arg)
 			if err != nil {
-				return err
+				fmt.Println(err)
+				return fmt.Errorf("failed to CreateImageChildCategoryRelations: %w", err)
 			}
 		}
 
@@ -217,7 +225,7 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 	})
 
 	if txErr != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(txErr))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("CreateImage transaction was failed : %w", txErr)))
 		return
 	}
 

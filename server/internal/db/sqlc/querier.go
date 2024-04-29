@@ -6,7 +6,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 type Querier interface {
@@ -26,7 +25,6 @@ type Querier interface {
 	DeleteImageParentCategoryRelations(ctx context.Context, id int64) error
 	DeleteParentCategory(ctx context.Context, id int64) error
 	GetCharacter(ctx context.Context, id int64) (Character, error)
-	GetChildCategoriesByImageID(ctx context.Context, imageID sql.NullInt64) ([]ChildCategory, error)
 	GetChildCategoriesByParentID(ctx context.Context, parentID int64) ([]ChildCategory, error)
 	GetChildCategory(ctx context.Context, id int64) (ChildCategory, error)
 	GetImage(ctx context.Context, id int64) (Image, error)
