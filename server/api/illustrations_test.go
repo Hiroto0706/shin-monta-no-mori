@@ -58,6 +58,7 @@ func TestListIllustrations(t *testing.T) {
 							String: "test_image_simple_src_999991.com",
 							Valid:  true,
 						},
+						OriginalFilename: "test_image_original_filename_999991",
 					},
 					Character: []db.Character{
 						{
@@ -103,6 +104,7 @@ func TestListIllustrations(t *testing.T) {
 							String: "test_image_simple_src_999990.com",
 							Valid:  true,
 						},
+						OriginalFilename: "test_image_original_filename_999990",
 					},
 					Character: []db.Character{
 						{
@@ -209,6 +211,7 @@ func TestGetIllustration(t *testing.T) {
 						String: "test_image_simple_src_11001.com",
 						Valid:  true,
 					},
+					OriginalFilename: "test_image_original_filename_11001",
 				},
 				Character: []db.Character{
 					{
@@ -308,6 +311,7 @@ func TestCreateIllustration(t *testing.T) {
 						String: "test_image_simple_src_11001.com",
 						Valid:  true,
 					},
+					OriginalFilename: "test_image_original_filename_11001",
 				},
 				Character: []db.Character{
 					{
@@ -415,11 +419,11 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 
 	queries := []string{
 		fmt.Sprintln(`
-		INSERT INTO images (id, title, original_src, simple_src)
+		INSERT INTO images (id, title, original_src, simple_src, original_filename)
 		VALUES
-		(11001, 'test_image_title_11001', 'test_image_original_src_11001.com', 'test_image_simple_src_11001.com'),
-		(999990, 'test_image_title_999990', 'test_image_original_src_999990.com', 'test_image_simple_src_999990.com'),
-		(999991, 'test_image_title_999991', 'test_image_original_src_999991.com', 'test_image_simple_src_999991.com');
+		(11001, 'test_image_title_11001', 'test_image_original_src_11001.com', 'test_image_simple_src_11001.com', 'test_image_original_filename_11001'),
+		(999990, 'test_image_title_999990', 'test_image_original_src_999990.com', 'test_image_simple_src_999990.com', 'test_image_original_filename_999990'),
+		(999991, 'test_image_title_999991', 'test_image_original_src_999991.com', 'test_image_simple_src_999991.com', 'test_image_original_filename_999991');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO characters (id, name, src)

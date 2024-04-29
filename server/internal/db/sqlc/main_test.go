@@ -34,30 +34,30 @@ func TestMain(m *testing.M) {
 func SetUp(t *testing.T, db *db.Queries) {
 	queries := []string{
 		fmt.Sprintln(`
-		INSERT INTO images (id, title, original_src, simple_src)
+		INSERT INTO images (id, title, original_src, simple_src, original_filename)
 		VALUES
-		(10001, 'test_image_title_10001', 'test_image_original_src_10001', 'test_image_simple_src_10001');
+		(10001, 'test_image_title_10001', 'test_image_original_src_10001', 'test_image_simple_src_10001', 'test_image_filename_10001');
 		`),
 		fmt.Sprintln(`
-		INSERT INTO images (id, title, original_src, simple_src)
+		INSERT INTO images (id, title, original_src, simple_src, original_filename)
 		VALUES
-		(20001, 'test_image_title_20001', 'test_image_original_src_20001', 'test_image_simple_src_20001'),
-		(20002, 'test_image_title_20002', 'test_image_original_src_20002', '');
+		(20001, 'test_image_title_20001', 'test_image_original_src_20001', 'test_image_simple_src_20001', 'test_image_filename_20001'),
+		(20002, 'test_image_title_20002', 'test_image_original_src_20002', '', 'test_image_filename_20002');
 		`),
 		// listの時は最後の値を取得したいので、IDを大きくする
 		fmt.Sprintln(`
-		INSERT INTO images (id, title, original_src, simple_src)
+		INSERT INTO images (id, title, original_src, simple_src, original_filename)
 		VALUES
-		(99990, 'test_image_title_99990', 'test_image_original_src_99990', 'test_image_simple_src_99990'),
-		(99991, 'test_image_title_99991', 'test_image_original_src_99991', 'test_image_simple_src_99991'),
-		(99992, 'test_image_title_99992', 'test_image_original_src_99992', 'test_image_simple_src_99992');
+		(99990, 'test_image_title_99990', 'test_image_original_src_99990', 'test_image_simple_src_99990', 'test_image_filename_99990'),
+		(99991, 'test_image_title_99991', 'test_image_original_src_99991', 'test_image_simple_src_99991', 'test_image_filename_99991'),
+		(99992, 'test_image_title_99992', 'test_image_original_src_99992', 'test_image_simple_src_99992', 'test_image_filename_99992');
 		`),
 		fmt.Sprintln(`
-		INSERT INTO images (id, title, original_src, simple_src)
+		INSERT INTO images (id, title, original_src, simple_src, original_filename)
 		VALUES
-		(40001, 'test_image_title_40001', 'test_image_original_src_40001', 'test_image_simple_src_40001'),
-		(40002, 'test_image_title_40002', 'test_image_original_src_40002', 'test_image_simple_src_40002'),
-		(40003, 'test_image_title_40003', 'test_image_original_src_40003', 'test_image_simple_src_40003');
+		(40001, 'test_image_title_40001', 'test_image_original_src_40001', 'test_image_simple_src_40001', 'test_image_filename_40001'),
+		(40002, 'test_image_title_40002', 'test_image_original_src_40002', 'test_image_simple_src_40002', 'test_image_filename_40002'),
+		(40003, 'test_image_title_40003', 'test_image_original_src_40003', 'test_image_simple_src_40003', 'test_image_filename_40003');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO characters (id, name, src)
