@@ -131,13 +131,13 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 }
 
 type createIllustrationRequest struct {
-	Title             string               `json:"title" form:"title" binding:"required"`
-	Filename          string               `json:"filename" form:"filename" binding:"required"`
+	Title             string               `form:"title" binding:"required"`
+	Filename          string               `form:"filename" binding:"required"`
 	Characters        []int64              `form:"characters[]"`
 	ParentCategories  []int64              `form:"parent_categories[]"`
 	ChildCategories   []int64              `form:"child_categories[]"`
-	OriginalImageFile multipart.FileHeader `json:"original_image_file" form:"image_file" binding:"required"`
-	SimpleImageFile   multipart.FileHeader `json:"simple_image_file" form:"image_file"`
+	OriginalImageFile multipart.FileHeader `form:"image_file" binding:"required"`
+	SimpleImageFile   multipart.FileHeader `form:"image_file"`
 }
 
 func (server *Server) CreateIllustration(c *gin.Context) {
@@ -247,13 +247,13 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 }
 
 type editIllustrationRequest struct {
-	Title             string               `json:"title" form:"title"`
-	Filename          string               `json:"filename" form:"filename"`
-	Characters        []int64              `json:"characters" form:"characters"`
-	ParentCategories  []int64              `json:"parent_categories" form:"parent_categories"`
-	ChildCategories   []int64              `json:"child_categories" form:"child_categories"`
-	OriginalImageFile multipart.FileHeader `json:"original_image_file" form:"image_file"`
-	SimpleImageFile   multipart.FileHeader `json:"simple_image_file" form:"image_file"`
+	Title             string               `form:"title"`
+	Filename          string               `form:"filename"`
+	Characters        []int64              `form:"characters[]"`
+	ParentCategories  []int64              `form:"parent_categories[]"`
+	ChildCategories   []int64              `form:"child_categories[]"`
+	OriginalImageFile multipart.FileHeader `form:"image_file"`
+	SimpleImageFile   multipart.FileHeader `form:"image_file"`
 }
 
 func (server *Server) EditIllustration(c *gin.Context) {
@@ -262,20 +262,6 @@ func (server *Server) EditIllustration(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
 		return
 	}
-
-	image, err := server.Store.GetImage(c, int64(id))
-	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
-			return
-		}
-
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
-		return
-	}
-
-	illustration := service.FetchRelationInfoForIllustrations(c, server.Store, image)
-
 	var req editIllustrationRequest
 	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
@@ -283,72 +269,122 @@ func (server *Server) EditIllustration(c *gin.Context) {
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
+	image, err := server.Store.GetImage(c, int64(id))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+		return
+	}
+	illustration := service.FetchRelationInfoForIllustrations(c, server.Store, image)
+
 	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
-		// TODO: ファイル名だけ変わるorファイル名そのままで画像だけ変わる場合は既存の画像を削除し、更新するようにする
-		originalSrc, err := service.UploadImageSrc(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
-		if err != nil {
-			return err
+		var originalSrc string
+		if image.OriginalFilename != req.Filename {
+			err := service.DeleteImageSrc(c, &server.Config, image.SimpleFilename.String)
+			if err != nil {
+				return err
+			}
+
+			originalSrc, err = service.UploadImageSrc(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
+			if err != nil {
+				return err
+			}
 		}
 
-		// TODO: ファイル名だけ変わるorファイル名そのままで画像だけ変わる場合は既存の画像を削除し、更新するようにする
-		simpleSrc, err := service.UploadImageSrc(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
-		if err != nil {
-			return err
+		var simpleSrc string
+		if image.OriginalFilename != req.Filename {
+			err := service.DeleteImageSrc(c, &server.Config, image.SimpleFilename.String)
+			if err != nil {
+				return err
+			}
+
+			simpleSrc, err = service.UploadImageSrc(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
+			if err != nil {
+				return err
+			}
 		}
 
-		// TODO: UPDATEに変える
-		arg := db.CreateImageParams{
-			Title:       req.Title,
-			OriginalSrc: originalSrc,
-			SimpleSrc: sql.NullString{
-				String: simpleSrc,
-				Valid:  true,
-			},
+		// imageのUpdate処理
+		arg := db.UpdateImageParams{
+			ID:               image.ID,
+			Title:            req.Title,
+			OriginalSrc:      originalSrc,
+			SimpleSrc:        sql.NullString{String: "", Valid: false},
 			OriginalFilename: req.Filename,
+			SimpleFilename:   sql.NullString{String: "", Valid: false},
 		}
-
-		// TODO: UPDATEに変える
-		image, err = server.Store.CreateImage(c, arg)
+		if simpleSrc != "" {
+			arg.SimpleSrc = sql.NullString{String: simpleSrc, Valid: true}
+			arg.SimpleFilename = sql.NullString{String: req.Filename + "_s", Valid: true}
+		}
+		image, err = server.Store.UpdateImage(c, arg)
 		if err != nil {
 			return err
 		}
 
-		// TODO: UPDATEに変える
-		for _, c_id := range req.ChildCategories {
-			arg := db.CreateImageCharacterRelationsParams{
-				ImageID:     image.ID,
-				CharacterID: c_id,
+		// image_character_relationsのUpdate処理
+		exsistingIcrs, err := server.Store.ListImageCharacterRelationsByImageID(c, image.ID)
+		if err != nil {
+			return err
+		}
+		existingIDs := make(map[int64]bool)
+		for _, r := range exsistingIcrs {
+			existingIDs[r.CharacterID] = true
+		}
+
+		newIDs := make(map[int64]bool)
+		for _, id := range req.Characters {
+			newIDs[id] = true
+		}
+		// 不要なリレーションデータを削除
+		for _, r := range exsistingIcrs {
+			if !newIDs[r.CharacterID] {
+				err = server.Store.DeleteImageCharacterRelations(c, r.ID)
+				if err != nil {
+					return fmt.Errorf("failed to DeleteImageCharacterRelations: %w", err)
+				}
 			}
-			_, err := server.Store.CreateImageCharacterRelations(c, arg)
-			if err != nil {
-				return err
+		}
+		// 新しいリレーションデータを追加
+		for _, id := range req.Characters {
+			if !existingIDs[id] {
+				_, err = server.Store.CreateImageCharacterRelations(c, db.CreateImageCharacterRelationsParams{
+					ImageID:     image.ID,
+					CharacterID: id,
+				})
+				if err != nil {
+					return fmt.Errorf("failed to CreateImageCharacterRelations: %w", err)
+				}
 			}
 		}
 
-		// TODO: UPDATEに変える
-		for _, pc_id := range req.ParentCategories {
-			arg := db.CreateImageParentCategoryRelationsParams{
-				ImageID:          image.ID,
-				ParentCategoryID: pc_id,
-			}
+		// // TODO: UPDATEに変える
+		// for _, pc_id := range req.ParentCategories {
+		// 	arg := db.CreateImageParentCategoryRelationsParams{
+		// 		ImageID:          image.ID,
+		// 		ParentCategoryID: pc_id,
+		// 	}
 
-			_, err := server.Store.CreateImageParentCategoryRelations(c, arg)
-			if err != nil {
-				return err
-			}
-		}
+		// 	_, err := server.Store.CreateImageParentCategoryRelations(c, arg)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// }
 
-		// TODO: UPDATEに変える
-		for _, cc_id := range req.ChildCategories {
-			arg := db.CreateImageChildCategoryRelationsParams{
-				ImageID:         image.ID,
-				ChildCategoryID: cc_id,
-			}
-			_, err := server.Store.CreateImageChildCategoryRelations(c, arg)
-			if err != nil {
-				return err
-			}
-		}
+		// // TODO: UPDATEに変える
+		// for _, cc_id := range req.ChildCategories {
+		// 	arg := db.CreateImageChildCategoryRelationsParams{
+		// 		ImageID:         image.ID,
+		// 		ChildCategoryID: cc_id,
+		// 	}
+		// 	_, err := server.Store.CreateImageChildCategoryRelations(c, arg)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// }
 
 		return nil
 	})
