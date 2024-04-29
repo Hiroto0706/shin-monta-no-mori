@@ -178,8 +178,6 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 			return fmt.Errorf("failed to CreateImage: %w", err)
 		}
 
-		log.Println("ここまできている1")
-		log.Println("characters", req.Characters)
 		// ImageCharacterRelationsの保存
 		for _, c_id := range req.Characters {
 			arg := db.CreateImageCharacterRelationsParams{
@@ -192,7 +190,6 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 			}
 		}
 
-		log.Println("ここまできている2")
 		// ImageParentCategoryRelationsの保存
 		for _, pc_id := range req.ParentCategories {
 			arg := db.CreateImageParentCategoryRelationsParams{
@@ -206,8 +203,6 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 			}
 		}
 
-		log.Println("ここまできている3")
-		fmt.Println("categories c", req.ChildCategories)
 		// ImageChildCategoryRelationsの保存
 		for _, cc_id := range req.ChildCategories {
 			arg := db.CreateImageChildCategoryRelationsParams{
@@ -216,7 +211,6 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 			}
 			_, err := server.Store.CreateImageChildCategoryRelations(c, arg)
 			if err != nil {
-				fmt.Println(err)
 				return fmt.Errorf("failed to CreateImageChildCategoryRelations: %w", err)
 			}
 		}
@@ -400,9 +394,6 @@ func (server *Server) DeleteIllustration(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
 		return
 	}
-
-	fmt.Println(image)
-	fmt.Println(image.SimpleFilename.String)
 
 	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
 		err = service.DeleteImage(c, &server.Config, image.OriginalSrc)
