@@ -130,12 +130,12 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 }
 
 type createIllustrationRequest struct {
-	Title             string               `json:"title" form:"title"`
-	Filename          string               `json:"filename" form:"filename"`
+	Title             string               `json:"title" form:"title" binding:"required"`
+	Filename          string               `json:"filename" form:"filename" binding:"required"`
 	Characters        []int64              `json:"characters" form:"characters"`
 	ParentCategories  []int64              `json:"parent_categories" form:"parent_categories"`
 	ChildCategories   []int64              `json:"child_categories" form:"child_categories"`
-	OriginalImageFile multipart.FileHeader `json:"original_image_file" form:"image_file"`
+	OriginalImageFile multipart.FileHeader `json:"original_image_file" form:"image_file" binding:"required"`
 	SimpleImageFile   multipart.FileHeader `json:"simple_image_file" form:"image_file"`
 }
 
@@ -148,6 +148,139 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
 	var image db.Image
+	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+		originalSrc, err := service.UploadImage(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
+		if err != nil {
+			return err
+		}
+
+		simpleSrc, err := service.UploadImage(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
+		if err != nil {
+			return err
+		}
+
+		arg := db.CreateImageParams{
+			Title:            req.Title,
+			OriginalSrc:      originalSrc,
+			OriginalFilename: req.Filename,
+			SimpleSrc:        sql.NullString{String: "", Valid: false},
+			SimpleFilename:   sql.NullString{String: "", Valid: false},
+		}
+		if simpleSrc != "" {
+			arg.SimpleSrc = sql.NullString{String: simpleSrc, Valid: true}
+			arg.SimpleFilename = sql.NullString{String: req.Filename + "_s", Valid: true}
+		}
+
+		image, err = server.Store.CreateImage(c, arg)
+		if err != nil {
+			return err
+		}
+
+		// ImageCharacterRelationsの保存
+		for _, c_id := range req.ChildCategories {
+			arg := db.CreateImageCharacterRelationsParams{
+				ImageID:     image.ID,
+				CharacterID: c_id,
+			}
+			_, err := server.Store.CreateImageCharacterRelations(c, arg)
+			if err != nil {
+				return err
+			}
+		}
+
+		// ImageParentCategoryRelationsの保存
+		for _, pc_id := range req.ParentCategories {
+			arg := db.CreateImageParentCategoryRelationsParams{
+				ImageID:          image.ID,
+				ParentCategoryID: pc_id,
+			}
+
+			_, err := server.Store.CreateImageParentCategoryRelations(c, arg)
+			if err != nil {
+				return err
+			}
+		}
+
+		// ImageChildCategoryRelationsの保存
+		for _, cc_id := range req.ChildCategories {
+			arg := db.CreateImageChildCategoryRelationsParams{
+				ImageID:         image.ID,
+				ChildCategoryID: cc_id,
+			}
+			_, err := server.Store.CreateImageChildCategoryRelations(c, arg)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	if txErr != nil {
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(txErr))
+		return
+	}
+
+	image, err := server.Store.GetImage(c, int64(image.ID))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+		return
+	}
+
+	illustration := service.FetchRelationInfoForIllustrations(c, server.Store, image)
+
+	c.JSON(http.StatusOK, gin.H{
+		"title":      illustration.Image.Title,
+		"filename":   illustration.Image.OriginalFilename,
+		"characters": illustration.Character,
+		"category":   illustration.Category,
+		"o_src":      illustration.Image.OriginalSrc,
+		"s_src":      illustration.Image.SimpleSrc,
+	})
+}
+
+type editIllustrationRequest struct {
+	Title             string               `json:"title" form:"title"`
+	Filename          string               `json:"filename" form:"filename"`
+	Characters        []int64              `json:"characters" form:"characters"`
+	ParentCategories  []int64              `json:"parent_categories" form:"parent_categories"`
+	ChildCategories   []int64              `json:"child_categories" form:"child_categories"`
+	OriginalImageFile multipart.FileHeader `json:"original_image_file" form:"image_file"`
+	SimpleImageFile   multipart.FileHeader `json:"simple_image_file" form:"image_file"`
+}
+
+func (server *Server) EditIllustration(c *gin.Context) {
+	id, err := strconv.Atoi(c.Query("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
+		return
+	}
+
+	image, err := server.Store.GetImage(c, int64(id))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+		return
+	}
+
+	illustration := service.FetchRelationInfoForIllustrations(c, server.Store, image)
+
+	var req editIllustrationRequest
+	if err := c.ShouldBind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
+		return
+	}
+	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
+
 	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
 		originalSrc, err := service.UploadImage(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
 		if err != nil {
@@ -219,27 +352,70 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 		return
 	}
 
+	// image, err = server.Store.GetImage(c, int64(image.ID))
+	// if err != nil {
+	// 	if err == sql.ErrNoRows {
+	// 		c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+	// 		return
+	// 	}
+
+	// 	c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+	// 	return
+	// }
+
+	// illustration = service.FetchRelationInfoForIllustrations(c, server.Store, image)
+
 	c.JSON(http.StatusOK, gin.H{
-		"title":            image.Title,
-		"filename":         image.OriginalFilename,
-		"characters":       req.Characters,
-		"parentCategories": req.ParentCategories,
-		"childCategories":  req.ChildCategories,
-		"o_src":            image.OriginalSrc,
-		"s_src":            image.SimpleSrc,
+		"title":      illustration.Image.Title,
+		"filename":   illustration.Image.OriginalFilename,
+		"characters": illustration.Character,
+		"category":   illustration.Category,
+		"o_src":      illustration.Image.OriginalSrc,
+		"s_src":      illustration.Image.SimpleSrc,
 	})
 }
 
-type editIllustrationRequest struct {
-	Title             string               `json:"title" form:"title"`
-	Filename          string               `json:"filename" form:"filename"`
-	Characters        []int64              `json:"characters" form:"characters"`
-	ParentCategories  []int64              `json:"parent_categories" form:"parent_categories"`
-	ChildCategories   []int64              `json:"child_categories" form:"child_categories"`
-	OriginalImageFile multipart.FileHeader `json:"original_image_file" form:"image_file"`
-	SimpleImageFile   multipart.FileHeader `json:"simple_image_file" form:"image_file"`
+func (server *Server) DeleteIllustration(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
+		return
+	}
+
+	image, err := server.Store.GetImage(c, int64(id))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+		return
+	}
+
+	fmt.Println(image)
+	fmt.Println(image.SimpleFilename.String)
+
+	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+		err = service.DeleteImage(c, &server.Config, image.OriginalSrc)
+		if err != nil {
+			return err
+		}
+
+		err = service.DeleteImage(c, &server.Config, image.SimpleSrc.String)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if txErr != nil {
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(txErr))
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "successfully deleted image",
+	})
 }
-
-func (server *Server) EditIllustration(c *gin.Context) {}
-
-func (server *Server) DeleteIllustration(c *gin.Context) {}
