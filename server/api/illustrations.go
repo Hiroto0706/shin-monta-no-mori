@@ -151,12 +151,12 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 
 	var image db.Image
 	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
-		originalSrc, err := service.UploadImage(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
+		originalSrc, err := service.UploadImageSrc(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
 		if err != nil {
 			return fmt.Errorf("failed to UploadImage: %w", err)
 		}
 
-		simpleSrc, err := service.UploadImage(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
+		simpleSrc, err := service.UploadImageSrc(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
 		if err != nil {
 			return fmt.Errorf("failed to UploadImage: %w", err)
 		}
@@ -284,16 +284,19 @@ func (server *Server) EditIllustration(c *gin.Context) {
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
 	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
-		originalSrc, err := service.UploadImage(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
+		// TODO: ファイル名だけ変わるorファイル名そのままで画像だけ変わる場合は既存の画像を削除し、更新するようにする
+		originalSrc, err := service.UploadImageSrc(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
 		if err != nil {
 			return err
 		}
 
-		simpleSrc, err := service.UploadImage(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
+		// TODO: ファイル名だけ変わるorファイル名そのままで画像だけ変わる場合は既存の画像を削除し、更新するようにする
+		simpleSrc, err := service.UploadImageSrc(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
 		if err != nil {
 			return err
 		}
 
+		// TODO: UPDATEに変える
 		arg := db.CreateImageParams{
 			Title:       req.Title,
 			OriginalSrc: originalSrc,
@@ -304,12 +307,13 @@ func (server *Server) EditIllustration(c *gin.Context) {
 			OriginalFilename: req.Filename,
 		}
 
+		// TODO: UPDATEに変える
 		image, err = server.Store.CreateImage(c, arg)
 		if err != nil {
 			return err
 		}
 
-		// ImageCharacterRelationsの保存
+		// TODO: UPDATEに変える
 		for _, c_id := range req.ChildCategories {
 			arg := db.CreateImageCharacterRelationsParams{
 				ImageID:     image.ID,
@@ -321,7 +325,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 			}
 		}
 
-		// ImageParentCategoryRelationsの保存
+		// TODO: UPDATEに変える
 		for _, pc_id := range req.ParentCategories {
 			arg := db.CreateImageParentCategoryRelationsParams{
 				ImageID:          image.ID,
@@ -334,7 +338,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 			}
 		}
 
-		// ImageChildCategoryRelationsの保存
+		// TODO: UPDATEに変える
 		for _, cc_id := range req.ChildCategories {
 			arg := db.CreateImageChildCategoryRelationsParams{
 				ImageID:         image.ID,
@@ -396,14 +400,61 @@ func (server *Server) DeleteIllustration(c *gin.Context) {
 	}
 
 	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
-		err = service.DeleteImage(c, &server.Config, image.OriginalSrc)
+		err = service.DeleteImageSrc(c, &server.Config, image.OriginalSrc)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to DeleteImageSrc: %w", err)
 		}
 
-		err = service.DeleteImage(c, &server.Config, image.SimpleSrc.String)
+		err = service.DeleteImageSrc(c, &server.Config, image.SimpleSrc.String)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to DeleteImageSrc: %w", err)
+		}
+
+		// image_child_category_relationsを削除
+		iccrs, err := server.Store.ListImageChildCategoryRelationsByImageID(c, image.ID)
+		if err != nil {
+			return fmt.Errorf("failed to ListImageChildCategoryRelationsByImageID: %w", err)
+		}
+		for _, iccr := range iccrs {
+			err = server.Store.DeleteImageChildCategoryRelations(c, iccr.ID)
+			if err != nil {
+				return fmt.Errorf("failed to DeleteImageChildCategoryRelations: %w", err)
+			}
+		}
+
+		// image_parent_category_relationsを削除
+		ipcrs, err := server.Store.ListImageParentCategoryRelationsByImageID(c, image.ID)
+		if err != nil {
+			fmt.Println(err)
+			return fmt.Errorf("failed to ListImageParentCategoryRelationsByImageID: %w", err)
+		}
+		for _, ipcr := range ipcrs {
+			err = server.Store.DeleteImageParentCategoryRelations(c, ipcr.ID)
+			if err != nil {
+				fmt.Println(err)
+				return fmt.Errorf("failed to DeleteImageParentCategoryRelations: %w", err)
+			}
+		}
+
+		// image_character_relationsを削除
+		icrs, err := server.Store.ListImageCharacterRelationsByImageID(c, image.ID)
+		if err != nil {
+			fmt.Println(err)
+			return fmt.Errorf("failed to ListImageCharacterRelationsByImageID: %w", err)
+		}
+		for _, icr := range icrs {
+			err = server.Store.DeleteImageCharacterRelations(c, icr.ID)
+			if err != nil {
+				fmt.Println(err)
+				return fmt.Errorf("failed to DeleteImageCharacterRelations: %w", err)
+			}
+		}
+
+		// Imageを削除
+		err = server.Store.DeleteImage(c, image.ID)
+		if err != nil {
+			fmt.Println(err)
+			return fmt.Errorf("failed to DeleteImage: %w", err)
 		}
 
 		return nil
