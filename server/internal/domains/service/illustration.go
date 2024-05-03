@@ -111,3 +111,135 @@ func DeleteImageSrc(c *gin.Context, config *util.Config, src string) error {
 	}
 	return storageService.DeleteFile(c, src)
 }
+
+// UpdateImageCharacterRelationsIDs updates the character relations for an image.
+func UpdateImageCharacterRelationsIDs(c *gin.Context, store *db.Store, imageID int64, newCharacterIDs []int64) error {
+	existingRelations, err := store.ListImageCharacterRelationsByImageID(c, imageID)
+	if err != nil {
+		return fmt.Errorf("failed to ListImageCharacterRelationsByImageID: %w", err)
+	}
+
+	// Create a map of existing character IDs for quick lookup.
+	existingIDs := make(map[int64]bool)
+	for _, rel := range existingRelations {
+		existingIDs[rel.CharacterID] = true
+	}
+
+	// Create a set from the new character IDs.
+	newIDs := make(map[int64]bool)
+	for _, id := range newCharacterIDs {
+		newIDs[id] = true
+	}
+
+	// Remove relations that are not needed anymore.
+	for _, rel := range existingRelations {
+		if !newIDs[rel.CharacterID] {
+			if err := store.DeleteImageCharacterRelations(c, rel.ID); err != nil {
+				return fmt.Errorf("failed to DeleteImageCharacterRelations: %w", err)
+			}
+		}
+	}
+
+	// Add new relations that do not exist yet.
+	for id := range newIDs {
+		if !existingIDs[id] {
+			_, err := store.CreateImageCharacterRelations(c, db.CreateImageCharacterRelationsParams{
+				ImageID:     imageID,
+				CharacterID: id,
+			})
+			if err != nil {
+				return fmt.Errorf("failed to CreateImageCharacterRelations: %w", err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// UpdateImageParentCategoryRelationsIDs updates the parent_category relations for an image.
+func UpdateImageParentCategoryRelationsIDs(c *gin.Context, store *db.Store, imageID int64, newParentCategoryIDs []int64) error {
+	existingRelations, err := store.ListImageParentCategoryRelationsByImageID(c, imageID)
+	if err != nil {
+		return fmt.Errorf("failed to ListImageParentCategoryRelationsByImageID: %w", err)
+	}
+
+	// Create a map of existing parent_category IDs for quick lookup.
+	existingIDs := make(map[int64]bool)
+	for _, rel := range existingRelations {
+		existingIDs[rel.ParentCategoryID] = true
+	}
+
+	// Create a set from the new parent_category IDs.
+	newIDs := make(map[int64]bool)
+	for _, id := range newParentCategoryIDs {
+		newIDs[id] = true
+	}
+
+	// Remove relations that are not needed anymore.
+	for _, rel := range existingRelations {
+		if !newIDs[rel.ParentCategoryID] {
+			if err := store.DeleteImageParentCategoryRelations(c, rel.ID); err != nil {
+				return fmt.Errorf("failed to DeleteImageParentCategoryRelations: %w", err)
+			}
+		}
+	}
+
+	// Add new relations that do not exist 	yet.
+	for id := range newIDs {
+		if !existingIDs[id] {
+			_, err := store.CreateImageParentCategoryRelations(c, db.CreateImageParentCategoryRelationsParams{
+				ImageID:          imageID,
+				ParentCategoryID: id,
+			})
+			if err != nil {
+				return fmt.Errorf("failed to CreateImageParentCategoryRelations: %w", err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// UpdateImageChildCategoryRelationsIDs updates the child_category relations for an image.
+func UpdateImageChildCategoryRelationsIDs(c *gin.Context, store *db.Store, imageID int64, newChildCategoryIDs []int64) error {
+	existingRelations, err := store.ListImageChildCategoryRelationsByImageID(c, imageID)
+	if err != nil {
+		return fmt.Errorf("failed to ListImageChildCategoryRelationsByImageID: %w", err)
+	}
+
+	// Create a map of existing child_category IDs for quick lookup.
+	existingIDs := make(map[int64]bool)
+	for _, rel := range existingRelations {
+		existingIDs[rel.ChildCategoryID] = true
+	}
+
+	// Create a set from the new child_category IDs.
+	newIDs := make(map[int64]bool)
+	for _, id := range newChildCategoryIDs {
+		newIDs[id] = true
+	}
+
+	// Remove relations that are not needed anymore.
+	for _, rel := range existingRelations {
+		if !newIDs[rel.ChildCategoryID] {
+			if err := store.DeleteImageChildCategoryRelations(c, rel.ID); err != nil {
+				return fmt.Errorf("failed to DeleteImageChildCategoryRelations: %w", err)
+			}
+		}
+	}
+
+	// Add new relations that do not exist 	yet.
+	for id := range newIDs {
+		if !existingIDs[id] {
+			_, err := store.CreateImageChildCategoryRelations(c, db.CreateImageChildCategoryRelationsParams{
+				ImageID:         imageID,
+				ChildCategoryID: id,
+			})
+			if err != nil {
+				return fmt.Errorf("failed to CreateImageChildCategoryRelations: %w", err)
+			}
+		}
+	}
+
+	return nil
+}

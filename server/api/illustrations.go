@@ -295,7 +295,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 		}
 
 		var simpleSrc string
-		if image.OriginalFilename != req.Filename {
+		if image.OriginalFilename != req.Filename && image.SimpleFilename.String != "" {
 			err := service.DeleteImageSrc(c, &server.Config, image.SimpleFilename.String)
 			if err != nil {
 				return err
@@ -326,65 +326,22 @@ func (server *Server) EditIllustration(c *gin.Context) {
 		}
 
 		// image_character_relationsのUpdate処理
-		exsistingIcrs, err := server.Store.ListImageCharacterRelationsByImageID(c, image.ID)
+		err = service.UpdateImageCharacterRelationsIDs(c, server.Store, image.ID, req.Characters)
 		if err != nil {
-			return err
-		}
-		existingIDs := make(map[int64]bool)
-		for _, r := range exsistingIcrs {
-			existingIDs[r.CharacterID] = true
+			return fmt.Errorf("failed to server.UpdateImageCharacterRelationsIDs: %w", err)
 		}
 
-		newIDs := make(map[int64]bool)
-		for _, id := range req.Characters {
-			newIDs[id] = true
-		}
-		// 不要なリレーションデータを削除
-		for _, r := range exsistingIcrs {
-			if !newIDs[r.CharacterID] {
-				err = server.Store.DeleteImageCharacterRelations(c, r.ID)
-				if err != nil {
-					return fmt.Errorf("failed to DeleteImageCharacterRelations: %w", err)
-				}
-			}
-		}
-		// 新しいリレーションデータを追加
-		for _, id := range req.Characters {
-			if !existingIDs[id] {
-				_, err = server.Store.CreateImageCharacterRelations(c, db.CreateImageCharacterRelationsParams{
-					ImageID:     image.ID,
-					CharacterID: id,
-				})
-				if err != nil {
-					return fmt.Errorf("failed to CreateImageCharacterRelations: %w", err)
-				}
-			}
+		// image_parent_category_relationsのUpdate処理
+		err = service.UpdateImageParentCategoryRelationsIDs(c, server.Store, image.ID, req.ParentCategories)
+		if err != nil {
+			return fmt.Errorf("failed to server.UpdateImageParentCategoryRelationsIDs: %w", err)
 		}
 
-		// // TODO: UPDATEに変える
-		// for _, pc_id := range req.ParentCategories {
-		// 	arg := db.CreateImageParentCategoryRelationsParams{
-		// 		ImageID:          image.ID,
-		// 		ParentCategoryID: pc_id,
-		// 	}
-
-		// 	_, err := server.Store.CreateImageParentCategoryRelations(c, arg)
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// }
-
-		// // TODO: UPDATEに変える
-		// for _, cc_id := range req.ChildCategories {
-		// 	arg := db.CreateImageChildCategoryRelationsParams{
-		// 		ImageID:         image.ID,
-		// 		ChildCategoryID: cc_id,
-		// 	}
-		// 	_, err := server.Store.CreateImageChildCategoryRelations(c, arg)
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// }
+		// image_child_category_relationsのUpdate処理
+		err = service.UpdateImageChildCategoryRelationsIDs(c, server.Store, image.ID, req.ChildCategories)
+		if err != nil {
+			return fmt.Errorf("failed to server.UpdateImageChildCategoryRelationsIDs: %w", err)
+		}
 
 		return nil
 	})
