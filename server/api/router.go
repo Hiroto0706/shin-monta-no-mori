@@ -19,7 +19,8 @@ func SetAdminRouters(s *Server) {
 			illustrations.GET("/search/", s.SearchIllustrations)
 			illustrations.GET("/:id", s.GetIllustration)
 			illustrations.POST("/create", s.CreateIllustration)
-			illustrations.DELETE("/delete/:id", s.DeleteIllustration)
+			illustrations.DELETE("/:id", s.DeleteIllustration)
+			illustrations.PUT("/:id", s.EditIllustration)
 		}
 	}
 }

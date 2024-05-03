@@ -136,8 +136,8 @@ type createIllustrationRequest struct {
 	Characters        []int64              `form:"characters[]"`
 	ParentCategories  []int64              `form:"parent_categories[]"`
 	ChildCategories   []int64              `form:"child_categories[]"`
-	OriginalImageFile multipart.FileHeader `form:"image_file" binding:"required"`
-	SimpleImageFile   multipart.FileHeader `form:"image_file"`
+	OriginalImageFile multipart.FileHeader `form:"original_image_file" binding:"required"`
+	SimpleImageFile   multipart.FileHeader `form:"simple_image_file"`
 }
 
 func (server *Server) CreateIllustration(c *gin.Context) {
@@ -252,12 +252,12 @@ type editIllustrationRequest struct {
 	Characters        []int64              `form:"characters[]"`
 	ParentCategories  []int64              `form:"parent_categories[]"`
 	ChildCategories   []int64              `form:"child_categories[]"`
-	OriginalImageFile multipart.FileHeader `form:"image_file"`
-	SimpleImageFile   multipart.FileHeader `form:"image_file"`
+	OriginalImageFile multipart.FileHeader `form:"original_image_file"`
+	SimpleImageFile   multipart.FileHeader `form:"simple_image_file"`
 }
 
 func (server *Server) EditIllustration(c *gin.Context) {
-	id, err := strconv.Atoi(c.Query("id"))
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
 		return
@@ -283,7 +283,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
 		var originalSrc string
 		if image.OriginalFilename != req.Filename {
-			err := service.DeleteImageSrc(c, &server.Config, image.SimpleFilename.String)
+			err := service.DeleteImageSrc(c, &server.Config, image.OriginalSrc)
 			if err != nil {
 				return err
 			}
@@ -296,7 +296,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 
 		var simpleSrc string
 		if image.OriginalFilename != req.Filename && image.SimpleFilename.String != "" {
-			err := service.DeleteImageSrc(c, &server.Config, image.SimpleFilename.String)
+			err := service.DeleteImageSrc(c, &server.Config, image.SimpleSrc.String)
 			if err != nil {
 				return err
 			}
