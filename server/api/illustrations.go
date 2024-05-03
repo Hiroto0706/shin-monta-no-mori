@@ -136,19 +136,27 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
 		return
 	}
-	log.Println("req", req)
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
 	var image db.Image
 	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
-		originalSrc, err := service.UploadImageSrc(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
-		if err != nil {
-			return fmt.Errorf("failed to UploadImage: %w", err)
+
+		var err error
+		var originalSrc string
+		if image.OriginalFilename != req.Filename {
+			originalSrc, err = service.UploadImageSrc(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
+			if err != nil {
+				log.Println(err)
+				return fmt.Errorf("failed to UploadImage: %w", err)
+			}
 		}
 
-		simpleSrc, err := service.UploadImageSrc(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
-		if err != nil {
-			return fmt.Errorf("failed to UploadImage: %w", err)
+		var simpleSrc string
+		if image.OriginalFilename != req.Filename && image.SimpleFilename.String != "" {
+			simpleSrc, err = service.UploadImageSrc(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
+			if err != nil {
+				return fmt.Errorf("failed to UploadImage: %w", err)
+			}
 		}
 
 		arg := db.CreateImageParams{
@@ -227,12 +235,7 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 	illustration := service.FetchRelationInfoForIllustrations(c, server.Store, image)
 
 	c.JSON(http.StatusOK, gin.H{
-		"title":      illustration.Image.Title,
-		"filename":   illustration.Image.OriginalFilename,
-		"characters": illustration.Character,
-		"category":   illustration.Category,
-		"o_src":      illustration.Image.OriginalSrc,
-		"s_src":      illustration.Image.SimpleSrc,
+		"illustrations": illustration,
 	})
 }
 
@@ -268,7 +271,6 @@ func (server *Server) EditIllustration(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
 		return
 	}
-	illustration := service.FetchRelationInfoForIllustrations(c, server.Store, image)
 
 	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
 		var originalSrc string
@@ -352,7 +354,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 		return
 	}
 
-	illustration = service.FetchRelationInfoForIllustrations(c, server.Store, image)
+	illustration := service.FetchRelationInfoForIllustrations(c, server.Store, image)
 
 	c.JSON(http.StatusOK, gin.H{
 		"illustration": illustration,

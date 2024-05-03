@@ -1,17 +1,22 @@
 package api_test
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"shin-monta-no-mori/server/api"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
+	"shin-monta-no-mori/server/internal/domains/service"
 	"shin-monta-no-mori/server/pkg/util"
 	"testing"
 
@@ -171,8 +176,12 @@ func TestListIllustrations(t *testing.T) {
 				var got []model.Illustration
 				err := json.Unmarshal(w.Body.Bytes(), &got)
 				require.NoError(t, err)
+				ignoreFields := map[string][]string{
+					"Image": {"CreatedAt", "UpdatedAt"},
+					"Other": {"CreatedAt", "UpdatedAt"},
+				}
 				for i, g := range got {
-					compareIllustrationsObjects(t, g, tt.want[i])
+					compareIllustrationsObjects(t, g, tt.want[i], ignoreFields)
 				}
 			}
 		})
@@ -273,7 +282,11 @@ func TestGetIllustration(t *testing.T) {
 				var got model.Illustration
 				err := json.Unmarshal(w.Body.Bytes(), &got)
 				require.NoError(t, err)
-				compareIllustrationsObjects(t, got, tt.want)
+				ignoreFields := map[string][]string{
+					"Image": {"CreatedAt", "UpdatedAt"},
+					"Other": {"CreatedAt", "UpdatedAt"},
+				}
+				compareIllustrationsObjects(t, got, tt.want, ignoreFields)
 			}
 		})
 	}
@@ -408,8 +421,12 @@ func TestSearchIllustrations(t *testing.T) {
 				var got []model.Illustration
 				err := json.Unmarshal(w.Body.Bytes(), &got)
 				require.NoError(t, err)
+				ignoreFields := map[string][]string{
+					"Image": {"CreatedAt", "UpdatedAt"},
+					"Other": {"CreatedAt", "UpdatedAt"},
+				}
 				for i, g := range got {
-					compareIllustrationsObjects(t, g, tt.want[i])
+					compareIllustrationsObjects(t, g, tt.want[i], ignoreFields)
 				}
 			}
 		})
@@ -417,6 +434,7 @@ func TestSearchIllustrations(t *testing.T) {
 }
 
 func TestCreateIllustration(t *testing.T) {
+	os.Setenv("CREDENTIAL_FILE_PATH", "../../credential.json")
 	config, err := util.LoadConfig("../")
 	if err != nil {
 		log.Fatal("cannot load config :", err)
@@ -424,51 +442,67 @@ func TestCreateIllustration(t *testing.T) {
 	server := setUp(t, config)
 	defer tearDown(t, config)
 
-	type args struct {
-		id string
-	}
 	tests := []struct {
 		name         string
-		arg          args
+		prepare      func() (*bytes.Buffer, string)
 		want         model.Illustration
 		wantErr      bool
 		expectedCode int
 	}{
 		{
 			name: "正常系",
-			arg: args{
-				id: "11001",
+			prepare: func() (*bytes.Buffer, string) {
+				body := &bytes.Buffer{}
+				writer := multipart.NewWriter(body)
+				defer writer.Close()
+
+				// テキストフィールドを追加
+				_ = writer.WriteField("title", "test_illustration_1")
+				_ = writer.WriteField("filename", "test_illustration_filename_1")
+				_ = writer.WriteField("characters[]", "13001")
+				_ = writer.WriteField("parent_categories[]", "13001")
+				_ = writer.WriteField("child_categories[]", "13001")
+
+				// ファイルを追加
+				filePath := "../tmp/test-image.png"
+				file, err := os.Open(filePath)
+				require.NoError(t, err)
+				defer file.Close()
+				// fileパートを作成
+				part, err := writer.CreateFormFile("original_image_file", filepath.Base(filePath))
+				require.NoError(t, err)
+
+				// ファイルの内容を読み込み、書き込む
+				_, err = io.Copy(part, file)
+				require.NoError(t, err)
+
+				return body, writer.FormDataContentType()
 			},
 			want: model.Illustration{
 				Image: db.Image{
-					ID:          11001,
-					Title:       "test_image_title_11001",
-					OriginalSrc: "test_image_original_src_11001.com",
-					SimpleSrc: sql.NullString{
-						String: "test_image_simple_src_11001.com",
-						Valid:  true,
-					},
-					OriginalFilename: "test_image_original_filename_11001",
+					Title:            "test_illustration_1",
+					OriginalSrc:      "https://storage.googleapis.com/shin-monta-no-mori/image/dev/test_illustration_filename_1.png",
+					OriginalFilename: "test_illustration_filename_1",
 				},
 				Character: []db.Character{
 					{
-						ID:   11002,
-						Name: "test_character_name_11002",
-						Src:  "test_character_src_11002.com",
+						ID:   13001,
+						Name: "test_character_name_13001",
+						Src:  "test_character_src_13001.com",
 					},
 				},
 				Category: []*model.Category{
 					{
 						ParentCategory: db.ParentCategory{
-							ID:   11002,
-							Name: "test_parent_category_name_11002",
-							Src:  "test_parent_category_src_11002.com",
+							ID:   13001,
+							Name: "test_parent_category_name_13001",
+							Src:  "test_parent_category_src_13001.com",
 						},
 						ChildCategory: []db.ChildCategory{
 							{
-								ID:       11002,
-								Name:     "test_child_category_name_11002",
-								ParentID: 11002,
+								ID:       13001,
+								Name:     "test_child_category_name_13001",
+								ParentID: 13001,
 							},
 						},
 					},
@@ -480,8 +514,11 @@ func TestCreateIllustration(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			body, contentType := tt.prepare()
+			req := httptest.NewRequest("POST", "/api/v1/admin/illustrations/create", body)
+			req.Header.Set("Content-Type", contentType)
+
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/"+tt.arg.id, nil)
 			server.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
@@ -489,24 +526,32 @@ func TestCreateIllustration(t *testing.T) {
 			if tt.wantErr {
 				require.NotEmpty(t, w.Body.String())
 			} else {
-				var got model.Illustration
+				var got struct {
+					Illustrations model.Illustration `json:"illustrations"`
+				}
 				err := json.Unmarshal(w.Body.Bytes(), &got)
 				require.NoError(t, err)
-				compareIllustrationsObjects(t, got, tt.want)
+				ignoreFields := map[string][]string{
+					"Image": {"CreatedAt", "UpdatedAt", "ID"},
+					"Other": {"CreatedAt", "UpdatedAt"},
+				}
+				compareIllustrationsObjects(t, got.Illustrations, tt.want, ignoreFields)
+				// GCSからテストオブジェクトを削除する
+				deleteGCSObject(t, &gin.Context{}, &config, got.Illustrations.Image.OriginalSrc)
 			}
 		})
 	}
 }
 
-func compareIllustrationsObjects(t *testing.T, got model.Illustration, want model.Illustration) {
+func compareIllustrationsObjects(t *testing.T, got model.Illustration, want model.Illustration, ignoreFieldsMap map[string][]string) {
 	// イメージ比較
-	if d := cmp.Diff(got.Image, want.Image, cmpopts.IgnoreFields(got.Image, "CreatedAt", "UpdatedAt")); len(d) != 0 {
+	if d := cmp.Diff(got.Image, want.Image, cmpopts.IgnoreFields(got.Image, ignoreFieldsMap["Image"]...)); len(d) != 0 {
 		t.Errorf("differs: (-got +want)\n%s", d)
 	}
 
 	// キャラクター比較
 	for i, gch := range got.Character {
-		if d := cmp.Diff(gch, want.Character[i], cmpopts.IgnoreFields(gch, "CreatedAt", "UpdatedAt")); len(d) != 0 {
+		if d := cmp.Diff(gch, want.Character[i], cmpopts.IgnoreFields(gch, ignoreFieldsMap["Other"]...)); len(d) != 0 {
 			t.Errorf("differs: (-got +want)\n%s", d)
 		}
 	}
@@ -514,13 +559,13 @@ func compareIllustrationsObjects(t *testing.T, got model.Illustration, want mode
 	// カテゴリー比較
 	for j, gca := range got.Category {
 		// 親カテゴリー比較
-		if d := cmp.Diff(gca.ParentCategory, want.Category[j].ParentCategory, cmpopts.IgnoreFields(gca.ParentCategory, "CreatedAt", "UpdatedAt")); len(d) != 0 {
+		if d := cmp.Diff(gca.ParentCategory, want.Category[j].ParentCategory, cmpopts.IgnoreFields(gca.ParentCategory, ignoreFieldsMap["Other"]...)); len(d) != 0 {
 			t.Errorf("differs: (-got +want)\n%s", d)
 		}
 
 		// 子カテゴリー比較
 		for k, gcca := range gca.ChildCategory {
-			if d := cmp.Diff(gcca, want.Category[j].ChildCategory[k], cmpopts.IgnoreFields(gcca, "CreatedAt", "UpdatedAt")); len(d) != 0 {
+			if d := cmp.Diff(gcca, want.Category[j].ChildCategory[k], cmpopts.IgnoreFields(gcca, ignoreFieldsMap["Other"]...)); len(d) != 0 {
 				t.Errorf("differs: (-got +want)\n%s", d)
 			}
 		}
@@ -568,7 +613,8 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 		VALUES
 		(11001, 'test_character_name_11001', 'test_character_src_11001.com'),
 		(11002, 'test_character_name_11002', 'test_character_src_11002.com'),
-		(12001, 'test_character_name_12001', 'test_character_src_12001.com');
+		(12001, 'test_character_name_12001', 'test_character_src_12001.com'),
+		(13001, 'test_character_name_13001', 'test_character_src_13001.com');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_characters_relations (id, image_id, character_id)
@@ -583,7 +629,8 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 		VALUES
 		(11001, 'test_parent_category_name_11001', 'test_parent_category_src_11001.com'),
 		(11002, 'test_parent_category_name_11002', 'test_parent_category_src_11002.com'),
-		(12001, 'test_parent_category_name_12001', 'test_parent_category_src_12001.com');
+		(12001, 'test_parent_category_name_12001', 'test_parent_category_src_12001.com'),
+		(13001, 'test_parent_category_name_13001', 'test_parent_category_src_13001.com');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_parent_categories_relations (id, image_id, parent_category_id)
@@ -598,7 +645,8 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 		VALUES
 		(11001, 'test_child_category_name_11001', 11001),
 		(11002, 'test_child_category_name_11002', 11002),
-		(12001, 'test_child_category_name_12001', 12001);
+		(12001, 'test_child_category_name_12001', 12001),
+		(13001, 'test_child_category_name_13001', 13001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_child_categories_relations (id, image_id, child_category_id)
@@ -637,4 +685,12 @@ func tearDown(t *testing.T, config util.Config) {
 			t.Fatalf("Failed to truncate table: %v", err)
 		}
 	}
+}
+
+func deleteGCSObject(t require.TestingT, c *gin.Context, config *util.Config, src string) {
+	storageService := &service.GCSStorageService{
+		Config: *config,
+	}
+	err := storageService.DeleteFile(c, src)
+	require.NoError(t, err)
 }
