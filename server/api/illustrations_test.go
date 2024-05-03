@@ -160,7 +160,7 @@ func TestListIllustrations(t *testing.T) {
 			// 取得するイメージの数を1にする
 			server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/list/?p="+tt.arg.page, nil)
+			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/list?p="+tt.arg.page, nil)
 			server.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
@@ -274,6 +274,143 @@ func TestGetIllustration(t *testing.T) {
 				err := json.Unmarshal(w.Body.Bytes(), &got)
 				require.NoError(t, err)
 				compareIllustrationsObjects(t, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSearchIllustrations(t *testing.T) {
+	config, err := util.LoadConfig("../")
+	if err != nil {
+		log.Fatal("cannot load config :", err)
+	}
+	server := setUp(t, config)
+	defer tearDown(t, config)
+
+	type args struct {
+		p               string
+		q               string
+		imageFetchLimit int
+	}
+
+	tests := []struct {
+		name         string
+		arg          args
+		want         []model.Illustration
+		wantErr      bool
+		expectedCode int
+	}{
+		{
+			name: "正常系",
+			arg: args{
+				p:               "0",
+				q:               "test_image_title_12001",
+				imageFetchLimit: 1,
+			},
+			want: []model.Illustration{
+				{
+					Image: db.Image{
+						ID:          12001,
+						Title:       "test_image_title_12001",
+						OriginalSrc: "test_image_original_src_12001.com",
+						SimpleSrc: sql.NullString{
+							String: "test_image_simple_src_12001.com",
+							Valid:  true,
+						},
+						OriginalFilename: "test_image_original_filename_12001",
+					},
+					Character: []db.Character{
+						{
+							ID:   12001,
+							Name: "test_character_name_12001",
+							Src:  "test_character_src_12001.com",
+						},
+					},
+					Category: []*model.Category{
+						{
+							ParentCategory: db.ParentCategory{
+								ID:   12001,
+								Name: "test_parent_category_name_12001",
+								Src:  "test_parent_category_src_12001.com",
+							},
+							ChildCategory: []db.ChildCategory{
+								{
+									ID:       12001,
+									Name:     "test_child_category_name_12001",
+									ParentID: 12001,
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr:      false,
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "正常系（存在しないイラストを検索した時）",
+			arg: args{
+				p:               "0",
+				q:               "not exist illustration",
+				imageFetchLimit: 1,
+			},
+			want: []model.Illustration{
+				{
+					Image:     db.Image{},
+					Character: []db.Character{},
+					Category: []*model.Category{
+						{
+							ParentCategory: db.ParentCategory{},
+							ChildCategory:  []db.ChildCategory{},
+						},
+					},
+				},
+			},
+			wantErr:      false,
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "異常系（クエリの値が不正な時）",
+			arg: args{
+				p:               "aaa",
+				q:               "not exist illustration",
+				imageFetchLimit: 1,
+			},
+			want: []model.Illustration{
+				{
+					Image:     db.Image{},
+					Character: []db.Character{},
+					Category: []*model.Category{
+						{
+							ParentCategory: db.ParentCategory{},
+							ChildCategory:  []db.ChildCategory{},
+						},
+					},
+				},
+			},
+			wantErr:      true,
+			expectedCode: http.StatusBadRequest,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// 取得するイメージの数を1にする
+			server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/search?p="+tt.arg.p+"&q="+tt.arg.q, nil)
+			server.Router.ServeHTTP(w, req)
+
+			require.Equal(t, tt.expectedCode, w.Code)
+
+			if tt.wantErr {
+				require.NotEmpty(t, w.Body.String())
+			} else {
+				var got []model.Illustration
+				err := json.Unmarshal(w.Body.Bytes(), &got)
+				require.NoError(t, err)
+				for i, g := range got {
+					compareIllustrationsObjects(t, g, tt.want[i])
+				}
 			}
 		})
 	}
@@ -423,39 +560,50 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 		VALUES
 		(11001, 'test_image_title_11001', 'test_image_original_src_11001.com', 'test_image_simple_src_11001.com', 'test_image_original_filename_11001'),
 		(999990, 'test_image_title_999990', 'test_image_original_src_999990.com', 'test_image_simple_src_999990.com', 'test_image_original_filename_999990'),
-		(999991, 'test_image_title_999991', 'test_image_original_src_999991.com', 'test_image_simple_src_999991.com', 'test_image_original_filename_999991');
+		(999991, 'test_image_title_999991', 'test_image_original_src_999991.com', 'test_image_simple_src_999991.com', 'test_image_original_filename_999991'),
+		(12001, 'test_image_title_12001', 'test_image_original_src_12001.com', 'test_image_simple_src_12001.com', 'test_image_original_filename_12001');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO characters (id, name, src)
 		VALUES
 		(11001, 'test_character_name_11001', 'test_character_src_11001.com'),
-		(11002, 'test_character_name_11002', 'test_character_src_11002.com');
+		(11002, 'test_character_name_11002', 'test_character_src_11002.com'),
+		(12001, 'test_character_name_12001', 'test_character_src_12001.com');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_characters_relations (id, image_id, character_id)
 		VALUES
 		(11001, 999990, 11001),
 		(11002, 999991, 11001),
-		(11003, 11001, 11002);
+		(11003, 11001, 11002),
+		(11004, 12001, 12001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO parent_categories (id, name, src)
 		VALUES
 		(11001, 'test_parent_category_name_11001', 'test_parent_category_src_11001.com'),
-		(11002, 'test_parent_category_name_11002', 'test_parent_category_src_11002.com');
+		(11002, 'test_parent_category_name_11002', 'test_parent_category_src_11002.com'),
+		(12001, 'test_parent_category_name_12001', 'test_parent_category_src_12001.com');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_parent_categories_relations (id, image_id, parent_category_id)
 		VALUES
 		(11001, 999990, 11001),
 		(11002, 999991, 11001),
-		(11003, 11001, 11002);
+		(11003, 11001, 11002),
+		(11004, 12001, 12001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO child_categories (id, name, parent_id)
 		VALUES
 		(11001, 'test_child_category_name_11001', 11001),
-		(11002, 'test_child_category_name_11002', 11002);
+		(11002, 'test_child_category_name_11002', 11002),
+		(12001, 'test_child_category_name_12001', 12001);
+		`),
+		fmt.Sprintln(`
+		INSERT INTO image_child_categories_relations (id, image_id, child_category_id)
+		VALUES
+		(12001, 12001, 12001);
 		`),
 	}
 

@@ -11,7 +11,13 @@ import (
 )
 
 const createImage = `-- name: CreateImage :one
-INSERT INTO images (title, original_src, simple_src, original_filename, simple_filename)
+INSERT INTO images (
+    title,
+    original_src,
+    simple_src,
+    original_filename,
+    simple_filename
+  )
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id, title, original_src, simple_src, updated_at, created_at, original_filename, simple_filename
 `
@@ -124,9 +130,10 @@ func (q *Queries) ListImage(ctx context.Context, arg ListImageParams) ([]Image, 
 }
 
 const searchImages = `-- name: SearchImages :many
-SELECT id, title, original_src, simple_src, updated_at, created_at, original_filename, simple_filename
+SELECT DISTINCT id, title, original_src, simple_src, updated_at, created_at, original_filename, simple_filename
 FROM images
 WHERE title LIKE '%' || COALESCE($3) || '%'
+  OR original_filename LIKE '%' || COALESCE($3) || '%'
 ORDER BY id DESC
 LIMIT $1 OFFSET $2
 `
@@ -134,11 +141,11 @@ LIMIT $1 OFFSET $2
 type SearchImagesParams struct {
 	Limit  int32          `json:"limit"`
 	Offset int32          `json:"offset"`
-	Title  sql.NullString `json:"title"`
+	Query  sql.NullString `json:"query"`
 }
 
 func (q *Queries) SearchImages(ctx context.Context, arg SearchImagesParams) ([]Image, error) {
-	rows, err := q.db.QueryContext(ctx, searchImages, arg.Limit, arg.Offset, arg.Title)
+	rows, err := q.db.QueryContext(ctx, searchImages, arg.Limit, arg.Offset, arg.Query)
 	if err != nil {
 		return nil, err
 	}

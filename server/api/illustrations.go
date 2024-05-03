@@ -45,11 +45,6 @@ func (server *Server) ListIllustrations(c *gin.Context) {
 	}
 	images, err := server.Store.ListImage(c, arg)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to ListImage() : %w", err)))
-			return
-		}
-
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListImage() : %w", err)))
 		return
 	}
@@ -73,7 +68,7 @@ func (server *Server) GetIllustration(c *gin.Context) {
 	image, err := server.Store.GetImage(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage: %w", err)))
 			return
 		}
 
@@ -103,7 +98,7 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 	arg := db.SearchImagesParams{
 		Limit:  int32(server.Config.ImageFetchLimit),
 		Offset: int32(req.Page * server.Config.ImageFetchLimit),
-		Title: sql.NullString{
+		Query: sql.NullString{
 			String: req.Query,
 			Valid:  true,
 		},
@@ -111,11 +106,6 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 
 	images, err := server.Store.SearchImages(c, arg)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to SearchImages() : %w", err)))
-			return
-		}
-
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to SearchImages() : %w", err)))
 		return
 	}
@@ -351,26 +341,21 @@ func (server *Server) EditIllustration(c *gin.Context) {
 		return
 	}
 
-	// image, err = server.Store.GetImage(c, int64(image.ID))
-	// if err != nil {
-	// 	if err == sql.ErrNoRows {
-	// 		c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
-	// 		return
-	// 	}
+	image, err = server.Store.GetImage(c, int64(image.ID))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage: %w", err)))
+			return
+		}
 
-	// 	c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
-	// 	return
-	// }
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage: %w", err)))
+		return
+	}
 
-	// illustration = service.FetchRelationInfoForIllustrations(c, server.Store, image)
+	illustration = service.FetchRelationInfoForIllustrations(c, server.Store, image)
 
 	c.JSON(http.StatusOK, gin.H{
-		"title":      illustration.Image.Title,
-		"filename":   illustration.Image.OriginalFilename,
-		"characters": illustration.Character,
-		"category":   illustration.Category,
-		"o_src":      illustration.Image.OriginalSrc,
-		"s_src":      illustration.Image.SimpleSrc,
+		"illustration": illustration,
 	})
 }
 
