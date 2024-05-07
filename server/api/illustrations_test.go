@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -465,16 +464,22 @@ func TestCreateIllustration(t *testing.T) {
 
 				// ファイルを追加
 				filePath := "../tmp/test-image.png"
-				file, err := os.Open(filePath)
-				require.NoError(t, err)
-				defer file.Close()
-				// fileパートを作成
-				part, err := writer.CreateFormFile("original_image_file", filepath.Base(filePath))
-				require.NoError(t, err)
 
-				// ファイルの内容を読み込み、書き込む
-				_, err = io.Copy(part, file)
-				require.NoError(t, err)
+				// TODO: tmpがgithub上にないので、空のコンテンツをGCSに保存することになってしまっている
+
+				// file, err := os.Open(filePath)
+				// require.NoError(t, err)
+				// defer file.Close()
+				// // fileパートを作成
+				// part, err := writer.CreateFormFile("original_image_file", filepath.Base(filePath))
+				// require.NoError(t, err)
+
+				// // ファイルの内容を読み込み、書き込む
+				// _, err = io.Copy(part, file)
+				// require.NoError(t, err)
+
+				file, _ := writer.CreateFormFile("original_image_file", filepath.Base(filePath))
+				_, _ = file.Write([]byte("file content"))
 
 				return body, writer.FormDataContentType()
 			},
