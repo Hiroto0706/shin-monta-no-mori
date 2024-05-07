@@ -273,7 +273,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 	}
 
 	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
-		var originalSrc string
+		originalSrc := image.OriginalSrc
 		if image.OriginalFilename != req.Filename {
 			err := service.DeleteImageSrc(c, &server.Config, image.OriginalSrc)
 			if err != nil {
@@ -286,7 +286,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 			}
 		}
 
-		var simpleSrc string
+		simpleSrc := image.SimpleSrc.String
 		if image.OriginalFilename != req.Filename && image.SimpleFilename.String != "" {
 			err := service.DeleteImageSrc(c, &server.Config, image.SimpleSrc.String)
 			if err != nil {
@@ -340,6 +340,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 
 	if txErr != nil {
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(txErr))
+		log.Println(txErr)
 		return
 	}
 

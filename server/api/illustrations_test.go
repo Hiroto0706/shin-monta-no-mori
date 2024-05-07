@@ -1,11 +1,13 @@
 package api_test
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -576,6 +578,194 @@ func TestSearchIllustrations(t *testing.T) {
 // 	}
 // }
 
+func TestEditIllustration(t *testing.T) {
+	os.Setenv("CREDENTIAL_FILE_PATH", "../../credential.json")
+	config, err := util.LoadConfig("../")
+	if err != nil {
+		log.Fatal("cannot load config :", err)
+	}
+	server := setUp(t, config)
+	defer tearDown(t, config)
+
+	tests := []struct {
+		name         string
+		arg          string
+		prepare      func() (*bytes.Buffer, string)
+		want         model.Illustration
+		wantErr      bool
+		expectedCode int
+	}{
+		{
+			name: "正常系",
+			arg:  "14001",
+			prepare: func() (*bytes.Buffer, string) {
+				body := &bytes.Buffer{}
+				writer := multipart.NewWriter(body)
+				defer writer.Close()
+
+				// テキストフィールドを追加
+				_ = writer.WriteField("title", "test_illustration_edit_1")
+				_ = writer.WriteField("filename", "test_illustration_filename_edit_1")
+				_ = writer.WriteField("characters[]", "14001")
+				_ = writer.WriteField("parent_categories[]", "14001")
+				_ = writer.WriteField("child_categories[]", "14001")
+
+				// TODO: tmpがgithub上にないので、空のコンテンツをGCSに保存することになってしまっている
+
+				// filePath := "../tmp/test-image.png"
+				// file, err := os.Open(filePath)
+				// require.NoError(t, err)
+				// defer file.Close()
+				// // fileパートを作成
+				// part, err := writer.CreateFormFile("original_image_file", filepath.Base(filePath))
+				// require.NoError(t, err)
+
+				// // ファイルの内容を読み込み、書き込む
+				// _, err = io.Copy(part, file)
+				// require.NoError(t, err)
+
+				// TODO: credential.jsonがgithub上にないので、画像のアップロードのテストができない
+
+				// file1, _ := writer.CreateFormFile("original_image_file", filepath.Base(filePath))
+				// _, _ = file1.Write([]byte("file content"))
+				// file2, _ := writer.CreateFormFile("simple_image_file", filepath.Base(filePath))
+				// _, _ = file2.Write([]byte("file content"))
+
+				return body, writer.FormDataContentType()
+			},
+			want: model.Illustration{
+				Image: db.Image{
+					Title:            "test_illustration_edit_1",
+					OriginalFilename: "test_illustration_filename_edit_1",
+					SimpleSrc: sql.NullString{
+						String: "test_image_simple_src_14001.com",
+						Valid:  true,
+					},
+					SimpleFilename: sql.NullString{
+						String: "test_illustration_filename_edit_1_s",
+						Valid:  true,
+					},
+				},
+				Character: []db.Character{
+					{
+						ID:   14001,
+						Name: "test_character_name_14001",
+						Src:  "test_character_src_14001.com",
+					},
+				},
+				Category: []*model.Category{
+					{
+						ParentCategory: db.ParentCategory{
+							ID:   14001,
+							Name: "test_parent_category_name_14001",
+							Src:  "test_parent_category_src_14001.com",
+						},
+						ChildCategory: []db.ChildCategory{
+							{
+								ID:       14001,
+								Name:     "test_child_category_name_14001",
+								ParentID: 14001,
+							},
+						},
+					},
+				},
+			},
+			wantErr:      false,
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "異常系（idが不正な値の場合）",
+			arg:  "aaa",
+			prepare: func() (*bytes.Buffer, string) {
+				body := &bytes.Buffer{}
+				writer := multipart.NewWriter(body)
+				defer writer.Close()
+				return body, writer.FormDataContentType()
+			},
+			want: model.Illustration{
+				Image:     db.Image{},
+				Character: []db.Character{},
+				Category:  []*model.Category{},
+			},
+			wantErr:      true,
+			expectedCode: http.StatusBadRequest,
+		},
+		{
+			name: "異常系（requestの値が期待している型と異なる場合）",
+			arg:  "14002",
+			prepare: func() (*bytes.Buffer, string) {
+				body := &bytes.Buffer{}
+				writer := multipart.NewWriter(body)
+				defer writer.Close()
+
+				// テキストフィールドを追加
+				_ = writer.WriteField("characters[]", "aaa")
+
+				return body, writer.FormDataContentType()
+			},
+			want: model.Illustration{
+				Image:     db.Image{},
+				Character: []db.Character{},
+				Category:  []*model.Category{},
+			},
+			wantErr:      true,
+			expectedCode: http.StatusBadRequest,
+		},
+		{
+			name: "異常系（存在しないIDを編集しようとしている場合）",
+			arg:  "99999",
+			prepare: func() (*bytes.Buffer, string) {
+				body := &bytes.Buffer{}
+				writer := multipart.NewWriter(body)
+				defer writer.Close()
+
+				// テキストフィールドを追加
+				_ = writer.WriteField("title", "aaa")
+
+				return body, writer.FormDataContentType()
+			},
+			want: model.Illustration{
+				Image:     db.Image{},
+				Character: []db.Character{},
+				Category:  []*model.Category{},
+			},
+			wantErr:      true,
+			expectedCode: http.StatusNotFound,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, contentType := tt.prepare()
+			req := httptest.NewRequest("PUT", "/api/v1/admin/illustrations/"+tt.arg, body)
+			req.Header.Set("Content-Type", contentType)
+
+			w := httptest.NewRecorder()
+			server.Router.ServeHTTP(w, req)
+
+			require.Equal(t, tt.expectedCode, w.Code)
+
+			if tt.wantErr {
+				require.NotEmpty(t, w.Body.String())
+			} else {
+				var got struct {
+					Illustrations model.Illustration `json:"illustration"`
+				}
+				err := json.Unmarshal(w.Body.Bytes(), &got)
+				require.NoError(t, err)
+				ignoreFields := map[string][]string{
+					"Image": {"CreatedAt", "UpdatedAt", "ID"},
+					"Other": {"CreatedAt", "UpdatedAt"},
+				}
+				compareIllustrationsObjects(t, got.Illustrations, tt.want, ignoreFields)
+
+				// TODO: credential.jsonがgithub上にないので、画像のアップロードのテストができない
+				// GCSからテストオブジェクトを削除する
+				// deleteGCSObject(t, &gin.Context{}, &config, got.Illustrations.Image.OriginalSrc)
+			}
+		})
+	}
+}
+
 func compareIllustrationsObjects(t *testing.T, got model.Illustration, want model.Illustration, ignoreFieldsMap map[string][]string) {
 	// イメージ比較
 	if d := cmp.Diff(got.Image, want.Image, cmpopts.IgnoreFields(got.Image, ignoreFieldsMap["Image"]...)); len(d) != 0 {
@@ -639,7 +829,9 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 		(11001, 'test_image_title_11001', 'test_image_original_src_11001.com', 'test_image_simple_src_11001.com', 'test_image_original_filename_11001'),
 		(999990, 'test_image_title_999990', 'test_image_original_src_999990.com', 'test_image_simple_src_999990.com', 'test_image_original_filename_999990'),
 		(999991, 'test_image_title_999991', 'test_image_original_src_999991.com', 'test_image_simple_src_999991.com', 'test_image_original_filename_999991'),
-		(12001, 'test_image_title_12001', 'test_image_original_src_12001.com', 'test_image_simple_src_12001.com', 'test_image_original_filename_12001');
+		(12001, 'test_image_title_12001', 'test_image_original_src_12001.com', 'test_image_simple_src_12001.com', 'test_image_original_filename_12001'),
+		(14001, 'test_image_title_14001', 'test_image_original_src_14001.com', 'test_image_simple_src_14001.com', 'test_image_original_filename_14001'),
+		(14002, 'test_image_title_14002', 'test_image_original_src_14002.com', 'test_image_simple_src_14002.com', 'test_image_original_filename_14002');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO characters (id, name, src)
@@ -647,7 +839,8 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 		(11001, 'test_character_name_11001', 'test_character_src_11001.com'),
 		(11002, 'test_character_name_11002', 'test_character_src_11002.com'),
 		(12001, 'test_character_name_12001', 'test_character_src_12001.com'),
-		(13001, 'test_character_name_13001', 'test_character_src_13001.com');
+		(13001, 'test_character_name_13001', 'test_character_src_13001.com'),
+		(14001, 'test_character_name_14001', 'test_character_src_14001.com');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_characters_relations (id, image_id, character_id)
@@ -655,7 +848,8 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 		(11001, 999990, 11001),
 		(11002, 999991, 11001),
 		(11003, 11001, 11002),
-		(11004, 12001, 12001);
+		(12001, 12001, 12001),
+		(14001, 14001, 14001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO parent_categories (id, name, src)
@@ -663,7 +857,8 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 		(11001, 'test_parent_category_name_11001', 'test_parent_category_src_11001.com'),
 		(11002, 'test_parent_category_name_11002', 'test_parent_category_src_11002.com'),
 		(12001, 'test_parent_category_name_12001', 'test_parent_category_src_12001.com'),
-		(13001, 'test_parent_category_name_13001', 'test_parent_category_src_13001.com');
+		(13001, 'test_parent_category_name_13001', 'test_parent_category_src_13001.com'),
+		(14001, 'test_parent_category_name_14001', 'test_parent_category_src_14001.com');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_parent_categories_relations (id, image_id, parent_category_id)
@@ -671,7 +866,8 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 		(11001, 999990, 11001),
 		(11002, 999991, 11001),
 		(11003, 11001, 11002),
-		(11004, 12001, 12001);
+		(12001, 12001, 12001),
+		(14001, 14001, 14001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO child_categories (id, name, parent_id)
@@ -679,12 +875,14 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 		(11001, 'test_child_category_name_11001', 11001),
 		(11002, 'test_child_category_name_11002', 11002),
 		(12001, 'test_child_category_name_12001', 12001),
-		(13001, 'test_child_category_name_13001', 13001);
+		(13001, 'test_child_category_name_13001', 13001),
+		(14001, 'test_child_category_name_14001', 14001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_child_categories_relations (id, image_id, child_category_id)
 		VALUES
-		(12001, 12001, 12001);
+		(12001, 12001, 12001),
+		(14001, 14001, 14001);
 		`),
 	}
 
