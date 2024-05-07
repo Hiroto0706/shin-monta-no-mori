@@ -677,13 +677,14 @@ func tearDown(t *testing.T, config util.Config) {
 	store := createConn(config)
 
 	queries := []string{
+		"TRUNCATE TABLE image_child_categories_relations RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE image_parent_categories_relations RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE image_characters_relations RESTART IDENTITY CASCADE;",
-		"TRUNCATE TABLE images RESTART IDENTITY CASCADE;",
-		"TRUNCATE TABLE characters RESTART IDENTITY CASCADE;",
-		"TRUNCATE TABLE operators RESTART IDENTITY CASCADE;",
-		"TRUNCATE TABLE parent_categories RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE child_categories RESTART IDENTITY CASCADE;",
+		"TRUNCATE TABLE parent_categories RESTART IDENTITY CASCADE;",
+		"TRUNCATE TABLE characters RESTART IDENTITY CASCADE;",
+		"TRUNCATE TABLE images RESTART IDENTITY CASCADE;",
+		"TRUNCATE TABLE operators RESTART IDENTITY CASCADE;",
 	}
 	for _, query := range queries {
 		if _, err := store.ExecQuery(context.Background(), query); err != nil {
