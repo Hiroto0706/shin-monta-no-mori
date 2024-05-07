@@ -143,7 +143,7 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 
 		var err error
 		var originalSrc string
-		if image.OriginalFilename != req.Filename {
+		if req.Filename != "" {
 			originalSrc, err = service.UploadImageSrc(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
 			if err != nil {
 				log.Println(err)
@@ -152,7 +152,7 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 		}
 
 		var simpleSrc string
-		if image.OriginalFilename != req.Filename && image.SimpleFilename.String != "" {
+		if req.Filename != "" && req.SimpleImageFile.Size != 0 {
 			simpleSrc, err = service.UploadImageSrc(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
 			if err != nil {
 				return fmt.Errorf("failed to UploadImage: %w", err)

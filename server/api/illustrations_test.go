@@ -1,17 +1,14 @@
 package api_test
 
 import (
-	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
-	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"path/filepath"
 	"shin-monta-no-mori/server/api"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
@@ -432,121 +429,152 @@ func TestSearchIllustrations(t *testing.T) {
 	}
 }
 
-func TestCreateIllustration(t *testing.T) {
-	os.Setenv("CREDENTIAL_FILE_PATH", "../../credential.json")
-	config, err := util.LoadConfig("../")
-	if err != nil {
-		log.Fatal("cannot load config :", err)
-	}
-	server := setUp(t, config)
-	defer tearDown(t, config)
+// TODO: credential.jsonがgithub上にないためアップロード処理が実行できない
+// func TestCreateIllustration(t *testing.T) {
+// 	os.Setenv("CREDENTIAL_FILE_PATH", "../../credential.json")
+// 	config, err := util.LoadConfig("../")
+// 	if err != nil {
+// 		log.Fatal("cannot load config :", err)
+// 	}
+// 	server := setUp(t, config)
+// 	defer tearDown(t, config)
 
-	tests := []struct {
-		name         string
-		prepare      func() (*bytes.Buffer, string)
-		want         model.Illustration
-		wantErr      bool
-		expectedCode int
-	}{
-		{
-			name: "正常系",
-			prepare: func() (*bytes.Buffer, string) {
-				body := &bytes.Buffer{}
-				writer := multipart.NewWriter(body)
-				defer writer.Close()
+// 	tests := []struct {
+// 		name         string
+// 		prepare      func() (*bytes.Buffer, string)
+// 		want         model.Illustration
+// 		wantErr      bool
+// 		expectedCode int
+// 	}{
+// 		{
+// 			name: "正常系",
+// 			prepare: func() (*bytes.Buffer, string) {
+// 				body := &bytes.Buffer{}
+// 				writer := multipart.NewWriter(body)
+// 				defer writer.Close()
 
-				// テキストフィールドを追加
-				_ = writer.WriteField("title", "test_illustration_1")
-				_ = writer.WriteField("filename", "test_illustration_filename_1")
-				_ = writer.WriteField("characters[]", "13001")
-				_ = writer.WriteField("parent_categories[]", "13001")
-				_ = writer.WriteField("child_categories[]", "13001")
+// 				// テキストフィールドを追加
+// 				_ = writer.WriteField("title", "test_illustration_1")
+// 				_ = writer.WriteField("filename", "test_illustration_filename_1")
+// 				_ = writer.WriteField("characters[]", "13001")
+// 				_ = writer.WriteField("parent_categories[]", "13001")
+// 				_ = writer.WriteField("child_categories[]", "13001")
 
-				// ファイルを追加
-				filePath := "../tmp/test-image.png"
+// 				// ファイルを追加
+// 				filePath := "../tmp/test-image.png"
 
-				// TODO: tmpがgithub上にないので、空のコンテンツをGCSに保存することになってしまっている
+// 				// TODO: tmpがgithub上にないので、空のコンテンツをGCSに保存することになってしまっている
 
-				// file, err := os.Open(filePath)
-				// require.NoError(t, err)
-				// defer file.Close()
-				// // fileパートを作成
-				// part, err := writer.CreateFormFile("original_image_file", filepath.Base(filePath))
-				// require.NoError(t, err)
+// 				// file, err := os.Open(filePath)
+// 				// require.NoError(t, err)
+// 				// defer file.Close()
+// 				// // fileパートを作成
+// 				// part, err := writer.CreateFormFile("original_image_file", filepath.Base(filePath))
+// 				// require.NoError(t, err)
 
-				// // ファイルの内容を読み込み、書き込む
-				// _, err = io.Copy(part, file)
-				// require.NoError(t, err)
+// 				// // ファイルの内容を読み込み、書き込む
+// 				// _, err = io.Copy(part, file)
+// 				// require.NoError(t, err)
 
-				file, _ := writer.CreateFormFile("original_image_file", filepath.Base(filePath))
-				_, _ = file.Write([]byte("file content"))
+// 				file1, _ := writer.CreateFormFile("original_image_file", filepath.Base(filePath))
+// 				_, _ = file1.Write([]byte("file content"))
+// 				file2, _ := writer.CreateFormFile("simple_image_file", filepath.Base(filePath))
+// 				_, _ = file2.Write([]byte("file content"))
 
-				return body, writer.FormDataContentType()
-			},
-			want: model.Illustration{
-				Image: db.Image{
-					Title:            "test_illustration_1",
-					OriginalSrc:      "https://storage.googleapis.com/shin-monta-no-mori/image/dev/test_illustration_filename_1.png",
-					OriginalFilename: "test_illustration_filename_1",
-				},
-				Character: []db.Character{
-					{
-						ID:   13001,
-						Name: "test_character_name_13001",
-						Src:  "test_character_src_13001.com",
-					},
-				},
-				Category: []*model.Category{
-					{
-						ParentCategory: db.ParentCategory{
-							ID:   13001,
-							Name: "test_parent_category_name_13001",
-							Src:  "test_parent_category_src_13001.com",
-						},
-						ChildCategory: []db.ChildCategory{
-							{
-								ID:       13001,
-								Name:     "test_child_category_name_13001",
-								ParentID: 13001,
-							},
-						},
-					},
-				},
-			},
-			wantErr:      false,
-			expectedCode: http.StatusOK,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			body, contentType := tt.prepare()
-			req := httptest.NewRequest("POST", "/api/v1/admin/illustrations/create", body)
-			req.Header.Set("Content-Type", contentType)
+// 				return body, writer.FormDataContentType()
+// 			},
+// 			want: model.Illustration{
+// 				Image: db.Image{
+// 					Title:            "test_illustration_1",
+// 					OriginalSrc:      "https://storage.googleapis.com/shin-monta-no-mori/image/dev/test_illustration_filename_1.png",
+// 					OriginalFilename: "test_illustration_filename_1",
+// 					SimpleSrc: sql.NullString{
+// 						String: "https://storage.googleapis.com/shin-monta-no-mori/image/dev/test_illustration_filename_1_s.png",
+// 						Valid:  true,
+// 					},
+// 					SimpleFilename: sql.NullString{
+// 						String: "test_illustration_filename_1_s",
+// 						Valid:  true,
+// 					},
+// 				},
+// 				Character: []db.Character{
+// 					{
+// 						ID:   13001,
+// 						Name: "test_character_name_13001",
+// 						Src:  "test_character_src_13001.com",
+// 					},
+// 				},
+// 				Category: []*model.Category{
+// 					{
+// 						ParentCategory: db.ParentCategory{
+// 							ID:   13001,
+// 							Name: "test_parent_category_name_13001",
+// 							Src:  "test_parent_category_src_13001.com",
+// 						},
+// 						ChildCategory: []db.ChildCategory{
+// 							{
+// 								ID:       13001,
+// 								Name:     "test_child_category_name_13001",
+// 								ParentID: 13001,
+// 							},
+// 						},
+// 					},
+// 				},
+// 			},
+// 			wantErr:      false,
+// 			expectedCode: http.StatusOK,
+// 		},
+// 		{
+// 			name: "異常系（requestの型が不正な場合）",
+// 			prepare: func() (*bytes.Buffer, string) {
+// 				body := &bytes.Buffer{}
+// 				writer := multipart.NewWriter(body)
+// 				defer writer.Close()
 
-			w := httptest.NewRecorder()
-			server.Router.ServeHTTP(w, req)
+// 				// テキストフィールドを追加
+// 				_ = writer.WriteField("aaa", "aaa")
 
-			require.Equal(t, tt.expectedCode, w.Code)
+// 				return body, writer.FormDataContentType()
+// 			},
+// 			want: model.Illustration{
+// 				Image:     db.Image{},
+// 				Character: []db.Character{},
+// 				Category:  []*model.Category{},
+// 			},
+// 			wantErr:      true,
+// 			expectedCode: http.StatusBadRequest,
+// 		},
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			body, contentType := tt.prepare()
+// 			req := httptest.NewRequest("POST", "/api/v1/admin/illustrations/create", body)
+// 			req.Header.Set("Content-Type", contentType)
 
-			if tt.wantErr {
-				require.NotEmpty(t, w.Body.String())
-			} else {
-				var got struct {
-					Illustrations model.Illustration `json:"illustrations"`
-				}
-				err := json.Unmarshal(w.Body.Bytes(), &got)
-				require.NoError(t, err)
-				ignoreFields := map[string][]string{
-					"Image": {"CreatedAt", "UpdatedAt", "ID"},
-					"Other": {"CreatedAt", "UpdatedAt"},
-				}
-				compareIllustrationsObjects(t, got.Illustrations, tt.want, ignoreFields)
-				// GCSからテストオブジェクトを削除する
-				deleteGCSObject(t, &gin.Context{}, &config, got.Illustrations.Image.OriginalSrc)
-			}
-		})
-	}
-}
+// 			w := httptest.NewRecorder()
+// 			server.Router.ServeHTTP(w, req)
+
+// 			require.Equal(t, tt.expectedCode, w.Code)
+
+// 			if tt.wantErr {
+// 				require.NotEmpty(t, w.Body.String())
+// 			} else {
+// 				var got struct {
+// 					Illustrations model.Illustration `json:"illustrations"`
+// 				}
+// 				err := json.Unmarshal(w.Body.Bytes(), &got)
+// 				require.NoError(t, err)
+// 				ignoreFields := map[string][]string{
+// 					"Image": {"CreatedAt", "UpdatedAt", "ID"},
+// 					"Other": {"CreatedAt", "UpdatedAt"},
+// 				}
+// 				compareIllustrationsObjects(t, got.Illustrations, tt.want, ignoreFields)
+// 				// GCSからテストオブジェクトを削除する
+// 				deleteGCSObject(t, &gin.Context{}, &config, got.Illustrations.Image.OriginalSrc)
+// 			}
+// 		})
+// 	}
+// }
 
 func compareIllustrationsObjects(t *testing.T, got model.Illustration, want model.Illustration, ignoreFieldsMap map[string][]string) {
 	// イメージ比較
