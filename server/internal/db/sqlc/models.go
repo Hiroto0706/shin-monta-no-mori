@@ -33,15 +33,23 @@ type Image struct {
 	// 文字ありの画像
 	OriginalSrc string `json:"original_src"`
 	// 文字無しの画像.オリジナルが文字無しの時もあるので、nullableにする.
-	SimpleSrc sql.NullString `json:"simple_src"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	CreatedAt time.Time      `json:"created_at"`
+	SimpleSrc        sql.NullString `json:"simple_src"`
+	UpdatedAt        time.Time      `json:"updated_at"`
+	CreatedAt        time.Time      `json:"created_at"`
+	OriginalFilename string         `json:"original_filename"`
+	SimpleFilename   sql.NullString `json:"simple_filename"`
 }
 
 type ImageCharactersRelation struct {
 	ID          int64 `json:"id"`
 	ImageID     int64 `json:"image_id"`
 	CharacterID int64 `json:"character_id"`
+}
+
+type ImageChildCategoriesRelation struct {
+	ID              int64 `json:"id"`
+	ImageID         int64 `json:"image_id"`
+	ChildCategoryID int64 `json:"child_category_id"`
 }
 
 type ImageParentCategoriesRelation struct {

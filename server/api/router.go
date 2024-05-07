@@ -1,25 +1,26 @@
 package api
 
-import (
-	admin_handlers "shin-monta-no-mori/server/api/handlers/admin"
-	user_handlers "shin-monta-no-mori/server/api/handlers/user"
-
-	"github.com/gin-gonic/gin"
-)
-
-func SetUserRouters(router *gin.Engine) {
-	v1 := router.Group("/api/v1")
+func SetUserRouters(s *Server) {
+	v1 := s.Router.Group("/api/v1")
 	{
-		v1.GET("/", user_handlers.Greet)
+		v1.GET("/", s.Greet)
 	}
 }
 
-func SetAdminRouters(router *gin.Engine) {
-	v1 := router.Group("/api/v1")
+func SetAdminRouters(s *Server) {
+	v1 := s.Router.Group("/api/v1")
 	admin := v1.Group("/admin")
-	// ログイン認証必須
-	// admin.Use(authMiddleware(server.tokenMaker))
+	// ログイン認証
+	// admin.Use(authMiddleware(s.tokenMaker))
 	{
-		admin.GET("/", admin_handlers.Greet)
+		illustrations := admin.Group("/illustrations")
+		{
+			illustrations.GET("/list", s.ListIllustrations)
+			illustrations.GET("/search", s.SearchIllustrations)
+			illustrations.GET("/:id", s.GetIllustration)
+			illustrations.POST("/create", s.CreateIllustration)
+			illustrations.DELETE("/:id", s.DeleteIllustration)
+			illustrations.PUT("/:id", s.EditIllustration)
+		}
 	}
 }

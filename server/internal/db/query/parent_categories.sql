@@ -1,8 +1,8 @@
--- name: CreateParentCategories :one
+-- name: CreateParentCategory :one
 INSERT INTO parent_categories (name, src)
 VALUES ($1, $2)
 RETURNING *;
--- name: GetParentCategories :one
+-- name: GetParentCategory :one
 SELECT *
 FROM parent_categories
 WHERE id = $1
@@ -12,12 +12,12 @@ SELECT *
 FROM parent_categories
 ORDER BY id DESC
 LIMIT $1 OFFSET $2;
--- name: UpdateParentCategories :one
+-- name: UpdateParentCategory :one
 UPDATE parent_categories
 SET name = $2,
   src = $3
 WHERE id = $1
 RETURNING *;
--- name: DeleteParentCategories :exec
+-- name: DeleteParentCategory :exec
 DELETE FROM parent_categories
 WHERE id = $1;

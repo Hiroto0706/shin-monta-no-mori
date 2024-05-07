@@ -16,15 +16,19 @@ new_migration:
 
 migrateup:
 	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose up
+	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up
 
 migrateup1:
 	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose up 1
+	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up 1
 
 migratedown:
 	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose down
+	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose down
 
 migratedown1:
 	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose down 1
+	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose down 1
 
 dc-up:
 	docker compose up --build
@@ -42,6 +46,7 @@ test:
 	docker exec shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
 	docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
 	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up
+	mkdir -p coverage
 	go test ./server/... -coverprofile=./coverage/coverage.out
 	go tool cover -func=./coverage/coverage.out > coverage/report.txt
 	go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html

@@ -9,9 +9,9 @@ import (
 )
 
 type Server struct {
-	config util.Config
-	store  *db.Store
-	router *gin.Engine
+	Config util.Config
+	Store  *db.Store
+	Router *gin.Engine
 	// tokenMaker token.Maker
 }
 
@@ -22,25 +22,19 @@ func NewServer(store *db.Store, config util.Config) (*Server, error) {
 	// 	return nil, fmt.Errorf("cannot create token maker : %w", err)
 	// }
 	server := &Server{
-		config: config,
-		store:  store,
+		Config: config,
+		Store:  store,
 		// tokenMaker: token,
 	}
 
 	router := gin.Default()
 	router.Use(CORSMiddleware())
-
-	// // MasterUserの作成
-	// err = insertMasterUser(server)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	server.Router = router
 
 	// Userサイドのルート設定
-	SetUserRouters(router)
+	SetUserRouters(server)
 	// Adminサイドのルート設定
-	SetAdminRouters(router)
-	server.router = router
+	SetAdminRouters(server)
 
 	return server, nil
 }
@@ -55,7 +49,7 @@ func CORSMiddleware() gin.HandlerFunc {
 			if origin == allowedOrigin {
 				c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
 				c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
-				c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+				c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, multipart/form-data")
 				c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
 				c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 
@@ -73,8 +67,8 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func (server *Server) Start(address string) error {
-	if server.router == nil {
+	if server.Router == nil {
 		return fmt.Errorf("router is nil")
 	}
-	return server.router.Run(address)
+	return server.Router.Run(address)
 }

@@ -9,19 +9,19 @@ import (
 	"context"
 )
 
-const createChildCategories = `-- name: CreateChildCategories :one
+const createChildCategory = `-- name: CreateChildCategory :one
 INSERT INTO child_categories (name, parent_id)
 VALUES ($1, $2)
 RETURNING id, name, parent_id, updated_at, created_at
 `
 
-type CreateChildCategoriesParams struct {
+type CreateChildCategoryParams struct {
 	Name     string `json:"name"`
 	ParentID int64  `json:"parent_id"`
 }
 
-func (q *Queries) CreateChildCategories(ctx context.Context, arg CreateChildCategoriesParams) (ChildCategory, error) {
-	row := q.db.QueryRowContext(ctx, createChildCategories, arg.Name, arg.ParentID)
+func (q *Queries) CreateChildCategory(ctx context.Context, arg CreateChildCategoryParams) (ChildCategory, error) {
+	row := q.db.QueryRowContext(ctx, createChildCategory, arg.Name, arg.ParentID)
 	var i ChildCategory
 	err := row.Scan(
 		&i.ID,
@@ -33,25 +33,60 @@ func (q *Queries) CreateChildCategories(ctx context.Context, arg CreateChildCate
 	return i, err
 }
 
-const deleteChildCategories = `-- name: DeleteChildCategories :exec
+const deleteChildCategory = `-- name: DeleteChildCategory :exec
 DELETE FROM child_categories
 WHERE id = $1
 `
 
-func (q *Queries) DeleteChildCategories(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteChildCategories, id)
+func (q *Queries) DeleteChildCategory(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteChildCategory, id)
 	return err
 }
 
-const getChildCategories = `-- name: GetChildCategories :one
+const getChildCategoriesByParentID = `-- name: GetChildCategoriesByParentID :many
+SELECT id, name, parent_id, updated_at, created_at
+FROM child_categories
+WHERE parent_id = $1
+`
+
+func (q *Queries) GetChildCategoriesByParentID(ctx context.Context, parentID int64) ([]ChildCategory, error) {
+	rows, err := q.db.QueryContext(ctx, getChildCategoriesByParentID, parentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ChildCategory{}
+	for rows.Next() {
+		var i ChildCategory
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.ParentID,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getChildCategory = `-- name: GetChildCategory :one
 SELECT id, name, parent_id, updated_at, created_at
 FROM child_categories
 WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetChildCategories(ctx context.Context, id int64) (ChildCategory, error) {
-	row := q.db.QueryRowContext(ctx, getChildCategories, id)
+func (q *Queries) GetChildCategory(ctx context.Context, id int64) (ChildCategory, error) {
+	row := q.db.QueryRowContext(ctx, getChildCategory, id)
 	var i ChildCategory
 	err := row.Scan(
 		&i.ID,
@@ -104,7 +139,7 @@ func (q *Queries) ListChildCategories(ctx context.Context, arg ListChildCategori
 	return items, nil
 }
 
-const updateChildCategories = `-- name: UpdateChildCategories :one
+const updateChildCategory = `-- name: UpdateChildCategory :one
 UPDATE child_categories
 SET name = $2,
   parent_id = $3
@@ -112,14 +147,14 @@ WHERE id = $1
 RETURNING id, name, parent_id, updated_at, created_at
 `
 
-type UpdateChildCategoriesParams struct {
+type UpdateChildCategoryParams struct {
 	ID       int64  `json:"id"`
 	Name     string `json:"name"`
 	ParentID int64  `json:"parent_id"`
 }
 
-func (q *Queries) UpdateChildCategories(ctx context.Context, arg UpdateChildCategoriesParams) (ChildCategory, error) {
-	row := q.db.QueryRowContext(ctx, updateChildCategories, arg.ID, arg.Name, arg.ParentID)
+func (q *Queries) UpdateChildCategory(ctx context.Context, arg UpdateChildCategoryParams) (ChildCategory, error) {
+	row := q.db.QueryRowContext(ctx, updateChildCategory, arg.ID, arg.Name, arg.ParentID)
 	var i ChildCategory
 	err := row.Scan(
 		&i.ID,
