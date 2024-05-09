@@ -12,7 +12,7 @@ type listCategoriesRequest struct {
 
 func (server *Server) ListCategories(c *gin.Context) {}
 
-func (server *Server) GetCategories(c *gin.Context) {}
+func (server *Server) GetCategory(c *gin.Context) {}
 
 type searchCategoriesRequest struct {
 	Page  int    `form:"p"`
