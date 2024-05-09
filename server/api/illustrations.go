@@ -30,6 +30,16 @@ type listIllustrationsRequest struct {
 	Page int64 `form:"p"`
 }
 
+// ListIllustrations godoc
+// @Summary List illustrations
+// @Description Retrieves a paginated list of illustrations based on the provided page number.
+// @Accept  json
+// @Produce  json
+// @Param   p   query   int  true  "Page number for pagination"
+// @Success 200 {array} model/Illustration "A list of illustrations"
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: The request is malformed or missing required fields."
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: An error occurred on the server which prevented the completion of the request."
+// @Router /api/v1/admin/illustrations/list [get]
 func (server *Server) ListIllustrations(c *gin.Context) {
 	var req listIllustrationsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -58,6 +68,17 @@ func (server *Server) ListIllustrations(c *gin.Context) {
 	c.JSON(http.StatusOK, illustrations)
 }
 
+// GetIllustration godoc
+// @Summary Retrieve an illustration
+// @Description Retrieves a single illustration by its ID
+// @Accept  json
+// @Produce  json
+// @Param   id   path   int  true  "ID of the illustration to retrieve"
+// @Success 200 {object} model/Illustration "The requested illustration"
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Failed to parse 'id' number from path parameter"
+// @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No illustration found with the given ID"
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to retrieve the illustration from the database"
+// @Router /api/v1/admin/illustrations/{id} [get]
 func (server *Server) GetIllustration(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -89,6 +110,17 @@ type searchIllustrationsRequest struct {
 
 // TODO: imageだけでなく、カテゴリでも検索ができるようにする。
 // また、検索結果をtrimし、被りがないようにする
+// SearchIllustrations godoc
+// @Summary Search illustrations
+// @Description Searches for illustrations based on a query and page number.
+// @Accept  json
+// @Produce  json
+// @Param   p     query   int    true  "Page number for pagination"
+// @Param   q     query   string true  "Query string for searching illustrations by title or category"
+// @Success 200   {array} model/Illustration "List of matched illustrations"
+// @Failure 400   {object} request/JSONResponse{data=string} "Bad Request: The request is malformed or missing required fields."
+// @Failure 500   {object} request/JSONResponse{data=string} "Internal Server Error: An error occurred on the server which prevented the completion of the request."
+// @Router /api/v1/admin/illustrations/search [get]
 func (server *Server) SearchIllustrations(c *gin.Context) {
 	var req searchIllustrationsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -236,6 +268,7 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"illustrations": illustration,
+		"message":       "illustrationの作成に成功しました",
 	})
 }
 
@@ -359,6 +392,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"illustration": illustration,
+		"message":      "illustrationの編集に成功しました",
 	})
 }
 
@@ -447,6 +481,6 @@ func (server *Server) DeleteIllustration(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "successfully deleted image",
+		"message": "illustrationの削除に成功しました",
 	})
 }
