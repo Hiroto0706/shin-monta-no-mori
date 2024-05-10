@@ -24,7 +24,8 @@ SET title = $2,
   original_src = $3,
   simple_src = $4,
   original_filename = $5,
-  simple_filename = $6
+  simple_filename = $6,
+  updated_at = $7
 WHERE id = $1
 RETURNING *;
 -- name: DeleteImage :exec

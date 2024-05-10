@@ -39,7 +39,7 @@ type Querier interface {
 	ListImageChildCategoryRelationsByParentCategoryID(ctx context.Context, childCategoryID int64) ([]ImageChildCategoriesRelation, error)
 	ListImageParentCategoryRelationsByImageID(ctx context.Context, imageID int64) ([]ImageParentCategoriesRelation, error)
 	ListImageParentCategoryRelationsByParentCategoryID(ctx context.Context, parentCategoryID int64) ([]ImageParentCategoriesRelation, error)
-	ListParentCategories(ctx context.Context, arg ListParentCategoriesParams) ([]ParentCategory, error)
+	ListParentCategories(ctx context.Context) ([]ParentCategory, error)
 	SearchImages(ctx context.Context, arg SearchImagesParams) ([]Image, error)
 	UpdateCharacter(ctx context.Context, arg UpdateCharacterParams) (Character, error)
 	UpdateChildCategory(ctx context.Context, arg UpdateChildCategoryParams) (ChildCategory, error)

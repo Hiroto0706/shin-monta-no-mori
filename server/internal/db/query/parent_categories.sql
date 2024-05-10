@@ -10,8 +10,7 @@ LIMIT 1;
 -- name: ListParentCategories :many
 SELECT *
 FROM parent_categories
-ORDER BY id DESC
-LIMIT $1 OFFSET $2;
+ORDER BY id DESC;
 -- name: UpdateParentCategory :one
 UPDATE parent_categories
 SET name = $2,
