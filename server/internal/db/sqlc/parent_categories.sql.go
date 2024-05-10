@@ -67,16 +67,10 @@ const listParentCategories = `-- name: ListParentCategories :many
 SELECT id, name, src, updated_at, created_at
 FROM parent_categories
 ORDER BY id DESC
-LIMIT $1 OFFSET $2
 `
 
-type ListParentCategoriesParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
-}
-
-func (q *Queries) ListParentCategories(ctx context.Context, arg ListParentCategoriesParams) ([]ParentCategory, error) {
-	rows, err := q.db.QueryContext(ctx, listParentCategories, arg.Limit, arg.Offset)
+func (q *Queries) ListParentCategories(ctx context.Context) ([]ParentCategory, error) {
+	rows, err := q.db.QueryContext(ctx, listParentCategories)
 	if err != nil {
 		return nil, err
 	}

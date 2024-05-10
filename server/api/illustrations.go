@@ -12,6 +12,7 @@ import (
 	"shin-monta-no-mori/server/pkg/util"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -41,6 +42,7 @@ type listIllustrationsRequest struct {
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: An error occurred on the server which prevented the completion of the request."
 // @Router /api/v1/admin/illustrations/list [get]
 func (server *Server) ListIllustrations(c *gin.Context) {
+	// TODO: bind 周りの処理は関数化して共通化したほうがいい
 	var req listIllustrationsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
@@ -340,6 +342,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 			SimpleSrc:        sql.NullString{String: "", Valid: false},
 			OriginalFilename: req.Filename,
 			SimpleFilename:   sql.NullString{String: "", Valid: false},
+			UpdatedAt:        time.Now(),
 		}
 		if simpleSrc != "" {
 			arg.SimpleSrc = sql.NullString{String: simpleSrc, Valid: true}
@@ -350,6 +353,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 			return err
 		}
 
+		// TODO: relation周りのUpdate処理は共通化できそう
 		// image_character_relationsのUpdate処理
 		err = service.UpdateImageCharacterRelationsIDs(c, server.Store, image.ID, req.Characters)
 		if err != nil {
@@ -377,6 +381,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 		return
 	}
 
+	// TODO: illustration関連のデータ取得処理まで関数化した方がいい
 	image, err = server.Store.GetImage(c, int64(image.ID))
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -403,6 +408,7 @@ func (server *Server) DeleteIllustration(c *gin.Context) {
 		return
 	}
 
+	// TODO: illustrationとして取得すれば、冗長な関数を削除できそう
 	image, err := server.Store.GetImage(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -425,6 +431,7 @@ func (server *Server) DeleteIllustration(c *gin.Context) {
 			return fmt.Errorf("failed to DeleteImageSrc: %w", err)
 		}
 
+		// TODO: illustrationとして取得できれば、このrelation取得の処理削除できる
 		// image_child_category_relationsを削除
 		iccrs, err := server.Store.ListImageChildCategoryRelationsByImageID(c, image.ID)
 		if err != nil {

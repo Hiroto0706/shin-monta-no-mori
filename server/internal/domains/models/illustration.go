@@ -10,24 +10,17 @@ type (
 		Character []db.Character
 		Category  []*Category
 	}
-
-	Category struct {
-		ParentCategory db.ParentCategory
-		ChildCategory  []db.ChildCategory
-	}
 )
 
 func NewIllustration() *Illustration {
 	return &Illustration{
 		Image:     db.Image{},
 		Character: []db.Character{},
-		Category:  []*Category{},
-	}
-}
-
-func NewCategory() *Category {
-	return &Category{
-		ParentCategory: db.ParentCategory{},
-		ChildCategory:  []db.ChildCategory{},
+		Category: []*Category{
+			{
+				ParentCategory: db.ParentCategory{},
+				ChildCategory:  []db.ChildCategory{},
+			},
+		},
 	}
 }
