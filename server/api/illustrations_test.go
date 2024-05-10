@@ -379,6 +379,28 @@ func TestSearchIllustrations(t *testing.T) {
 			expectedCode: http.StatusOK,
 		},
 		{
+			name: "異常系（pageの値が不正な時）",
+			arg: args{
+				p:               "-1",
+				q:               "test",
+				imageFetchLimit: 1,
+			},
+			want: []model.Illustration{
+				{
+					Image:     db.Image{},
+					Character: []db.Character{},
+					Category: []*model.Category{
+						{
+							ParentCategory: db.ParentCategory{},
+							ChildCategory:  []db.ChildCategory{},
+						},
+					},
+				},
+			},
+			wantErr:      true,
+			expectedCode: http.StatusInternalServerError,
+		},
+		{
 			name: "異常系（クエリの値が不正な時）",
 			arg: args{
 				p:               "aaa",
