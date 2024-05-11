@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"fmt"
 	"mime/multipart"
 	"net/http"
@@ -10,19 +11,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// TODO: 将来的にpager機能を持たせた方がいいかも？
 type listCategoriesRequest struct {
 	Page int64 `form:"p"`
 }
 
+// ListCategories godoc
+// @Summary List categories
+// @Description Retrieves a list of parent categories along with their child categories.
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} model/Category "A list of categories with parent and child category details."
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: The request is malformed or missing required fields."
+// @Failure 404 {object} request/JSONResponse{data=string} "Not Found: Child categories not found for one or more parent categories."
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: An error occurred on the server which prevented the completion of the request."
+// @Router /api/v1/admin/categories/list [get]
 func (server *Server) ListCategories(c *gin.Context) {
 	// TODO: bind 周りの処理は関数化して共通化したほうがいい
 	var req listCategoriesRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
 		return
 	}
-
-	categories := []*model.Category{}
 
 	pcates, err := server.Store.ListParentCategories(c)
 	if err != nil {
@@ -30,11 +40,24 @@ func (server *Server) ListCategories(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(pcates)
+	categories := make([]*model.Category, len(pcates))
+	for i, pcate := range pcates {
+		ccates, err := server.Store.GetChildCategoriesByParentID(c, pcate.ID)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID: %w", err)))
+				return
+			}
 
-	// pcateごとのchild_categoriesの取得
+			c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
+			return
+		}
 
-	// pcatesをrangeで回し、categories に pcate と ccate を appned していく
+		categories[i] = &model.Category{
+			ParentCategory: pcate,
+			ChildCategory:  ccates,
+		}
+	}
 
 	c.JSON(http.StatusOK, categories)
 }

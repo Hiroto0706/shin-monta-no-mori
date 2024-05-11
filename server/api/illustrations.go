@@ -95,7 +95,7 @@ func (server *Server) GetIllustration(c *gin.Context) {
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 		return
 	}
 
