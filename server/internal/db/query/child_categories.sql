@@ -19,7 +19,8 @@ LIMIT $1 OFFSET $2;
 -- name: UpdateChildCategory :one
 UPDATE child_categories
 SET name = $2,
-  parent_id = $3
+  parent_id = $3,
+  updated_at = $4
 WHERE id = $1
 RETURNING *;
 -- name: DeleteChildCategory :exec

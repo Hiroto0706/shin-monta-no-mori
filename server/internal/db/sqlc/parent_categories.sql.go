@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const createParentCategory = `-- name: CreateParentCategory :one
@@ -145,16 +146,18 @@ const updateParentCategory = `-- name: UpdateParentCategory :one
 UPDATE parent_categories
 SET name = $2,
   src = $3,
-  filename = $4
+  filename = $4,
+  updated_at = $5
 WHERE id = $1
 RETURNING id, name, src, updated_at, created_at, filename
 `
 
 type UpdateParentCategoryParams struct {
-	ID       int64          `json:"id"`
-	Name     string         `json:"name"`
-	Src      string         `json:"src"`
-	Filename sql.NullString `json:"filename"`
+	ID        int64          `json:"id"`
+	Name      string         `json:"name"`
+	Src       string         `json:"src"`
+	Filename  sql.NullString `json:"filename"`
+	UpdatedAt time.Time      `json:"updated_at"`
 }
 
 func (q *Queries) UpdateParentCategory(ctx context.Context, arg UpdateParentCategoryParams) (ParentCategory, error) {
@@ -163,6 +166,7 @@ func (q *Queries) UpdateParentCategory(ctx context.Context, arg UpdateParentCate
 		arg.Name,
 		arg.Src,
 		arg.Filename,
+		arg.UpdatedAt,
 	)
 	var i ParentCategory
 	err := row.Scan(

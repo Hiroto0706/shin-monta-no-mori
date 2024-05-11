@@ -15,7 +15,8 @@ ORDER BY id DESC;
 UPDATE parent_categories
 SET name = $2,
   src = $3,
-  filename = $4
+  filename = $4,
+  updated_at = $5
 WHERE id = $1
 RETURNING *;
 -- name: DeleteParentCategory :exec

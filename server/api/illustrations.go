@@ -139,6 +139,8 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 	}
 
 	images, err := server.Store.SearchImages(c, arg)
+	log.Println(images)
+	log.Println(err)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to SearchImages : %w", err)))
 		return
@@ -300,10 +302,10 @@ func (server *Server) EditIllustration(c *gin.Context) {
 	image, err := server.Store.GetImage(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 			return
 		}
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 		return
 	}
 
@@ -342,7 +344,8 @@ func (server *Server) EditIllustration(c *gin.Context) {
 			SimpleSrc:        sql.NullString{String: "", Valid: false},
 			OriginalFilename: req.Filename,
 			SimpleFilename:   sql.NullString{String: "", Valid: false},
-			UpdatedAt:        time.Now(),
+			// TODO: timezoneがUTCになっている。厳密な時系列を扱う必要がある課題が出た時に修正する必要あり。
+			UpdatedAt: time.Now(),
 		}
 		if simpleSrc != "" {
 			arg.SimpleSrc = sql.NullString{String: simpleSrc, Valid: true}
@@ -377,7 +380,6 @@ func (server *Server) EditIllustration(c *gin.Context) {
 
 	if txErr != nil {
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(txErr))
-		log.Println(txErr)
 		return
 	}
 
