@@ -187,7 +187,7 @@ type createParentCategoryRequest struct {
 func (server *Server) CreateParentCategory(c *gin.Context) {
 	var req createParentCategoryRequest
 	if err := c.ShouldBind(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
 		return
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
@@ -223,7 +223,46 @@ func (server *Server) CreateParentCategory(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"parent_category": parentCategory,
-		"message":         "categoryの作成に成功しました",
+		"message":         "parent_categoryの作成に成功しました",
+	})
+}
+
+// CreateChildCategory godoc
+// @Summary Create a new child category
+// @Description Creates a new child category with a specified name and parent ID.
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param   name       formData   string  true  "Name of the child category"
+// @Param   parent_id  formData   int     true  "Parent category ID to which the child category belongs"
+// @Success 200 {object} gin/H "Returns the created child category along with a success message"
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Error in data binding or missing required fields"
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to create the child category due to server-side error"
+// @Router /api/v1/admin/categories/child/create [post]
+type createChildCategoryRequest struct {
+	Name     string `form:"name" binding:"required"`
+	ParentID int    `form:"parent_id" binding:"required"`
+}
+
+func (server *Server) CreateChildCategory(c *gin.Context) {
+	var req createChildCategoryRequest
+	if err := c.ShouldBind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
+		return
+	}
+
+	arg := db.CreateChildCategoryParams{
+		Name:     req.Name,
+		ParentID: int64(req.ParentID),
+	}
+	childCategory, err := server.Store.CreateChildCategory(c, arg)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to CreateChildCategory : %w", err)))
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"child_category": childCategory,
+		"message":        "child_categoryの作成に成功しました",
 	})
 }
 
