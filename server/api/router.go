@@ -30,13 +30,15 @@ func SetAdminRouters(s *Server) {
 			parent_categories := categories.Group("/parent")
 			{
 				parent_categories.POST("/create", s.CreateParentCategory)
+				parent_categories.PUT("/:id", s.EditParentCategory)
+				parent_categories.DELETE("/:id", s.DeleteParentCategory)
 			}
 			child_categories := categories.Group("/child")
 			{
 				child_categories.POST("/create", s.CreateChildCategory)
+				child_categories.PUT("/:id", s.EditChildCategory)
+				child_categories.DELETE("/:id", s.DeleteChildCategory)
 			}
-			categories.PUT("/:id", s.EditCategory)
-			categories.DELETE("/:id", s.DeleteCategory)
 		}
 	}
 }
