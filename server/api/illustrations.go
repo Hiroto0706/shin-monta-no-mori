@@ -269,8 +269,8 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 	illustration := service.FetchRelationInfoForIllustrations(c, server.Store, image)
 
 	c.JSON(http.StatusOK, gin.H{
-		"illustrations": illustration,
-		"message":       "illustrationの作成に成功しました",
+		"illustration": illustration,
+		"message":      "illustrationの作成に成功しました",
 	})
 }
 

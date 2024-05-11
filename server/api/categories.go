@@ -5,11 +5,18 @@ import (
 	"fmt"
 	"mime/multipart"
 	"net/http"
+	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
+	"shin-monta-no-mori/server/internal/domains/service"
 	"shin-monta-no-mori/server/pkg/util"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+)
+
+const (
+	IMAGE_TYPE_CATEGORY = "category"
 )
 
 // TODO: 将来的にpager機能を持たせた方がいいかも？
@@ -159,16 +166,69 @@ func (server *Server) SearchCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, categories)
 }
 
-type createCategoryRequest struct {
-	Title     string               `form:"title" binding:"required"`
+type createParentCategoryRequest struct {
+	Name      string               `form:"name" binding:"required"`
 	Filename  string               `form:"filename" binding:"required"`
 	ImageFile multipart.FileHeader `form:"image_file" binding:"required"`
 }
 
-func (server *Server) CreateCategory(c *gin.Context) {}
+// CreateParentCategory godoc
+// @Summary Create a new parent category
+// @Description Creates a new parent category with a name, filename, and an image file.
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param   name       formData   string  true  "Name of the parent category"
+// @Param   filename   formData   string  true  "Filename for the uploaded image"
+// @Param   image_file formData   file    true  "Image file for the parent category"
+// @Success 200 {object} gin/H "Returns the created parent category and a success message"
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Error in data binding or validation"
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to create the parent category due to a server error"
+// @Router /api/v1/admin/categories/parent/create [post]
+func (server *Server) CreateParentCategory(c *gin.Context) {
+	var req createParentCategoryRequest
+	if err := c.ShouldBind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
+		return
+	}
+	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
+
+	var parentCategory db.ParentCategory
+	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+		src, err := service.UploadImageSrc(c, &server.Config, "image_file", req.Filename, IMAGE_TYPE_CATEGORY, false)
+		if err != nil {
+			return fmt.Errorf("failed to UploadImage: %w", err)
+		}
+
+		arg := db.CreateParentCategoryParams{
+			Name: req.Name,
+			Src:  src,
+			Filename: sql.NullString{
+				String: req.Filename,
+				Valid:  true,
+			},
+		}
+
+		parentCategory, err = server.Store.CreateParentCategory(c, arg)
+		if err != nil {
+			return fmt.Errorf("failed to CreateParentCategory: %w", err)
+		}
+
+		return nil
+	})
+
+	if txErr != nil {
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("CreateParentCategory transaction was failed : %w", txErr)))
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"parent_category": parentCategory,
+		"message":         "categoryの作成に成功しました",
+	})
+}
 
 type editCategoryRequest struct {
-	Title     string               `form:"title"`
+	Name      string               `form:"name"`
 	Filename  string               `form:"filename"`
 	ImageFile multipart.FileHeader `form:"image_file"`
 }
