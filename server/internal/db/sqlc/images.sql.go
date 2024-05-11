@@ -134,7 +134,7 @@ const searchImages = `-- name: SearchImages :many
 SELECT DISTINCT id, title, original_src, simple_src, updated_at, created_at, original_filename, simple_filename
 FROM images
 WHERE title LIKE '%' || COALESCE($3) || '%'
-  OR original_filename LIKE '%' || COALESCE($3) || '%'
+  OR filename LIKE '%' || COALESCE($3) || '%'
 ORDER BY id DESC
 LIMIT $1 OFFSET $2
 `

@@ -67,11 +67,12 @@ type Operator struct {
 }
 
 type ParentCategory struct {
-	ID        int64     `json:"id"`
-	Name      string    `json:"name"`
-	Src       string    `json:"src"`
-	UpdatedAt time.Time `json:"updated_at"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        int64          `json:"id"`
+	Name      string         `json:"name"`
+	Src       string         `json:"src"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	CreatedAt time.Time      `json:"created_at"`
+	Filename  sql.NullString `json:"filename"`
 }
 
 type Session struct {

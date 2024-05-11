@@ -140,7 +140,7 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 
 	images, err := server.Store.SearchImages(c, arg)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to SearchImages() : %w", err)))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to SearchImages : %w", err)))
 		return
 	}
 

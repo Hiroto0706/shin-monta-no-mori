@@ -6,6 +6,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 type Querier interface {
@@ -41,6 +42,7 @@ type Querier interface {
 	ListImageParentCategoryRelationsByParentCategoryID(ctx context.Context, parentCategoryID int64) ([]ImageParentCategoriesRelation, error)
 	ListParentCategories(ctx context.Context) ([]ParentCategory, error)
 	SearchImages(ctx context.Context, arg SearchImagesParams) ([]Image, error)
+	SearchParentCategories(ctx context.Context, query sql.NullString) ([]ParentCategory, error)
 	UpdateCharacter(ctx context.Context, arg UpdateCharacterParams) (Character, error)
 	UpdateChildCategory(ctx context.Context, arg UpdateChildCategoryParams) (ChildCategory, error)
 	UpdateImage(ctx context.Context, arg UpdateImageParams) (Image, error)

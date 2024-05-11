@@ -106,11 +106,58 @@ func (server *Server) GetCategory(c *gin.Context) {
 }
 
 type searchCategoriesRequest struct {
-	Page  int    `form:"p"`
 	Query string `form:"q"`
 }
 
-func (server *Server) SearchCategories(c *gin.Context) {}
+// SearchCategories godoc
+// @Summary Search parent categories
+// @Description Searches for parent categories based on a query string.
+// @Accept  json
+// @Produce  json
+// @Param   q   query   string  true  "Query string to search parent categories"
+// @Success 200 {array} model/Category "List of categories with their corresponding child categories"
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Failed to bind query parameters"
+// @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No child categories found for a parent category"
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to retrieve categories from the database"
+// @Router /api/v1/admin/categories/search [get]
+func (server *Server) SearchCategories(c *gin.Context) {
+	var req searchCategoriesRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
+		return
+	}
+
+	q := sql.NullString{
+		String: req.Query,
+		Valid:  true,
+	}
+	pcates, err := server.Store.SearchParentCategories(c, q)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to SearchParentCategories : %w", err)))
+		return
+	}
+
+	categories := make([]*model.Category, len(pcates))
+	for i, pcate := range pcates {
+		ccates, err := server.Store.GetChildCategoriesByParentID(c, pcate.ID)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID: %w", err)))
+				return
+			}
+
+			c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
+			return
+		}
+
+		categories[i] = &model.Category{
+			ParentCategory: pcate,
+			ChildCategory:  ccates,
+		}
+	}
+
+	c.JSON(http.StatusOK, categories)
+}
 
 type createCategoryRequest struct {
 	Title     string               `form:"title" binding:"required"`

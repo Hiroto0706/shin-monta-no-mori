@@ -7,21 +7,23 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createParentCategory = `-- name: CreateParentCategory :one
-INSERT INTO parent_categories (name, src)
-VALUES ($1, $2)
-RETURNING id, name, src, updated_at, created_at
+INSERT INTO parent_categories (name, src, filename)
+VALUES ($1, $2, $3)
+RETURNING id, name, src, updated_at, created_at, filename
 `
 
 type CreateParentCategoryParams struct {
-	Name string `json:"name"`
-	Src  string `json:"src"`
+	Name     string         `json:"name"`
+	Src      string         `json:"src"`
+	Filename sql.NullString `json:"filename"`
 }
 
 func (q *Queries) CreateParentCategory(ctx context.Context, arg CreateParentCategoryParams) (ParentCategory, error) {
-	row := q.db.QueryRowContext(ctx, createParentCategory, arg.Name, arg.Src)
+	row := q.db.QueryRowContext(ctx, createParentCategory, arg.Name, arg.Src, arg.Filename)
 	var i ParentCategory
 	err := row.Scan(
 		&i.ID,
@@ -29,6 +31,7 @@ func (q *Queries) CreateParentCategory(ctx context.Context, arg CreateParentCate
 		&i.Src,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.Filename,
 	)
 	return i, err
 }
@@ -44,7 +47,7 @@ func (q *Queries) DeleteParentCategory(ctx context.Context, id int64) error {
 }
 
 const getParentCategory = `-- name: GetParentCategory :one
-SELECT id, name, src, updated_at, created_at
+SELECT id, name, src, updated_at, created_at, filename
 FROM parent_categories
 WHERE id = $1
 LIMIT 1
@@ -59,12 +62,13 @@ func (q *Queries) GetParentCategory(ctx context.Context, id int64) (ParentCatego
 		&i.Src,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.Filename,
 	)
 	return i, err
 }
 
 const listParentCategories = `-- name: ListParentCategories :many
-SELECT id, name, src, updated_at, created_at
+SELECT id, name, src, updated_at, created_at, filename
 FROM parent_categories
 ORDER BY id DESC
 `
@@ -84,6 +88,45 @@ func (q *Queries) ListParentCategories(ctx context.Context) ([]ParentCategory, e
 			&i.Src,
 			&i.UpdatedAt,
 			&i.CreatedAt,
+			&i.Filename,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchParentCategories = `-- name: SearchParentCategories :many
+SELECT DISTINCT id, name, src, updated_at, created_at, filename
+FROM parent_categories
+WHERE name LIKE '%' || COALESCE($1) || '%'
+  OR filename LIKE '%' || COALESCE($1) || '%'
+ORDER BY id DESC
+`
+
+func (q *Queries) SearchParentCategories(ctx context.Context, query sql.NullString) ([]ParentCategory, error) {
+	rows, err := q.db.QueryContext(ctx, searchParentCategories, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ParentCategory{}
+	for rows.Next() {
+		var i ParentCategory
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Src,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+			&i.Filename,
 		); err != nil {
 			return nil, err
 		}
@@ -101,19 +144,26 @@ func (q *Queries) ListParentCategories(ctx context.Context) ([]ParentCategory, e
 const updateParentCategory = `-- name: UpdateParentCategory :one
 UPDATE parent_categories
 SET name = $2,
-  src = $3
+  src = $3,
+  filename = $4
 WHERE id = $1
-RETURNING id, name, src, updated_at, created_at
+RETURNING id, name, src, updated_at, created_at, filename
 `
 
 type UpdateParentCategoryParams struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
-	Src  string `json:"src"`
+	ID       int64          `json:"id"`
+	Name     string         `json:"name"`
+	Src      string         `json:"src"`
+	Filename sql.NullString `json:"filename"`
 }
 
 func (q *Queries) UpdateParentCategory(ctx context.Context, arg UpdateParentCategoryParams) (ParentCategory, error) {
-	row := q.db.QueryRowContext(ctx, updateParentCategory, arg.ID, arg.Name, arg.Src)
+	row := q.db.QueryRowContext(ctx, updateParentCategory,
+		arg.ID,
+		arg.Name,
+		arg.Src,
+		arg.Filename,
+	)
 	var i ParentCategory
 	err := row.Scan(
 		&i.ID,
@@ -121,6 +171,7 @@ func (q *Queries) UpdateParentCategory(ctx context.Context, arg UpdateParentCate
 		&i.Src,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.Filename,
 	)
 	return i, err
 }
