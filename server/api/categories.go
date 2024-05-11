@@ -7,6 +7,7 @@ import (
 	"net/http"
 	model "shin-monta-no-mori/server/internal/domains/models"
 	"shin-monta-no-mori/server/pkg/util"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -62,7 +63,47 @@ func (server *Server) ListCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, categories)
 }
 
-func (server *Server) GetCategory(c *gin.Context) {}
+// GetCategory godoc
+// @Summary Retrieve a category
+// @Description Retrieves a parent category along with its child categories by the parent category's ID
+// @Accept  json
+// @Produce  json
+// @Param   id   path   int  true  "ID of the parent category to retrieve"
+// @Success 200 {object} model/Category "The requested parent category with its child categories"
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Failed to parse 'id' number from path parameter"
+// @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No parent category found with the given ID or no child categories found for the parent category"
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to retrieve the category from the database"
+// @Router /api/v1/admin/categories/{id} [get]
+func (server *Server) GetCategory(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
+		return
+	}
+
+	pcate, err := server.Store.GetParentCategory(c, int64(id))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetParentCategory: %w", err)))
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetParentCategory : %w", err)))
+		return
+	}
+
+	ccates, err := server.Store.GetChildCategoriesByParentID(c, pcate.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
+		return
+	}
+
+	category := model.NewCategory()
+	category.ParentCategory = pcate
+	category.ChildCategory = ccates
+
+	c.JSON(http.StatusOK, category)
+}
 
 type searchCategoriesRequest struct {
 	Page  int    `form:"p"`
