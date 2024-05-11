@@ -21,3 +21,9 @@ RETURNING *;
 -- name: DeleteImageParentCategoryRelations :exec
 DELETE FROM image_parent_categories_relations
 WHERE id = $1;
+-- name: DeleteAllImageParentCategoryRelationsByImageID :exec
+DELETE FROM image_parent_categories_relations
+WHERE image_id = $1;
+-- name: DeleteAllImageParentCategoryRelationsByParentCategoryID :exec
+DELETE FROM image_parent_categories_relations
+WHERE parent_category_id = $1;

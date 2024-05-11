@@ -34,6 +34,16 @@ func (q *Queries) CreateChildCategory(ctx context.Context, arg CreateChildCatego
 	return i, err
 }
 
+const deleteAllChildCategoriesByParentCategoryID = `-- name: DeleteAllChildCategoriesByParentCategoryID :exec
+DELETE FROM child_categories
+WHERE parent_id = $1
+`
+
+func (q *Queries) DeleteAllChildCategoriesByParentCategoryID(ctx context.Context, parentID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteAllChildCategoriesByParentCategoryID, parentID)
+	return err
+}
+
 const deleteChildCategory = `-- name: DeleteChildCategory :exec
 DELETE FROM child_categories
 WHERE id = $1

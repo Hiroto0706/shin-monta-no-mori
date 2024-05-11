@@ -317,8 +317,79 @@ func (server *Server) EditParentCategory(c *gin.Context) {
 	})
 }
 
+// DeleteParentCategory godoc
+// @Summary Delete a parent category
+// @Description Deletes an existing parent category identified by its ID along with all its associated child categories and related image relations.
+// @Accept  json
+// @Produce  json
+// @Param   id   path   int  true  "ID of the parent category to delete"
+// @Success 200 {object} gin/H "Returns a success message indicating the parent category and all related entities have been deleted"
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Error in parsing the parent category ID"
+// @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No parent category found with the given ID"
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to delete the parent category or its related entities due to a server error"
+// @Router /api/v1/admin/categories/parent/{id} [delete]
 func (server *Server) DeleteParentCategory(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
+		return
+	}
+	pcate, err := server.Store.GetParentCategory(c, int64(id))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetParentCategory : %w", err)))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetParentCategory : %w", err)))
+		return
+	}
 
+	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+		err = service.DeleteImageSrc(c, &server.Config, pcate.Src)
+		if err != nil {
+			return fmt.Errorf("failed to DeleteImageSrc: %w", err)
+		}
+
+		// images_parent_category_relationsの削除
+		err = server.Store.DeleteAllImageParentCategoryRelationsByParentCategoryID(c, pcate.ID)
+		if err != nil {
+			return fmt.Errorf("failed to DeleteAllImageParentCategoryRelationsByParentCategoryID : %w", err)
+		}
+
+		// parent_category_idと関連するimage_child_category_relationsの削除
+		ccates, err := server.Store.GetChildCategoriesByParentID(c, pcate.ID)
+		if err != nil {
+			return fmt.Errorf("failed to GetChildCategoriesByParentID: %w", err)
+		}
+		for _, ccate := range ccates {
+			err = server.Store.DeleteAllImageChildCategoryRelationsByChildCategoryID(c, ccate.ID)
+			if err != nil {
+				return fmt.Errorf("failed to DeleteAllImageChildCategoryRelationsByChildCategoryID: %w", err)
+			}
+		}
+
+		// 関係するchild_categoriesの全削除
+		err = server.Store.DeleteAllChildCategoriesByParentCategoryID(c, pcate.ID)
+		if err != nil {
+			return fmt.Errorf("failed to DeleteAllChildCategoriesByParentCategoryID : %w", err)
+		}
+
+		// parent_categoryの削除
+		err = server.Store.DeleteParentCategory(c, pcate.ID)
+		if err != nil {
+			return fmt.Errorf("failed to DeleteParentCategory : %w", err)
+		}
+
+		return nil
+	})
+	if txErr != nil {
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(txErr))
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "parent_categoryの削除に成功しました",
+	})
 }
 
 // CreateChildCategory godoc
@@ -427,4 +498,41 @@ func (server *Server) EditChildCategory(c *gin.Context) {
 	})
 }
 
-func (server *Server) DeleteChildCategory(c *gin.Context) {}
+// DeleteChildCategory godoc
+// @Summary Delete a child category
+// @Description Deletes an existing child category identified by its ID.
+// @Accept  json
+// @Produce  json
+// @Param   id   path   int  true  "ID of the child category to delete"
+// @Success 200 {object} gin/H "Returns a success message indicating the child category has been deleted"
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Error in parsing the child category ID"
+// @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No child category found with the given ID or error in deleting the child category"
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to retrieve or delete the child category from the database"
+// @Router /api/v1/admin/categories/child/{id} [delete]
+func (server *Server) DeleteChildCategory(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
+		return
+	}
+
+	ccate, err := server.Store.GetChildCategory(c, int64(id))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategory : %w", err)))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategory : %w", err)))
+		return
+	}
+
+	err = server.Store.DeleteChildCategory(c, ccate.ID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to DeleteChildCategory : %w", err)))
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "child_categoryの削除に成功しました",
+	})
+}

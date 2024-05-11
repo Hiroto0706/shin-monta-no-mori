@@ -3,7 +3,6 @@ package api
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"mime/multipart"
 	"net/http"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
@@ -139,8 +138,6 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 	}
 
 	images, err := server.Store.SearchImages(c, arg)
-	log.Println(images)
-	log.Println(err)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to SearchImages : %w", err)))
 		return
@@ -182,7 +179,6 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 		if req.Filename != "" {
 			originalSrc, err = service.UploadImageSrc(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
 			if err != nil {
-				log.Println(err)
 				return fmt.Errorf("failed to UploadImage: %w", err)
 			}
 		}
@@ -383,18 +379,6 @@ func (server *Server) EditIllustration(c *gin.Context) {
 		return
 	}
 
-	// TODO: illustration関連のデータ取得処理まで関数化した方がいい
-	image, err = server.Store.GetImage(c, int64(image.ID))
-	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage: %w", err)))
-			return
-		}
-
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage: %w", err)))
-		return
-	}
-
 	illustration := service.FetchRelationInfoForIllustrations(c, server.Store, image)
 
 	c.JSON(http.StatusOK, gin.H{
@@ -414,11 +398,11 @@ func (server *Server) DeleteIllustration(c *gin.Context) {
 	image, err := server.Store.GetImage(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 		return
 	}
 
@@ -435,49 +419,26 @@ func (server *Server) DeleteIllustration(c *gin.Context) {
 
 		// TODO: illustrationとして取得できれば、このrelation取得の処理削除できる
 		// image_child_category_relationsを削除
-		iccrs, err := server.Store.ListImageChildCategoryRelationsByImageID(c, image.ID)
+		err = server.Store.DeleteAllImageChildCategoryRelationsByImageID(c, image.ID)
 		if err != nil {
-			return fmt.Errorf("failed to ListImageChildCategoryRelationsByImageID: %w", err)
-		}
-		for _, iccr := range iccrs {
-			err = server.Store.DeleteImageChildCategoryRelations(c, iccr.ID)
-			if err != nil {
-				return fmt.Errorf("failed to DeleteImageChildCategoryRelations: %w", err)
-			}
+			return fmt.Errorf("failed to DeleteAllImageChildCategoryRelationsByImageID: %w", err)
 		}
 
 		// image_parent_category_relationsを削除
-		ipcrs, err := server.Store.ListImageParentCategoryRelationsByImageID(c, image.ID)
+		err = server.Store.DeleteAllImageParentCategoryRelationsByImageID(c, image.ID)
 		if err != nil {
-			fmt.Println(err)
-			return fmt.Errorf("failed to ListImageParentCategoryRelationsByImageID: %w", err)
-		}
-		for _, ipcr := range ipcrs {
-			err = server.Store.DeleteImageParentCategoryRelations(c, ipcr.ID)
-			if err != nil {
-				fmt.Println(err)
-				return fmt.Errorf("failed to DeleteImageParentCategoryRelations: %w", err)
-			}
+			return fmt.Errorf("failed to DeleteAllImageParentCategoryRelationsByImageID: %w", err)
 		}
 
 		// image_character_relationsを削除
-		icrs, err := server.Store.ListImageCharacterRelationsByImageID(c, image.ID)
+		err = server.Store.DeleteAllImageCharacterRelationsByImageID(c, image.ID)
 		if err != nil {
-			fmt.Println(err)
-			return fmt.Errorf("failed to ListImageCharacterRelationsByImageID: %w", err)
-		}
-		for _, icr := range icrs {
-			err = server.Store.DeleteImageCharacterRelations(c, icr.ID)
-			if err != nil {
-				fmt.Println(err)
-				return fmt.Errorf("failed to DeleteImageCharacterRelations: %w", err)
-			}
+			return fmt.Errorf("failed to DeleteAllImageCharacterRelationsByImageID: %w", err)
 		}
 
 		// Imageを削除
 		err = server.Store.DeleteImage(c, image.ID)
 		if err != nil {
-			fmt.Println(err)
 			return fmt.Errorf("failed to DeleteImage: %w", err)
 		}
 

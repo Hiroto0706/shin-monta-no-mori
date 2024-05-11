@@ -26,3 +26,6 @@ RETURNING *;
 -- name: DeleteChildCategory :exec
 DELETE FROM child_categories
 WHERE id = $1;
+-- name: DeleteAllChildCategoriesByParentCategoryID :exec
+DELETE FROM child_categories
+WHERE parent_id = $1;

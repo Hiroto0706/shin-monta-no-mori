@@ -18,6 +18,12 @@ type Querier interface {
 	CreateImageParentCategoryRelations(ctx context.Context, arg CreateImageParentCategoryRelationsParams) (ImageParentCategoriesRelation, error)
 	CreateOperator(ctx context.Context, arg CreateOperatorParams) (Operator, error)
 	CreateParentCategory(ctx context.Context, arg CreateParentCategoryParams) (ParentCategory, error)
+	DeleteAllChildCategoriesByParentCategoryID(ctx context.Context, parentID int64) error
+	DeleteAllImageCharacterRelationsByImageID(ctx context.Context, imageID int64) error
+	DeleteAllImageChildCategoryRelationsByChildCategoryID(ctx context.Context, childCategoryID int64) error
+	DeleteAllImageChildCategoryRelationsByImageID(ctx context.Context, imageID int64) error
+	DeleteAllImageParentCategoryRelationsByImageID(ctx context.Context, imageID int64) error
+	DeleteAllImageParentCategoryRelationsByParentCategoryID(ctx context.Context, parentCategoryID int64) error
 	DeleteCharacter(ctx context.Context, id int64) error
 	DeleteChildCategory(ctx context.Context, id int64) error
 	DeleteImage(ctx context.Context, id int64) error
