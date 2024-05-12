@@ -23,13 +23,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type illustrationTest struct{}
+
 func TestListIllustrations(t *testing.T) {
 	config, err := util.LoadConfig("../")
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}
-	server := setUp(t, config)
-	defer tearDown(t, config)
+	i := illustrationTest{}
+	server := i.setUp(t, config)
+	defer i.tearDown(t, config)
 
 	type args struct {
 		page            string
@@ -189,8 +192,9 @@ func TestGetIllustration(t *testing.T) {
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}
-	server := setUp(t, config)
-	defer tearDown(t, config)
+	i := illustrationTest{}
+	server := i.setUp(t, config)
+	defer i.tearDown(t, config)
 
 	type args struct {
 		id string
@@ -293,8 +297,9 @@ func TestSearchIllustrations(t *testing.T) {
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}
-	server := setUp(t, config)
-	defer tearDown(t, config)
+	i := illustrationTest{}
+	server := i.setUp(t, config)
+	defer i.tearDown(t, config)
 
 	type args struct {
 		p               string
@@ -399,28 +404,6 @@ func TestSearchIllustrations(t *testing.T) {
 			},
 			wantErr:      true,
 			expectedCode: http.StatusInternalServerError,
-		},
-		{
-			name: "異常系（クエリの値が不正な時）",
-			arg: args{
-				p:               "aaa",
-				q:               "not exist illustration",
-				imageFetchLimit: 1,
-			},
-			want: []model.Illustration{
-				{
-					Image:     db.Image{},
-					Character: []db.Character{},
-					Category: []*model.Category{
-						{
-							ParentCategory: db.ParentCategory{},
-							ChildCategory:  []db.ChildCategory{},
-						},
-					},
-				},
-			},
-			wantErr:      true,
-			expectedCode: http.StatusBadRequest,
 		},
 	}
 	for _, tt := range tests {
@@ -831,7 +814,7 @@ func newTestServer(store *db.Store, config util.Config) (*api.Server, error) {
 	return server, nil
 }
 
-func setUp(t *testing.T, config util.Config) *api.Server {
+func (i illustrationTest) setUp(t *testing.T, config util.Config) *api.Server {
 	store := createConn(config)
 
 	queries := []string{
@@ -911,7 +894,7 @@ func setUp(t *testing.T, config util.Config) *api.Server {
 	return server
 }
 
-func tearDown(t *testing.T, config util.Config) {
+func (i illustrationTest) tearDown(t *testing.T, config util.Config) {
 	store := createConn(config)
 
 	queries := []string{

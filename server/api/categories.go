@@ -36,12 +36,12 @@ type listCategoriesRequest struct {
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: An error occurred on the server which prevented the completion of the request."
 // @Router /api/v1/admin/categories/list [get]
 func (server *Server) ListCategories(c *gin.Context) {
-	// TODO: bind 周りの処理は関数化して共通化したほうがいい
-	var req listCategoriesRequest
-	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
-		return
-	}
+	// // TODO: bind 周りの処理は関数化して共通化したほうがいい
+	// var req listCategoriesRequest
+	// if err := c.ShouldBindQuery(&req); err != nil {
+	// 	c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
+	// 	return
+	// }
 
 	pcates, err := server.Store.ListParentCategories(c)
 	if err != nil {
@@ -49,7 +49,7 @@ func (server *Server) ListCategories(c *gin.Context) {
 		return
 	}
 
-	categories := make([]*model.Category, len(pcates))
+	categories := make([]model.Category, len(pcates))
 	for i, pcate := range pcates {
 		ccates, err := server.Store.GetChildCategoriesByParentID(c, pcate.ID)
 		if err != nil {
@@ -62,7 +62,7 @@ func (server *Server) ListCategories(c *gin.Context) {
 			return
 		}
 
-		categories[i] = &model.Category{
+		categories[i] = model.Category{
 			ParentCategory: pcate,
 			ChildCategory:  ccates,
 		}
@@ -151,11 +151,6 @@ func (server *Server) SearchCategories(c *gin.Context) {
 	for i, pcate := range pcates {
 		ccates, err := server.Store.GetChildCategoriesByParentID(c, pcate.ID)
 		if err != nil {
-			if err == sql.ErrNoRows {
-				c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID: %w", err)))
-				return
-			}
-
 			c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
 			return
 		}
