@@ -47,7 +47,22 @@ test:
 	docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
 	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up
 	mkdir -p coverage
-	go test ./server/... -coverprofile=./coverage/coverage.out
-	go tool cover -func=./coverage/coverage.out > coverage/report.txt
+
+	# 各サブディレクトリのテストを実行し、個別のカバレッジファイルを生成
+	go test ./server/api/... -coverprofile=./coverage/api.out
+	go test ./server/cmd/... -coverprofile=./coverage/cmd.out
+	go test ./server/pkg/... -coverprofile=./coverage/pkg.out
+	go test ./server/internal/db/... -coverprofile=./coverage/db.out
+	go test ./server/internal/domains/... -coverprofile=./coverage/domains.out
+
+	# カバレッジファイルの適切な結合
+	echo "mode: set" > ./coverage/coverage.out
+	tail -n +2 ./coverage/api.out >> ./coverage/coverage.out
+	tail -n +2 ./coverage/cmd.out >> ./coverage/coverage.out
+	tail -n +2 ./coverage/pkg.out >> ./coverage/coverage.out
+	tail -n +2 ./coverage/db.out >> ./coverage/coverage.out
+	tail -n +2 ./coverage/domains.out >> ./coverage/coverage.out
+
+	go tool cover -func=./coverage/coverage.out > ./coverage/report.txt
 	go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
 	./tools/aggregate_coverage.sh ./coverage/report.txt
