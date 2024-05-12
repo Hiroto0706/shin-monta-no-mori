@@ -66,3 +66,8 @@ test:
 	go tool cover -func=./coverage/coverage.out > ./coverage/report.txt
 	go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
 	./tools/aggregate_coverage.sh ./coverage/report.txt
+
+test-reset:
+	docker exec shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
+	docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
+	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up

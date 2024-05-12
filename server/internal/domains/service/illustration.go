@@ -32,45 +32,42 @@ func FetchRelationInfoForIllustrations(c *gin.Context, store *db.Store, i db.Ima
 		characters = append(characters, char)
 	}
 
-	// カテゴリーの取得
+	// image.IDに関連するparent_categoryの取得
 	ipcrs, err := store.ListImageParentCategoryRelationsByImageID(c, i.ID)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
-		}
-
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID : %w", err)))
 	}
-
-	categories := []*model.Category{}
+	pCates := []db.ParentCategory{}
 	for _, ipcr := range ipcrs {
 		pCate, err := store.GetParentCategory(c, ipcr.ParentCategoryID)
 		if err != nil {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetParentCategory() : %w", err)))
 		}
-
-		iccrs, err := store.ListImageChildCategoryRelationsByImageID(c, i.ID)
+		pCates = append(pCates, pCate)
+	}
+	// image.IDに関連するchild_categoryの取得
+	iccrs, err := store.ListImageChildCategoryRelationsByImageID(c, i.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID : %w", err)))
+	}
+	cCates := []db.ChildCategory{}
+	for _, iccr := range iccrs {
+		cCate, err := store.GetChildCategory(c, iccr.ChildCategoryID)
 		if err != nil {
-			if err == sql.ErrNoRows {
-				c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
-			}
-
-			c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
+			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategory() : %w", err)))
 		}
+		cCates = append(cCates, cCate)
+	}
 
-		cCates := []db.ChildCategory{}
-		for _, iccr := range iccrs {
-			cCate, err := store.GetChildCategory(c, iccr.ChildCategoryID)
-			if err != nil {
-				c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategory() : %w", err)))
-			}
-			cCates = append(cCates, cCate)
-		}
-
+	categories := []*model.Category{}
+	for _, pCate := range pCates {
 		cate := model.NewCategory()
 		cate.ParentCategory = pCate
-		cate.ChildCategory = cCates
-
+		for _, cCate := range cCates {
+			if cCate.ParentID == pCate.ID {
+				cate.ChildCategory = append(cate.ChildCategory, cCate)
+			}
+		}
 		categories = append(categories, cate)
 	}
 
@@ -113,7 +110,7 @@ func DeleteImageSrc(c *gin.Context, config *util.Config, src string) error {
 }
 
 // UpdateImageCharacterRelationsIDs updates the character relations for an image.
-func UpdateImageCharacterRelationsIDs(c *gin.Context, store *db.Store, imageID int64, newCharacterIDs []int64) error {
+func UpdateImageCharacterRelationsIDs(c *gin.Context, store *db.Store, imageID int64, requestCharacterIDs []int64) error {
 	existingRelations, err := store.ListImageCharacterRelationsByImageID(c, imageID)
 	if err != nil {
 		return fmt.Errorf("failed to ListImageCharacterRelationsByImageID: %w", err)
@@ -126,26 +123,26 @@ func UpdateImageCharacterRelationsIDs(c *gin.Context, store *db.Store, imageID i
 	}
 
 	// Create a set from the new character IDs.
-	newIDs := make(map[int64]bool)
-	for _, id := range newCharacterIDs {
-		newIDs[id] = true
+	requestIDs := make(map[int64]bool)
+	for _, id := range requestCharacterIDs {
+		requestIDs[id] = true
 	}
 
 	// Remove relations that are not needed anymore.
-	for _, rel := range existingRelations {
-		if !newIDs[rel.CharacterID] {
-			if err := store.DeleteImageCharacterRelations(c, rel.ID); err != nil {
+	for _, existRel := range existingRelations {
+		if !requestIDs[existRel.CharacterID] {
+			if err := store.DeleteImageCharacterRelations(c, existRel.ID); err != nil {
 				return fmt.Errorf("failed to DeleteImageCharacterRelations: %w", err)
 			}
 		}
 	}
 
 	// Add new relations that do not exist yet.
-	for id := range newIDs {
-		if !existingIDs[id] {
+	for requestID := range requestIDs {
+		if !existingIDs[requestID] {
 			_, err := store.CreateImageCharacterRelations(c, db.CreateImageCharacterRelationsParams{
 				ImageID:     imageID,
-				CharacterID: id,
+				CharacterID: requestID,
 			})
 			if err != nil {
 				return fmt.Errorf("failed to CreateImageCharacterRelations: %w", err)
@@ -157,7 +154,7 @@ func UpdateImageCharacterRelationsIDs(c *gin.Context, store *db.Store, imageID i
 }
 
 // UpdateImageParentCategoryRelationsIDs updates the parent_category relations for an image.
-func UpdateImageParentCategoryRelationsIDs(c *gin.Context, store *db.Store, imageID int64, newParentCategoryIDs []int64) error {
+func UpdateImageParentCategoryRelationsIDs(c *gin.Context, store *db.Store, imageID int64, requestParentCategoryIDs []int64) error {
 	existingRelations, err := store.ListImageParentCategoryRelationsByImageID(c, imageID)
 	if err != nil {
 		return fmt.Errorf("failed to ListImageParentCategoryRelationsByImageID: %w", err)
@@ -170,26 +167,26 @@ func UpdateImageParentCategoryRelationsIDs(c *gin.Context, store *db.Store, imag
 	}
 
 	// Create a set from the new parent_category IDs.
-	newIDs := make(map[int64]bool)
-	for _, id := range newParentCategoryIDs {
-		newIDs[id] = true
+	requestIDs := make(map[int64]bool)
+	for _, id := range requestParentCategoryIDs {
+		requestIDs[id] = true
 	}
 
 	// Remove relations that are not needed anymore.
-	for _, rel := range existingRelations {
-		if !newIDs[rel.ParentCategoryID] {
-			if err := store.DeleteImageParentCategoryRelations(c, rel.ID); err != nil {
+	for _, existRel := range existingRelations {
+		if !requestIDs[existRel.ParentCategoryID] {
+			if err := store.DeleteImageParentCategoryRelations(c, existRel.ID); err != nil {
 				return fmt.Errorf("failed to DeleteImageParentCategoryRelations: %w", err)
 			}
 		}
 	}
 
 	// Add new relations that do not exist 	yet.
-	for id := range newIDs {
-		if !existingIDs[id] {
+	for requestID := range requestIDs {
+		if !existingIDs[requestID] {
 			_, err := store.CreateImageParentCategoryRelations(c, db.CreateImageParentCategoryRelationsParams{
 				ImageID:          imageID,
-				ParentCategoryID: id,
+				ParentCategoryID: requestID,
 			})
 			if err != nil {
 				return fmt.Errorf("failed to CreateImageParentCategoryRelations: %w", err)
@@ -201,7 +198,7 @@ func UpdateImageParentCategoryRelationsIDs(c *gin.Context, store *db.Store, imag
 }
 
 // UpdateImageChildCategoryRelationsIDs updates the child_category relations for an image.
-func UpdateImageChildCategoryRelationsIDs(c *gin.Context, store *db.Store, imageID int64, newChildCategoryIDs []int64) error {
+func UpdateImageChildCategoryRelationsIDs(c *gin.Context, store *db.Store, imageID int64, requestChildCategoryIDs []int64) error {
 	existingRelations, err := store.ListImageChildCategoryRelationsByImageID(c, imageID)
 	if err != nil {
 		return fmt.Errorf("failed to ListImageChildCategoryRelationsByImageID: %w", err)
@@ -214,26 +211,26 @@ func UpdateImageChildCategoryRelationsIDs(c *gin.Context, store *db.Store, image
 	}
 
 	// Create a set from the new child_category IDs.
-	newIDs := make(map[int64]bool)
-	for _, id := range newChildCategoryIDs {
-		newIDs[id] = true
+	requestIDs := make(map[int64]bool)
+	for _, id := range requestChildCategoryIDs {
+		requestIDs[id] = true
 	}
 
 	// Remove relations that are not needed anymore.
-	for _, rel := range existingRelations {
-		if !newIDs[rel.ChildCategoryID] {
-			if err := store.DeleteImageChildCategoryRelations(c, rel.ID); err != nil {
+	for _, existRel := range existingRelations {
+		if !requestIDs[existRel.ChildCategoryID] {
+			if err := store.DeleteImageChildCategoryRelations(c, existRel.ID); err != nil {
 				return fmt.Errorf("failed to DeleteImageChildCategoryRelations: %w", err)
 			}
 		}
 	}
 
 	// Add new relations that do not exist 	yet.
-	for id := range newIDs {
-		if !existingIDs[id] {
+	for requestID := range requestIDs {
+		if !existingIDs[requestID] {
 			_, err := store.CreateImageChildCategoryRelations(c, db.CreateImageChildCategoryRelationsParams{
 				ImageID:         imageID,
-				ChildCategoryID: id,
+				ChildCategoryID: requestID,
 			})
 			if err != nil {
 				return fmt.Errorf("failed to CreateImageChildCategoryRelations: %w", err)

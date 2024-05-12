@@ -163,6 +163,23 @@ type createIllustrationRequest struct {
 	SimpleImageFile   multipart.FileHeader `form:"simple_image_file"`
 }
 
+// CreateIllustration godoc
+// @Summary Create a new illustration
+// @Description Creates a new illustration with title, filename, characters, categories, and image files.
+// @Tags illustrations
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param   title              formData   string                 true  "Title of the illustration"
+// @Param   filename           formData   string                 true  "Filename for the uploaded image"
+// @Param   characters[]       formData   []int64                true  "List of character IDs associated with the illustration"
+// @Param   parent_categories[] formData []int64                 true  "List of parent category IDs associated with the illustration"
+// @Param   child_categories[] formData   []int64                true  "List of child category IDs associated with the illustration"
+// @Param   original_image_file formData file                   true  "Original image file for the illustration"
+// @Param   simple_image_file  formData  file                   false "Simple image file for the illustration (optional)"
+// @Success 200 {object} gin/H "Returns the created illustration and a success message"
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Error in data binding or validation"
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to create the illustration due to a server error"
+// @Router /api/v1/admin/illustrations/create [post]
 func (server *Server) CreateIllustration(c *gin.Context) {
 	var req createIllustrationRequest
 	if err := c.ShouldBind(&req); err != nil {
@@ -282,6 +299,23 @@ type editIllustrationRequest struct {
 	SimpleImageFile   multipart.FileHeader `form:"simple_image_file"`
 }
 
+// EditIllustration godoc
+// @Summary Edit an illustration
+// @Description Updates an illustration by its ID with new title, filename, and optionally updates the image.
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param   id          path     int    true  "ID of the illustration to update"
+// @Param   title       formData string true  "New title of the illustration"
+// @Param   filename    formData string true  "New filename for the illustration; used in image re-upload"
+// @Param   image_file  formData file   false "New image file for the illustration"
+// @Param   characters  formData []int  false "List of character IDs associated with the illustration"
+// @Param   parentCategories formData []int false "List of parent category IDs associated with the illustration"
+// @Param   childCategories  formData []int false "List of child category IDs associated with the illustration"
+// @Success 200 {object} gin/H "Returns the updated illustration and a success message"
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Error in data binding or validation"
+// @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No illustration found with the given ID"
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to update the illustration due to a server error"
+// @Router /api/v1/admin/illustrations/{id} [put]
 func (server *Server) EditIllustration(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -387,6 +421,18 @@ func (server *Server) EditIllustration(c *gin.Context) {
 	})
 }
 
+// DeleteIllustration godoc
+// @Summary Delete an illustration
+// @Description Deletes a specific illustration by its ID.
+// @Tags illustrations
+// @Accept  json
+// @Produce  json
+// @Param   id   path   int  true  "ID of the illustration to delete"
+// @Success 200 {object} gin/H "Returns a success message indicating the illustration has been deleted"
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Error parsing the 'id' from path parameters"
+// @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No illustration found with the given ID"
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to delete the illustration due to a server error"
+// @Router /api/v1/admin/illustrations/{id} [delete]
 func (server *Server) DeleteIllustration(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
