@@ -24,3 +24,6 @@ WHERE id = $1;
 -- name: DeleteAllImageCharacterRelationsByImageID :exec
 DELETE FROM image_characters_relations
 WHERE image_id = $1;
+-- name: DeleteAllImageCharacterRelationsByCharacterID :exec
+DELETE FROM image_characters_relations
+WHERE character_id = $1;

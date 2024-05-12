@@ -271,7 +271,7 @@ func (server *Server) EditParentCategory(c *gin.Context) {
 	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
 		src := pcate.Src
 		if pcate.Filename.String != req.Filename {
-			err := service.DeleteImageSrc(c, &server.Config, pcate.Filename.String)
+			err := service.DeleteImageSrc(c, &server.Config, pcate.Src)
 			if err != nil {
 				return err
 			}
@@ -302,7 +302,7 @@ func (server *Server) EditParentCategory(c *gin.Context) {
 	})
 
 	if txErr != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(txErr))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("EditParentCategory transaction was failed : %w", txErr)))
 		return
 	}
 
@@ -378,7 +378,7 @@ func (server *Server) DeleteParentCategory(c *gin.Context) {
 		return nil
 	})
 	if txErr != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(txErr))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("DeleteParentCategory transaction was failed : %w", txErr)))
 		return
 	}
 
@@ -483,7 +483,7 @@ func (server *Server) EditChildCategory(c *gin.Context) {
 	})
 
 	if txErr != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(txErr))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("EditChildCategory transaction was failed : %w", txErr)))
 		return
 	}
 

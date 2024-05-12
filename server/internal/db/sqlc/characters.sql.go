@@ -7,21 +7,24 @@ package db
 
 import (
 	"context"
+	"database/sql"
+	"time"
 )
 
 const createCharacter = `-- name: CreateCharacter :one
-INSERT INTO characters (name, src)
-VALUES ($1, $2)
-RETURNING id, name, src, updated_at, created_at
+INSERT INTO characters (name, src, filename)
+VALUES ($1, $2, $3)
+RETURNING id, name, src, updated_at, created_at, filename
 `
 
 type CreateCharacterParams struct {
-	Name string `json:"name"`
-	Src  string `json:"src"`
+	Name     string         `json:"name"`
+	Src      string         `json:"src"`
+	Filename sql.NullString `json:"filename"`
 }
 
 func (q *Queries) CreateCharacter(ctx context.Context, arg CreateCharacterParams) (Character, error) {
-	row := q.db.QueryRowContext(ctx, createCharacter, arg.Name, arg.Src)
+	row := q.db.QueryRowContext(ctx, createCharacter, arg.Name, arg.Src, arg.Filename)
 	var i Character
 	err := row.Scan(
 		&i.ID,
@@ -29,6 +32,7 @@ func (q *Queries) CreateCharacter(ctx context.Context, arg CreateCharacterParams
 		&i.Src,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.Filename,
 	)
 	return i, err
 }
@@ -44,7 +48,7 @@ func (q *Queries) DeleteCharacter(ctx context.Context, id int64) error {
 }
 
 const getCharacter = `-- name: GetCharacter :one
-SELECT id, name, src, updated_at, created_at
+SELECT id, name, src, updated_at, created_at, filename
 FROM characters
 WHERE id = $1
 LIMIT 1
@@ -59,12 +63,13 @@ func (q *Queries) GetCharacter(ctx context.Context, id int64) (Character, error)
 		&i.Src,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.Filename,
 	)
 	return i, err
 }
 
 const listCharacters = `-- name: ListCharacters :many
-SELECT id, name, src, updated_at, created_at
+SELECT id, name, src, updated_at, created_at, filename
 FROM characters
 ORDER BY id DESC
 LIMIT $1 OFFSET $2
@@ -90,6 +95,52 @@ func (q *Queries) ListCharacters(ctx context.Context, arg ListCharactersParams) 
 			&i.Src,
 			&i.UpdatedAt,
 			&i.CreatedAt,
+			&i.Filename,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchCharacters = `-- name: SearchCharacters :many
+SELECT DISTINCT id, name, src, updated_at, created_at, filename
+FROM characters
+WHERE name LIKE '%' || COALESCE($3) || '%'
+  OR filename LIKE '%' || COALESCE($3) || '%'
+ORDER BY id DESC
+LIMIT $1 OFFSET $2
+`
+
+type SearchCharactersParams struct {
+	Limit  int32          `json:"limit"`
+	Offset int32          `json:"offset"`
+	Query  sql.NullString `json:"query"`
+}
+
+func (q *Queries) SearchCharacters(ctx context.Context, arg SearchCharactersParams) ([]Character, error) {
+	rows, err := q.db.QueryContext(ctx, searchCharacters, arg.Limit, arg.Offset, arg.Query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Character{}
+	for rows.Next() {
+		var i Character
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Src,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+			&i.Filename,
 		); err != nil {
 			return nil, err
 		}
@@ -107,19 +158,29 @@ func (q *Queries) ListCharacters(ctx context.Context, arg ListCharactersParams) 
 const updateCharacter = `-- name: UpdateCharacter :one
 UPDATE characters
 SET name = $2,
-  src = $3
+  src = $3,
+  filename = $4,
+  updated_at = $5
 WHERE id = $1
-RETURNING id, name, src, updated_at, created_at
+RETURNING id, name, src, updated_at, created_at, filename
 `
 
 type UpdateCharacterParams struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
-	Src  string `json:"src"`
+	ID        int64          `json:"id"`
+	Name      string         `json:"name"`
+	Src       string         `json:"src"`
+	Filename  sql.NullString `json:"filename"`
+	UpdatedAt time.Time      `json:"updated_at"`
 }
 
 func (q *Queries) UpdateCharacter(ctx context.Context, arg UpdateCharacterParams) (Character, error) {
-	row := q.db.QueryRowContext(ctx, updateCharacter, arg.ID, arg.Name, arg.Src)
+	row := q.db.QueryRowContext(ctx, updateCharacter,
+		arg.ID,
+		arg.Name,
+		arg.Src,
+		arg.Filename,
+		arg.UpdatedAt,
+	)
 	var i Character
 	err := row.Scan(
 		&i.ID,
@@ -127,6 +188,7 @@ func (q *Queries) UpdateCharacter(ctx context.Context, arg UpdateCharacterParams
 		&i.Src,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.Filename,
 	)
 	return i, err
 }
