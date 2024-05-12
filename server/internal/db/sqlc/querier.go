@@ -6,6 +6,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 type Querier interface {
@@ -17,6 +18,12 @@ type Querier interface {
 	CreateImageParentCategoryRelations(ctx context.Context, arg CreateImageParentCategoryRelationsParams) (ImageParentCategoriesRelation, error)
 	CreateOperator(ctx context.Context, arg CreateOperatorParams) (Operator, error)
 	CreateParentCategory(ctx context.Context, arg CreateParentCategoryParams) (ParentCategory, error)
+	DeleteAllChildCategoriesByParentCategoryID(ctx context.Context, parentID int64) error
+	DeleteAllImageCharacterRelationsByImageID(ctx context.Context, imageID int64) error
+	DeleteAllImageChildCategoryRelationsByChildCategoryID(ctx context.Context, childCategoryID int64) error
+	DeleteAllImageChildCategoryRelationsByImageID(ctx context.Context, imageID int64) error
+	DeleteAllImageParentCategoryRelationsByImageID(ctx context.Context, imageID int64) error
+	DeleteAllImageParentCategoryRelationsByParentCategoryID(ctx context.Context, parentCategoryID int64) error
 	DeleteCharacter(ctx context.Context, id int64) error
 	DeleteChildCategory(ctx context.Context, id int64) error
 	DeleteImage(ctx context.Context, id int64) error
@@ -39,8 +46,9 @@ type Querier interface {
 	ListImageChildCategoryRelationsByParentCategoryID(ctx context.Context, childCategoryID int64) ([]ImageChildCategoriesRelation, error)
 	ListImageParentCategoryRelationsByImageID(ctx context.Context, imageID int64) ([]ImageParentCategoriesRelation, error)
 	ListImageParentCategoryRelationsByParentCategoryID(ctx context.Context, parentCategoryID int64) ([]ImageParentCategoriesRelation, error)
-	ListParentCategories(ctx context.Context, arg ListParentCategoriesParams) ([]ParentCategory, error)
+	ListParentCategories(ctx context.Context) ([]ParentCategory, error)
 	SearchImages(ctx context.Context, arg SearchImagesParams) ([]Image, error)
+	SearchParentCategories(ctx context.Context, query sql.NullString) ([]ParentCategory, error)
 	UpdateCharacter(ctx context.Context, arg UpdateCharacterParams) (Character, error)
 	UpdateChildCategory(ctx context.Context, arg UpdateChildCategoryParams) (ChildCategory, error)
 	UpdateImage(ctx context.Context, arg UpdateImageParams) (Image, error)

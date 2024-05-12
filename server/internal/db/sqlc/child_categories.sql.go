@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"time"
 )
 
 const createChildCategory = `-- name: CreateChildCategory :one
@@ -31,6 +32,16 @@ func (q *Queries) CreateChildCategory(ctx context.Context, arg CreateChildCatego
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const deleteAllChildCategoriesByParentCategoryID = `-- name: DeleteAllChildCategoriesByParentCategoryID :exec
+DELETE FROM child_categories
+WHERE parent_id = $1
+`
+
+func (q *Queries) DeleteAllChildCategoriesByParentCategoryID(ctx context.Context, parentID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteAllChildCategoriesByParentCategoryID, parentID)
+	return err
 }
 
 const deleteChildCategory = `-- name: DeleteChildCategory :exec
@@ -142,19 +153,26 @@ func (q *Queries) ListChildCategories(ctx context.Context, arg ListChildCategori
 const updateChildCategory = `-- name: UpdateChildCategory :one
 UPDATE child_categories
 SET name = $2,
-  parent_id = $3
+  parent_id = $3,
+  updated_at = $4
 WHERE id = $1
 RETURNING id, name, parent_id, updated_at, created_at
 `
 
 type UpdateChildCategoryParams struct {
-	ID       int64  `json:"id"`
-	Name     string `json:"name"`
-	ParentID int64  `json:"parent_id"`
+	ID        int64     `json:"id"`
+	Name      string    `json:"name"`
+	ParentID  int64     `json:"parent_id"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func (q *Queries) UpdateChildCategory(ctx context.Context, arg UpdateChildCategoryParams) (ChildCategory, error) {
-	row := q.db.QueryRowContext(ctx, updateChildCategory, arg.ID, arg.Name, arg.ParentID)
+	row := q.db.QueryRowContext(ctx, updateChildCategory,
+		arg.ID,
+		arg.Name,
+		arg.ParentID,
+		arg.UpdatedAt,
+	)
 	var i ChildCategory
 	err := row.Scan(
 		&i.ID,

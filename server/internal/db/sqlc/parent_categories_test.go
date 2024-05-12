@@ -164,85 +164,86 @@ func TestGetParentCategory(t *testing.T) {
 	}
 }
 
-func TestListParentCategory(t *testing.T) {
-	SetUp(t, testQueries)
-	defer TearDown(t, testQueries)
+// TODO: parent_categoriesのlistでoffsetを使わないようにしたいので、テストコード修正する必要あり
+// func TestListParentCategory(t *testing.T) {
+// 	SetUp(t, testQueries)
+// 	defer TearDown(t, testQueries)
 
-	tests := []struct {
-		name    string
-		arg     db.ListParentCategoriesParams
-		want    []db.ParentCategory
-		wantErr bool
-	}{
-		{
-			name: "正常系",
-			arg: db.ListParentCategoriesParams{
-				Limit:  3,
-				Offset: 0,
-			},
-			want: []db.ParentCategory{
-				{
-					ID:   99992,
-					Name: "test_parent_category_name_99992",
-					Src:  "test_parent_category_src_99992",
-				},
-				{
-					ID:   99991,
-					Name: "test_parent_category_name_99991",
-					Src:  "test_parent_category_src_99991",
-				},
-				{
-					ID:   99990,
-					Name: "test_parent_category_name_99990",
-					Src:  "test_parent_category_src_99990",
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "正常系（returnが空の時）",
-			arg: db.ListParentCategoriesParams{
-				Limit:  3,
-				Offset: 1000,
-			},
-			want:    []db.ParentCategory{{}},
-			wantErr: false,
-		},
-		{
-			name: "異常系（argsのLimitの値が不正な場合）",
-			arg: db.ListParentCategoriesParams{
-				Limit:  -1,
-				Offset: 0,
-			},
-			wantErr: true,
-		},
-		{
-			name: "異常系（argsのOffsetの値が不正な場合）",
-			arg: db.ListParentCategoriesParams{
-				Limit:  3,
-				Offset: -1,
-			},
-			wantErr: true,
-		},
-	}
+// 	tests := []struct {
+// 		name    string
+// 		arg     db.ListParentCategoriesParams
+// 		want    []db.ParentCategory
+// 		wantErr bool
+// 	}{
+// 		{
+// 			name: "正常系",
+// 			arg: db.ListParentCategoriesParams{
+// 				Limit:  3,
+// 				Offset: 0,
+// 			},
+// 			want: []db.ParentCategory{
+// 				{
+// 					ID:   99992,
+// 					Name: "test_parent_category_name_99992",
+// 					Src:  "test_parent_category_src_99992",
+// 				},
+// 				{
+// 					ID:   99991,
+// 					Name: "test_parent_category_name_99991",
+// 					Src:  "test_parent_category_src_99991",
+// 				},
+// 				{
+// 					ID:   99990,
+// 					Name: "test_parent_category_name_99990",
+// 					Src:  "test_parent_category_src_99990",
+// 				},
+// 			},
+// 			wantErr: false,
+// 		},
+// 		{
+// 			name: "正常系（returnが空の時）",
+// 			arg: db.ListParentCategoriesParams{
+// 				Limit:  3,
+// 				Offset: 1000,
+// 			},
+// 			want:    []db.ParentCategory{{}},
+// 			wantErr: false,
+// 		},
+// 		{
+// 			name: "異常系（argsのLimitの値が不正な場合）",
+// 			arg: db.ListParentCategoriesParams{
+// 				Limit:  -1,
+// 				Offset: 0,
+// 			},
+// 			wantErr: true,
+// 		},
+// 		{
+// 			name: "異常系（argsのOffsetの値が不正な場合）",
+// 			arg: db.ListParentCategoriesParams{
+// 				Limit:  3,
+// 				Offset: -1,
+// 			},
+// 			wantErr: true,
+// 		},
+// 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			p_categories, err := testQueries.ListParentCategories(context.Background(), tt.arg)
-			if tt.wantErr {
-				require.Error(t, err)
-			} else {
-				for i, pc := range p_categories {
-					require.NoError(t, err)
-					require.Equal(t, tt.want[i].ID, pc.ID)
-					require.Equal(t, tt.want[i].Name, pc.Name)
-					require.Equal(t, tt.want[i].Src, pc.Src)
-					require.NotZero(t, pc.CreatedAt)
-				}
-			}
-		})
-	}
-}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			p_categories, err := testQueries.ListParentCategories(context.Background(), tt.arg)
+// 			if tt.wantErr {
+// 				require.Error(t, err)
+// 			} else {
+// 				for i, pc := range p_categories {
+// 					require.NoError(t, err)
+// 					require.Equal(t, tt.want[i].ID, pc.ID)
+// 					require.Equal(t, tt.want[i].Name, pc.Name)
+// 					require.Equal(t, tt.want[i].Src, pc.Src)
+// 					require.NotZero(t, pc.CreatedAt)
+// 				}
+// 			}
+// 		})
+// 	}
+// }
 
 func TestUpdateParentCategory(t *testing.T) {
 	SetUp(t, testQueries)

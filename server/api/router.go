@@ -24,12 +24,21 @@ func SetAdminRouters(s *Server) {
 		}
 		categories := admin.Group("/categories")
 		{
-			categories.GET("/list", s.ListIllustrations)
-			categories.GET("/search", s.SearchIllustrations)
-			categories.GET("/:id", s.GetIllustration)
-			categories.POST("/create", s.CreateIllustration)
-			categories.DELETE("/:id", s.DeleteIllustration)
-			categories.PUT("/:id", s.EditIllustration)
+			categories.GET("/list", s.ListCategories)
+			categories.GET("/search", s.SearchCategories)
+			categories.GET("/:id", s.GetCategory)
+			parent_categories := categories.Group("/parent")
+			{
+				parent_categories.POST("/create", s.CreateParentCategory)
+				parent_categories.PUT("/:id", s.EditParentCategory)
+				parent_categories.DELETE("/:id", s.DeleteParentCategory)
+			}
+			child_categories := categories.Group("/child")
+			{
+				child_categories.POST("/create", s.CreateChildCategory)
+				child_categories.PUT("/:id", s.EditChildCategory)
+				child_categories.DELETE("/:id", s.DeleteChildCategory)
+			}
 		}
 	}
 }

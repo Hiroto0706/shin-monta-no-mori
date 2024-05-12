@@ -27,6 +27,26 @@ func (q *Queries) CreateImageParentCategoryRelations(ctx context.Context, arg Cr
 	return i, err
 }
 
+const deleteAllImageParentCategoryRelationsByImageID = `-- name: DeleteAllImageParentCategoryRelationsByImageID :exec
+DELETE FROM image_parent_categories_relations
+WHERE image_id = $1
+`
+
+func (q *Queries) DeleteAllImageParentCategoryRelationsByImageID(ctx context.Context, imageID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteAllImageParentCategoryRelationsByImageID, imageID)
+	return err
+}
+
+const deleteAllImageParentCategoryRelationsByParentCategoryID = `-- name: DeleteAllImageParentCategoryRelationsByParentCategoryID :exec
+DELETE FROM image_parent_categories_relations
+WHERE parent_category_id = $1
+`
+
+func (q *Queries) DeleteAllImageParentCategoryRelationsByParentCategoryID(ctx context.Context, parentCategoryID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteAllImageParentCategoryRelationsByParentCategoryID, parentCategoryID)
+	return err
+}
+
 const deleteImageParentCategoryRelations = `-- name: DeleteImageParentCategoryRelations :exec
 DELETE FROM image_parent_categories_relations
 WHERE id = $1

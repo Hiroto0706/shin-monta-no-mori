@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const createImage = `-- name: CreateImage :one
@@ -182,7 +183,8 @@ SET title = $2,
   original_src = $3,
   simple_src = $4,
   original_filename = $5,
-  simple_filename = $6
+  simple_filename = $6,
+  updated_at = $7
 WHERE id = $1
 RETURNING id, title, original_src, simple_src, updated_at, created_at, original_filename, simple_filename
 `
@@ -194,6 +196,7 @@ type UpdateImageParams struct {
 	SimpleSrc        sql.NullString `json:"simple_src"`
 	OriginalFilename string         `json:"original_filename"`
 	SimpleFilename   sql.NullString `json:"simple_filename"`
+	UpdatedAt        time.Time      `json:"updated_at"`
 }
 
 func (q *Queries) UpdateImage(ctx context.Context, arg UpdateImageParams) (Image, error) {
@@ -204,6 +207,7 @@ func (q *Queries) UpdateImage(ctx context.Context, arg UpdateImageParams) (Image
 		arg.SimpleSrc,
 		arg.OriginalFilename,
 		arg.SimpleFilename,
+		arg.UpdatedAt,
 	)
 	var i Image
 	err := row.Scan(

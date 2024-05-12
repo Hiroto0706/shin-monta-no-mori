@@ -27,6 +27,16 @@ func (q *Queries) CreateImageCharacterRelations(ctx context.Context, arg CreateI
 	return i, err
 }
 
+const deleteAllImageCharacterRelationsByImageID = `-- name: DeleteAllImageCharacterRelationsByImageID :exec
+DELETE FROM image_characters_relations
+WHERE image_id = $1
+`
+
+func (q *Queries) DeleteAllImageCharacterRelationsByImageID(ctx context.Context, imageID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteAllImageCharacterRelationsByImageID, imageID)
+	return err
+}
+
 const deleteImageCharacterRelations = `-- name: DeleteImageCharacterRelations :exec
 DELETE FROM image_characters_relations
 WHERE id = $1

@@ -21,3 +21,6 @@ RETURNING *;
 -- name: DeleteImageCharacterRelations :exec
 DELETE FROM image_characters_relations
 WHERE id = $1;
+-- name: DeleteAllImageCharacterRelationsByImageID :exec
+DELETE FROM image_characters_relations
+WHERE image_id = $1;
