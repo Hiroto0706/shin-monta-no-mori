@@ -465,20 +465,232 @@ func TestEditParentCategory(t *testing.T) {
 	}
 }
 
+func TestEditChildCategory(t *testing.T) {
+	config, err := util.LoadConfig("../")
+	if err != nil {
+		log.Fatal("cannot load config :", err)
+	}
+	c := categoriesTest{}
+	server := c.setUp(t, config)
+	defer c.tearDown(t, config)
+
+	type args struct {
+		ID       string
+		Name     string
+		Filename string
+	}
+	tests := []struct {
+		name         string
+		arg          args
+		prepare      func() (*bytes.Buffer, string)
+		want         db.ChildCategory
+		wantErr      bool
+		expectedCode int
+	}{
+		{
+			name: "正常系",
+			arg: args{
+				ID: "12001",
+			},
+			prepare: func() (*bytes.Buffer, string) {
+				body := &bytes.Buffer{}
+				writer := multipart.NewWriter(body)
+				defer writer.Close()
+
+				// テキストフィールドを追加
+				_ = writer.WriteField("name", "test_child_category_name_12001_edited")
+				_ = writer.WriteField("parent_id", "12001")
+
+				require.NoError(t, err)
+
+				return body, writer.FormDataContentType()
+			},
+			want: db.ChildCategory{
+				ID:       12001,
+				Name:     "test_child_category_name_12001_edited",
+				ParentID: 12001,
+			},
+			wantErr:      false,
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "異常系（idの値が不正な場合）",
+			arg: args{
+				ID: "aaa",
+			},
+			prepare: func() (*bytes.Buffer, string) {
+				body := &bytes.Buffer{}
+				writer := multipart.NewWriter(body)
+				defer writer.Close()
+
+				require.NoError(t, err)
+
+				return body, writer.FormDataContentType()
+			},
+			want:         db.ChildCategory{},
+			wantErr:      true,
+			expectedCode: http.StatusBadRequest,
+		},
+		{
+			name: "異常系（存在しないchild_categoryを編集しようとしている場合）",
+			arg: args{
+				ID: "999999",
+			},
+			prepare: func() (*bytes.Buffer, string) {
+				body := &bytes.Buffer{}
+				writer := multipart.NewWriter(body)
+				defer writer.Close()
+
+				require.NoError(t, err)
+
+				return body, writer.FormDataContentType()
+			},
+			want:         db.ChildCategory{},
+			wantErr:      true,
+			expectedCode: http.StatusNotFound,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			body, contentType := tt.prepare()
+			req, _ := http.NewRequest("PUT", "/api/v1/admin/categories/child/"+tt.arg.ID, body)
+			req.Header.Set("Content-Type", contentType)
+			server.Router.ServeHTTP(w, req)
+
+			require.Equal(t, tt.expectedCode, w.Code)
+
+			if tt.wantErr {
+				require.NotEmpty(t, w.Body.String())
+			} else {
+				type wantType struct {
+					ChildCategory db.ChildCategory `json:"child_category"`
+					Message       string           `json:"message"`
+				}
+				var got wantType
+				err := json.Unmarshal(w.Body.Bytes(), &got)
+				require.NoError(t, err)
+				ignoreFields := map[string][]string{
+					"Other": {"CreatedAt", "UpdatedAt"},
+				}
+				compareChildCategoryObjects(t, got.ChildCategory, tt.want, ignoreFields)
+			}
+		})
+	}
+}
+func TestDeleteChildCategory(t *testing.T) {
+	config, err := util.LoadConfig("../")
+	if err != nil {
+		log.Fatal("cannot load config :", err)
+	}
+	c := categoriesTest{}
+	server := c.setUp(t, config)
+	defer c.tearDown(t, config)
+
+	type args struct {
+		ID string
+	}
+	tests := []struct {
+		name         string
+		arg          args
+		want         db.ChildCategory
+		wantErr      bool
+		expectedCode int
+	}{
+		{
+			name: "正常系",
+			arg: args{
+				ID: "13001",
+			},
+			want: db.ChildCategory{
+				ID:       13001,
+				Name:     "test_child_category_name_13001_edited",
+				ParentID: 13001,
+			},
+			wantErr:      false,
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "異常系（idの値が不正な場合）",
+			arg: args{
+				ID: "aaa",
+			},
+			want:         db.ChildCategory{},
+			wantErr:      true,
+			expectedCode: http.StatusBadRequest,
+		},
+		{
+			name: "異常系（存在しないchild_categoryを削除しようとした場合）",
+			arg: args{
+				ID: "999999",
+			},
+			want:         db.ChildCategory{},
+			wantErr:      true,
+			expectedCode: http.StatusNotFound,
+		},
+		{
+			name: "異常系（idの値が0の場合）",
+			arg: args{
+				ID: "0",
+			},
+			want:         db.ChildCategory{},
+			wantErr:      true,
+			expectedCode: http.StatusNotFound,
+		},
+		{
+			name: "異常系（idの値が負の場合）",
+			arg: args{
+				ID: "0",
+			},
+			want:         db.ChildCategory{},
+			wantErr:      true,
+			expectedCode: http.StatusNotFound,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("DELETE", "/api/v1/admin/categories/child/"+tt.arg.ID, nil)
+			server.Router.ServeHTTP(w, req)
+
+			require.Equal(t, tt.expectedCode, w.Code)
+
+			if tt.wantErr {
+				require.NotEmpty(t, w.Body.String())
+			} else {
+				w := httptest.NewRecorder()
+				req, _ := http.NewRequest("GET", "/api/v1/admin/categories/child/"+tt.arg.ID, nil)
+				server.Router.ServeHTTP(w, req)
+
+				type wantType struct {
+					ChildCategory db.ChildCategory `json:"child_category"`
+					Message       string           `json:"message"`
+				}
+				var got wantType
+				err := json.Unmarshal(w.Body.Bytes(), &got)
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
 func compareCategoriesObjects(t *testing.T, got model.Category, want model.Category, ignoreFieldsMap map[string][]string) {
 	// 親カテゴリー比較
 	compareParentCategoryObjects(t, got.ParentCategory, want.ParentCategory, ignoreFieldsMap)
 
 	// 子カテゴリー比較
 	for k, gcc := range got.ChildCategory {
-		if d := cmp.Diff(gcc, want.ChildCategory[k], cmpopts.IgnoreFields(gcc, ignoreFieldsMap["Other"]...)); len(d) != 0 {
-			t.Errorf("differs: (-got +want)\n%s", d)
-		}
+		compareChildCategoryObjects(t, gcc, want.ChildCategory[k], ignoreFieldsMap)
 	}
 }
 
 func compareParentCategoryObjects(t *testing.T, got db.ParentCategory, want db.ParentCategory, ignoreFieldsMap map[string][]string) {
 	// 親カテゴリー比較
+	if d := cmp.Diff(got, want, cmpopts.IgnoreFields(got, ignoreFieldsMap["Other"]...)); len(d) != 0 {
+		t.Errorf("differs: (-got +want)\n%s", d)
+	}
+}
+func compareChildCategoryObjects(t *testing.T, got db.ChildCategory, want db.ChildCategory, ignoreFieldsMap map[string][]string) {
 	if d := cmp.Diff(got, want, cmpopts.IgnoreFields(got, ignoreFieldsMap["Other"]...)); len(d) != 0 {
 		t.Errorf("differs: (-got +want)\n%s", d)
 	}
@@ -496,25 +708,19 @@ func (c categoriesTest) setUp(t *testing.T, config util.Config) *api.Server {
 		(10002, 'test_parent_category_name_10002', 'test_parent_category_src_10002.com', 'test_parent_category_filename_10002'),
 		(10003, 'test_parent_category_name_10003', 'test_parent_category_src_10003.com', 'test_parent_category_filename_10003'),
 		(10004, 'test_parent_category_name_10004', 'test_parent_category_src_10004.com', 'test_parent_category_filename_10004'),
-		(11001, 'test_parent_category_name_11001', 'test_parent_category_src_11001.com', 'test_parent_category_filename_11001');
+		(11001, 'test_parent_category_name_11001', 'test_parent_category_src_11001.com', 'test_parent_category_filename_11001'),
+		(12001, 'test_parent_category_name_12001', 'test_parent_category_src_12001.com', 'test_parent_category_filename_12001'),
+		(13001, 'test_parent_category_name_13001', 'test_parent_category_src_13001.com', 'test_parent_category_filename_13001');
 		`),
-		// fmt.Sprintln(`
-		// INSERT INTO image_parent_categories_relations (id, image_id, parent_category_id)
-		// VALUES
-		// (10001, 999990, 99999);
-		// `),
 		fmt.Sprintln(`
 		INSERT INTO child_categories (id, name, parent_id)
 		VALUES
 		(99999, 'test_child_category_name_99999', 99999),
 		(10001, 'test_child_category_name_10001', 10001),
-		(10003, 'test_child_category_name_10003', 10003);
+		(10003, 'test_child_category_name_10003', 10003),
+		(12001, 'test_child_category_name_12001', 12001),
+		(13001, 'test_child_category_name_13001', 13001);
 		`),
-		// fmt.Sprintln(`
-		// INSERT INTO image_child_categories_relations (id, image_id, child_category_id)
-		// VALUES
-		// (10001, 99999, 99999);
-		// `),
 	}
 
 	for _, query := range queries {
@@ -534,8 +740,6 @@ func (c categoriesTest) tearDown(t *testing.T, config util.Config) {
 	store := createConn(config)
 
 	queries := []string{
-		"TRUNCATE TABLE image_child_categories_relations RESTART IDENTITY CASCADE;",
-		"TRUNCATE TABLE image_parent_categories_relations RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE child_categories RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE parent_categories RESTART IDENTITY CASCADE;",
 	}
