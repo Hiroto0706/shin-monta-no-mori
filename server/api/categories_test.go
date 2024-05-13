@@ -593,7 +593,7 @@ func TestDeleteChildCategory(t *testing.T) {
 	tests := []struct {
 		name         string
 		arg          args
-		want         db.ChildCategory
+		want         string
 		wantErr      bool
 		expectedCode int
 	}{
@@ -602,11 +602,7 @@ func TestDeleteChildCategory(t *testing.T) {
 			arg: args{
 				ID: "13001",
 			},
-			want: db.ChildCategory{
-				ID:       13001,
-				Name:     "test_child_category_name_13001_edited",
-				ParentID: 13001,
-			},
+			want:         "child_categoryの削除に成功しました",
 			wantErr:      false,
 			expectedCode: http.StatusOK,
 		},
@@ -615,7 +611,6 @@ func TestDeleteChildCategory(t *testing.T) {
 			arg: args{
 				ID: "aaa",
 			},
-			want:         db.ChildCategory{},
 			wantErr:      true,
 			expectedCode: http.StatusBadRequest,
 		},
@@ -624,7 +619,6 @@ func TestDeleteChildCategory(t *testing.T) {
 			arg: args{
 				ID: "999999",
 			},
-			want:         db.ChildCategory{},
 			wantErr:      true,
 			expectedCode: http.StatusNotFound,
 		},
@@ -633,7 +627,6 @@ func TestDeleteChildCategory(t *testing.T) {
 			arg: args{
 				ID: "0",
 			},
-			want:         db.ChildCategory{},
 			wantErr:      true,
 			expectedCode: http.StatusNotFound,
 		},
@@ -642,7 +635,6 @@ func TestDeleteChildCategory(t *testing.T) {
 			arg: args{
 				ID: "0",
 			},
-			want:         db.ChildCategory{},
 			wantErr:      true,
 			expectedCode: http.StatusNotFound,
 		},
@@ -658,17 +650,13 @@ func TestDeleteChildCategory(t *testing.T) {
 			if tt.wantErr {
 				require.NotEmpty(t, w.Body.String())
 			} else {
-				w := httptest.NewRecorder()
-				req, _ := http.NewRequest("GET", "/api/v1/admin/categories/child/"+tt.arg.ID, nil)
-				server.Router.ServeHTTP(w, req)
-
 				type wantType struct {
-					ChildCategory db.ChildCategory `json:"child_category"`
-					Message       string           `json:"message"`
+					Message string `json:"message"`
 				}
 				var got wantType
 				err := json.Unmarshal(w.Body.Bytes(), &got)
-				require.Error(t, err)
+				require.NoError(t, err)
+				require.Equal(t, tt.want, got.Message)
 			}
 		})
 	}
