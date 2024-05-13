@@ -22,7 +22,7 @@ const (
 
 // TODO: 将来的にpager機能を持たせた方がいいかも？
 type listCategoriesRequest struct {
-	Page int64 `form:"p"`
+	Page int64 `form:"p" binding:"required"`
 }
 
 // ListCategories godoc

@@ -17,8 +17,7 @@ import (
 )
 
 const (
-	IMAGE_TYPE_CHARACTER  = "character"
-	FETCH_CHARACTER_LIMIT = 20
+	IMAGE_TYPE_CHARACTER = "character"
 )
 
 type listCharactersRequest struct {
@@ -44,8 +43,8 @@ func (server *Server) ListCharacters(c *gin.Context) {
 	}
 
 	arg := db.ListCharactersParams{
-		Limit:  int32(FETCH_CHARACTER_LIMIT),
-		Offset: int32(int(req.Page) * FETCH_CHARACTER_LIMIT),
+		Limit:  int32(server.Config.CharacterFetchLimit),
+		Offset: int32(int(req.Page) * server.Config.CharacterFetchLimit),
 	}
 
 	characters, err := server.Store.ListCharacters(c, arg)
@@ -82,8 +81,8 @@ func (server *Server) SearchCharacters(c *gin.Context) {
 		return
 	}
 	arg := db.SearchCharactersParams{
-		Limit:  int32(FETCH_CHARACTER_LIMIT),
-		Offset: int32(req.Page * FETCH_CHARACTER_LIMIT),
+		Limit:  int32(server.Config.CharacterFetchLimit),
+		Offset: int32(req.Page * server.Config.CharacterFetchLimit),
 		Query: sql.NullString{
 			String: req.Query,
 			Valid:  true,

@@ -11,6 +11,7 @@ type Config struct {
 	Environment          string        `mapstructure:"ENVIRONMENT"`
 	ServerAddress        string        `mapstructure:"SERVER_ADDRESS"`
 	ImageFetchLimit      int           `mapstructure:"IMAGE_FETCH_LIMIT"`
+	CharacterFetchLimit  int           `mapstructure:"CHARACTER_FETCH_LIMIT"`
 	DBDriver             string        `mapstructure:"DB_DRIVER"`
 	DBUser               string        `mapstructure:"DB_USER"`
 	DBPassword           string        `mapstructure:"DB_PASSWORD"`
