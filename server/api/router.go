@@ -22,6 +22,15 @@ func SetAdminRouters(s *Server) {
 			illustrations.DELETE("/:id", s.DeleteIllustration)
 			illustrations.PUT("/:id", s.EditIllustration)
 		}
+		characters := admin.Group("/characters")
+		{
+			characters.GET("/list", s.ListCharacters)
+			characters.GET("/search", s.SearchCharacters)
+			characters.GET("/:id", s.GetCharacter)
+			characters.POST("/create", s.CreateCharacter)
+			characters.DELETE("/:id", s.DeleteCharacter)
+			characters.PUT("/:id", s.EditCharacter)
+		}
 		categories := admin.Group("/categories")
 		{
 			categories.GET("/list", s.ListCategories)

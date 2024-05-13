@@ -56,7 +56,7 @@ func (server *Server) ListIllustrations(c *gin.Context) {
 	}
 	images, err := server.Store.ListImage(c, arg)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListImage() : %w", err)))
+		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListImage : %w", err)))
 		return
 	}
 
