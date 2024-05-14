@@ -33,7 +33,7 @@ func TestListIllustrations(t *testing.T) {
 		log.Fatal("cannot load config :", err)
 	}
 	i := illustrationTest{}
-	server := i.setUp(t, config)
+	s := i.setUp(t, config)
 	defer i.tearDown(t, config)
 
 	type args struct {
@@ -164,10 +164,10 @@ func TestListIllustrations(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// 取得するイメージの数を1にする
-			server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
+			s.Config.ImageFetchLimit = tt.arg.imageFetchLimit
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/list?p="+tt.arg.page, nil)
-			server.Router.ServeHTTP(w, req)
+			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -195,7 +195,7 @@ func TestGetIllustration(t *testing.T) {
 		log.Fatal("cannot load config :", err)
 	}
 	i := illustrationTest{}
-	server := i.setUp(t, config)
+	s := i.setUp(t, config)
 	defer i.tearDown(t, config)
 
 	type args struct {
@@ -274,7 +274,7 @@ func TestGetIllustration(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/"+tt.arg.id, nil)
-			server.Router.ServeHTTP(w, req)
+			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -300,7 +300,7 @@ func TestSearchIllustrations(t *testing.T) {
 		log.Fatal("cannot load config :", err)
 	}
 	i := illustrationTest{}
-	server := i.setUp(t, config)
+	s := i.setUp(t, config)
 	defer i.tearDown(t, config)
 
 	type args struct {
@@ -411,10 +411,10 @@ func TestSearchIllustrations(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// 取得するイメージの数を1にする
-			server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
+			s.Config.ImageFetchLimit = tt.arg.imageFetchLimit
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/search?p="+tt.arg.p+"&q="+tt.arg.q, nil)
-			server.Router.ServeHTTP(w, req)
+			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -559,7 +559,7 @@ func TestSearchIllustrations(t *testing.T) {
 // 			req.Header.Set("Content-Type", contentType)
 
 // 			w := httptest.NewRecorder()
-// 			server.Router.ServeHTTP(w, req)
+// 			s.Router.ServeHTTP(w, req)
 
 // 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -589,7 +589,7 @@ func TestEditIllustration(t *testing.T) {
 		log.Fatal("cannot load config :", err)
 	}
 	i := illustrationTest{}
-	server := i.setUp(t, config)
+	s := i.setUp(t, config)
 	defer i.tearDown(t, config)
 
 	tests := []struct {
@@ -764,7 +764,7 @@ func TestEditIllustration(t *testing.T) {
 			req.Header.Set("Content-Type", contentType)
 
 			w := httptest.NewRecorder()
-			server.Router.ServeHTTP(w, req)
+			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 

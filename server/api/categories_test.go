@@ -29,7 +29,7 @@ func TestListCategories(t *testing.T) {
 		log.Fatal("cannot load config :", err)
 	}
 	c := categoriesTest{}
-	server := c.setUp(t, config)
+	s := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	type args struct {
@@ -76,7 +76,7 @@ func TestListCategories(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/categories/list", nil)
-			server.Router.ServeHTTP(w, req)
+			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -103,7 +103,7 @@ func TestGetCategory(t *testing.T) {
 		log.Fatal("cannot load config :", err)
 	}
 	c := categoriesTest{}
-	server := c.setUp(t, config)
+	s := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	type args struct {
@@ -191,7 +191,7 @@ func TestGetCategory(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/categories/"+tt.arg.id, nil)
-			server.Router.ServeHTTP(w, req)
+			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -216,7 +216,7 @@ func TestSearchCategories(t *testing.T) {
 		log.Fatal("cannot load config :", err)
 	}
 	c := categoriesTest{}
-	server := c.setUp(t, config)
+	s := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	type args struct {
@@ -331,7 +331,7 @@ func TestSearchCategories(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/categories/search?q="+tt.arg.q, nil)
-			server.Router.ServeHTTP(w, req)
+			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -358,7 +358,7 @@ func TestEditParentCategory(t *testing.T) {
 		log.Fatal("cannot load config :", err)
 	}
 	c := categoriesTest{}
-	server := c.setUp(t, config)
+	s := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	type args struct {
@@ -442,7 +442,7 @@ func TestEditParentCategory(t *testing.T) {
 			body, contentType := tt.prepare()
 			req, _ := http.NewRequest("PUT", "/api/v1/admin/categories/parent/"+tt.arg.ID, body)
 			req.Header.Set("Content-Type", contentType)
-			server.Router.ServeHTTP(w, req)
+			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -471,7 +471,7 @@ func TestEditChildCategory(t *testing.T) {
 		log.Fatal("cannot load config :", err)
 	}
 	c := categoriesTest{}
-	server := c.setUp(t, config)
+	s := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	type args struct {
@@ -556,7 +556,7 @@ func TestEditChildCategory(t *testing.T) {
 			body, contentType := tt.prepare()
 			req, _ := http.NewRequest("PUT", "/api/v1/admin/categories/child/"+tt.arg.ID, body)
 			req.Header.Set("Content-Type", contentType)
-			server.Router.ServeHTTP(w, req)
+			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -584,7 +584,7 @@ func TestDeleteChildCategory(t *testing.T) {
 		log.Fatal("cannot load config :", err)
 	}
 	c := categoriesTest{}
-	server := c.setUp(t, config)
+	s := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	type args struct {
@@ -643,7 +643,7 @@ func TestDeleteChildCategory(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("DELETE", "/api/v1/admin/categories/child/"+tt.arg.ID, nil)
-			server.Router.ServeHTTP(w, req)
+			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 

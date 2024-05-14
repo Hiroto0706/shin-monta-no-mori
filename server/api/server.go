@@ -3,28 +3,29 @@ package api
 import (
 	"fmt"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
+	"shin-monta-no-mori/server/pkg/token"
 	"shin-monta-no-mori/server/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Server struct {
-	Config util.Config
-	Store  *db.Store
-	Router *gin.Engine
-	// tokenMaker token.Maker
+	Config     util.Config
+	Store      *db.Store
+	Router     *gin.Engine
+	TokenMaker token.Maker
 }
 
 // NewServer creates a new HTTP server and setup routing
 func NewServer(store *db.Store, config util.Config) (*Server, error) {
-	// token, err := token.NewPasetoMaker(config.TokenSymmetricKey)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("cannot create token maker : %w", err)
-	// }
+	token, err := token.NewPasetoMaker(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker : %w", err)
+	}
 	server := &Server{
-		Config: config,
-		Store:  store,
-		// tokenMaker: token,
+		Config:     config,
+		Store:      store,
+		TokenMaker: token,
 	}
 
 	router := gin.Default()

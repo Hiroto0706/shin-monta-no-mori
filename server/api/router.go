@@ -11,7 +11,7 @@ func SetAdminRouters(s *Server) {
 	v1 := s.Router.Group("/api/v1")
 	admin := v1.Group("/admin")
 	// ログイン認証
-	// admin.Use(authMiddleware(s.tokenMaker))
+	// admin.Use(middleware.AuthMiddleware(s.TokenMaker))
 	{
 		illustrations := admin.Group("/illustrations")
 		{

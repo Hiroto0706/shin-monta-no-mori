@@ -34,7 +34,7 @@ type listCharactersRequest struct {
 // @Failure 400   {object} request/JSONResponse{data=string} "Bad Request: Error in data binding or validation"
 // @Failure 500   {object} request/JSONResponse{data=string} "Internal Server Error: Failed to list the characters"
 // @Router /api/v1/admin/characters/list [get]
-func (server *Server) ListCharacters(c *gin.Context) {
+func (s *Server) ListCharacters(c *gin.Context) {
 	// TODO: bind 周りの処理は関数化して共通化したほうがいい
 	var req listCharactersRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -43,11 +43,11 @@ func (server *Server) ListCharacters(c *gin.Context) {
 	}
 
 	arg := db.ListCharactersParams{
-		Limit:  int32(server.Config.CharacterFetchLimit),
-		Offset: int32(int(req.Page) * server.Config.CharacterFetchLimit),
+		Limit:  int32(s.Config.CharacterFetchLimit),
+		Offset: int32(int(req.Page) * s.Config.CharacterFetchLimit),
 	}
 
-	characters, err := server.Store.ListCharacters(c, arg)
+	characters, err := s.Store.ListCharacters(c, arg)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListCharacters : %w", err)))
 		return
@@ -74,21 +74,21 @@ type searchCharactersRequest struct {
 // @Failure 400   {object} request/JSONResponse{data=string} "Bad Request: Error in data binding or validation"
 // @Failure 500   {object} request/JSONResponse{data=string} "Internal Server Error: Failed to search the characters"
 // @Router /api/v1/admin/characters/search [get]
-func (server *Server) SearchCharacters(c *gin.Context) {
+func (s *Server) SearchCharacters(c *gin.Context) {
 	var req searchCharactersRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
 		return
 	}
 	arg := db.SearchCharactersParams{
-		Limit:  int32(server.Config.CharacterFetchLimit),
-		Offset: int32(req.Page * server.Config.CharacterFetchLimit),
+		Limit:  int32(s.Config.CharacterFetchLimit),
+		Offset: int32(req.Page * s.Config.CharacterFetchLimit),
 		Query: sql.NullString{
 			String: req.Query,
 			Valid:  true,
 		},
 	}
-	characters, err := server.Store.SearchCharacters(c, arg)
+	characters, err := s.Store.SearchCharacters(c, arg)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to SearchCharacters : %w", err)))
 		return
@@ -110,14 +110,14 @@ func (server *Server) SearchCharacters(c *gin.Context) {
 // @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No character found with the given ID"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to retrieve the character from the database"
 // @Router /api/v1/admin/characters/{id} [get]
-func (server *Server) GetCharacter(c *gin.Context) {
+func (s *Server) GetCharacter(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
 		return
 	}
 
-	character, err := server.Store.GetCharacter(c, int64(id))
+	character, err := s.Store.GetCharacter(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetCharacter: %w", err)))
@@ -151,7 +151,7 @@ type createCharacterRequest struct {
 // @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Error in data binding or validation"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to create the character due to a transaction error"
 // @Router /api/v1/admin/characters/create [post]
-func (server *Server) CreateCharacter(c *gin.Context) {
+func (s *Server) CreateCharacter(c *gin.Context) {
 	var req createCharacterRequest
 	if err := c.ShouldBind(&req); err != nil {
 		log.Println(err)
@@ -161,9 +161,9 @@ func (server *Server) CreateCharacter(c *gin.Context) {
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
 	var character db.Character
-	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+	txErr := s.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
 		var src string
-		src, err := service.UploadImageSrc(c, &server.Config, "image_file", req.Filename, IMAGE_TYPE_CHARACTER, false)
+		src, err := service.UploadImageSrc(c, &s.Config, "image_file", req.Filename, IMAGE_TYPE_CHARACTER, false)
 		if err != nil {
 			return fmt.Errorf("failed to UploadImage: %w", err)
 		}
@@ -173,7 +173,7 @@ func (server *Server) CreateCharacter(c *gin.Context) {
 			Src:      src,
 			Filename: sql.NullString{String: req.Filename, Valid: true},
 		}
-		character, err = server.Store.CreateCharacter(c, arg)
+		character, err = s.Store.CreateCharacter(c, arg)
 		if err != nil {
 			return fmt.Errorf("failed to CreateCharacter: %w", err)
 		}
@@ -212,7 +212,7 @@ type editCharacterRequest struct {
 // @Failure 404        {object} request/JSONResponse{data=string} "Not Found: No character found with the given ID"
 // @Failure 500        {object} request/JSONResponse{data=string} "Internal Server Error: Failed to edit the character due to a transaction error"
 // @Router /api/v1/admin/characters/{id} [put]
-func (server *Server) EditCharacter(c *gin.Context) {
+func (s *Server) EditCharacter(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
@@ -225,7 +225,7 @@ func (server *Server) EditCharacter(c *gin.Context) {
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
-	character, err := server.Store.GetCharacter(c, int64(id))
+	character, err := s.Store.GetCharacter(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetCharacter : %w", err)))
@@ -235,15 +235,15 @@ func (server *Server) EditCharacter(c *gin.Context) {
 		return
 	}
 
-	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+	txErr := s.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
 		src := character.Src
 		if character.Filename.String != req.Filename {
-			err := service.DeleteImageSrc(c, &server.Config, character.Src)
+			err := service.DeleteImageSrc(c, &s.Config, character.Src)
 			if err != nil {
 				return err
 			}
 
-			src, err = service.UploadImageSrc(c, &server.Config, "image_file", req.Filename, IMAGE_TYPE_CHARACTER, false)
+			src, err = service.UploadImageSrc(c, &s.Config, "image_file", req.Filename, IMAGE_TYPE_CHARACTER, false)
 			if err != nil {
 				return err
 			}
@@ -260,7 +260,7 @@ func (server *Server) EditCharacter(c *gin.Context) {
 			arg.Filename = sql.NullString{String: req.Filename, Valid: true}
 		}
 
-		character, err = server.Store.UpdateCharacter(c, arg)
+		character, err = s.Store.UpdateCharacter(c, arg)
 		if err != nil {
 			return err
 		}
@@ -290,13 +290,13 @@ func (server *Server) EditCharacter(c *gin.Context) {
 // @Failure 404   {object} request/JSONResponse{data=string} "Not Found: No character found with the given ID"
 // @Failure 500   {object} request/JSONResponse{data=string} "Internal Server Error: Failed to delete the character due to a transaction error"
 // @Router /api/v1/admin/characters/{id} [delete]
-func (server *Server) DeleteCharacter(c *gin.Context) {
+func (s *Server) DeleteCharacter(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
 		return
 	}
-	character, err := server.Store.GetCharacter(c, int64(id))
+	character, err := s.Store.GetCharacter(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetCharacter : %w", err)))
@@ -306,19 +306,19 @@ func (server *Server) DeleteCharacter(c *gin.Context) {
 		return
 	}
 
-	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
-		err = service.DeleteImageSrc(c, &server.Config, character.Src)
+	txErr := s.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+		err = service.DeleteImageSrc(c, &s.Config, character.Src)
 		if err != nil {
 			return fmt.Errorf("failed to DeleteImageSrc: %w", err)
 		}
 
 		// images_character_relationsの削除
-		err = server.Store.DeleteAllImageCharacterRelationsByCharacterID(c, character.ID)
+		err = s.Store.DeleteAllImageCharacterRelationsByCharacterID(c, character.ID)
 		if err != nil {
 			return fmt.Errorf("failed to DeleteAllImageCharacterRelationsByCharacterID : %w", err)
 		}
 
-		err = server.Store.DeleteCharacter(c, int64(id))
+		err = s.Store.DeleteCharacter(c, int64(id))
 		if err != nil {
 			return fmt.Errorf("failed to DeleteCharacter: %w", err)
 		}

@@ -35,7 +35,7 @@ type listCategoriesRequest struct {
 // @Failure 404 {object} request/JSONResponse{data=string} "Not Found: Child categories not found for one or more parent categories."
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: An error occurred on the server which prevented the completion of the request."
 // @Router /api/v1/admin/categories/list [get]
-func (server *Server) ListCategories(c *gin.Context) {
+func (s *Server) ListCategories(c *gin.Context) {
 	// // TODO: bind 周りの処理は関数化して共通化したほうがいい
 	// var req listCategoriesRequest
 	// if err := c.ShouldBindQuery(&req); err != nil {
@@ -43,7 +43,7 @@ func (server *Server) ListCategories(c *gin.Context) {
 	// 	return
 	// }
 
-	pcates, err := server.Store.ListParentCategories(c)
+	pcates, err := s.Store.ListParentCategories(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to server.Store.ListParentCategories : %w", err)))
 		return
@@ -51,7 +51,7 @@ func (server *Server) ListCategories(c *gin.Context) {
 
 	categories := make([]model.Category, len(pcates))
 	for i, pcate := range pcates {
-		ccates, err := server.Store.GetChildCategoriesByParentID(c, pcate.ID)
+		ccates, err := s.Store.GetChildCategoriesByParentID(c, pcate.ID)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID: %w", err)))
@@ -82,14 +82,14 @@ func (server *Server) ListCategories(c *gin.Context) {
 // @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No parent category found with the given ID or no child categories found for the parent category"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to retrieve the category from the database"
 // @Router /api/v1/admin/categories/{id} [get]
-func (server *Server) GetCategory(c *gin.Context) {
+func (s *Server) GetCategory(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
 		return
 	}
 
-	pcate, err := server.Store.GetParentCategory(c, int64(id))
+	pcate, err := s.Store.GetParentCategory(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetParentCategory: %w", err)))
@@ -100,7 +100,7 @@ func (server *Server) GetCategory(c *gin.Context) {
 		return
 	}
 
-	ccates, err := server.Store.GetChildCategoriesByParentID(c, pcate.ID)
+	ccates, err := s.Store.GetChildCategoriesByParentID(c, pcate.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
 		return
@@ -128,7 +128,7 @@ type searchCategoriesRequest struct {
 // @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No child categories found for a parent category"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to retrieve categories from the database"
 // @Router /api/v1/admin/categories/search [get]
-func (server *Server) SearchCategories(c *gin.Context) {
+func (s *Server) SearchCategories(c *gin.Context) {
 	// TODO: 親カテゴリの検索のみでなく、子カテゴリようの検索APIも追加する。
 	// それか、検索機能は一つにし、親カテゴリが一致する場合は個カテゴリ全て取得、個カテゴリが一致する場合は、子カテゴリの一部と個カテゴリが持つ親カテゴリのみ取得するようにする
 	var req searchCategoriesRequest
@@ -141,7 +141,7 @@ func (server *Server) SearchCategories(c *gin.Context) {
 		String: req.Query,
 		Valid:  true,
 	}
-	pcates, err := server.Store.SearchParentCategories(c, q)
+	pcates, err := s.Store.SearchParentCategories(c, q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to SearchParentCategories : %w", err)))
 		return
@@ -149,7 +149,7 @@ func (server *Server) SearchCategories(c *gin.Context) {
 
 	categories := make([]*model.Category, len(pcates))
 	for i, pcate := range pcates {
-		ccates, err := server.Store.GetChildCategoriesByParentID(c, pcate.ID)
+		ccates, err := s.Store.GetChildCategoriesByParentID(c, pcate.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
 			return
@@ -182,7 +182,7 @@ type createParentCategoryRequest struct {
 // @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Error in data binding or validation"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to create the parent category due to a server error"
 // @Router /api/v1/admin/categories/parent/create [post]
-func (server *Server) CreateParentCategory(c *gin.Context) {
+func (s *Server) CreateParentCategory(c *gin.Context) {
 	var req createParentCategoryRequest
 	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
@@ -191,8 +191,8 @@ func (server *Server) CreateParentCategory(c *gin.Context) {
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
 	var parentCategory db.ParentCategory
-	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
-		src, err := service.UploadImageSrc(c, &server.Config, "image_file", req.Filename, IMAGE_TYPE_CATEGORY, false)
+	txErr := s.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+		src, err := service.UploadImageSrc(c, &s.Config, "image_file", req.Filename, IMAGE_TYPE_CATEGORY, false)
 		if err != nil {
 			return fmt.Errorf("failed to UploadImage: %w", err)
 		}
@@ -206,7 +206,7 @@ func (server *Server) CreateParentCategory(c *gin.Context) {
 			},
 		}
 
-		parentCategory, err = server.Store.CreateParentCategory(c, arg)
+		parentCategory, err = s.Store.CreateParentCategory(c, arg)
 		if err != nil {
 			return fmt.Errorf("failed to CreateParentCategory: %w", err)
 		}
@@ -245,7 +245,7 @@ type editParentCategoryRequest struct {
 // @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No parent category found with the given ID"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to update the parent category due to a server error"
 // @Router /api/v1/admin/categories/parent/{id} [put]
-func (server *Server) EditParentCategory(c *gin.Context) {
+func (s *Server) EditParentCategory(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
@@ -258,7 +258,7 @@ func (server *Server) EditParentCategory(c *gin.Context) {
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
-	pcate, err := server.Store.GetParentCategory(c, int64(id))
+	pcate, err := s.Store.GetParentCategory(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetParentCategory : %w", err)))
@@ -268,15 +268,15 @@ func (server *Server) EditParentCategory(c *gin.Context) {
 		return
 	}
 
-	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+	txErr := s.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
 		src := pcate.Src
 		if pcate.Filename.String != req.Filename {
-			err := service.DeleteImageSrc(c, &server.Config, pcate.Src)
+			err := service.DeleteImageSrc(c, &s.Config, pcate.Src)
 			if err != nil {
 				return err
 			}
 
-			src, err = service.UploadImageSrc(c, &server.Config, "image_file", req.Filename, IMAGE_TYPE_CATEGORY, false)
+			src, err = service.UploadImageSrc(c, &s.Config, "image_file", req.Filename, IMAGE_TYPE_CATEGORY, false)
 			if err != nil {
 				return err
 			}
@@ -293,7 +293,7 @@ func (server *Server) EditParentCategory(c *gin.Context) {
 			arg.Filename = sql.NullString{String: req.Filename, Valid: true}
 		}
 
-		pcate, err = server.Store.UpdateParentCategory(c, arg)
+		pcate, err = s.Store.UpdateParentCategory(c, arg)
 		if err != nil {
 			return err
 		}
@@ -323,13 +323,13 @@ func (server *Server) EditParentCategory(c *gin.Context) {
 // @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No parent category found with the given ID"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to delete the parent category or its related entities due to a server error"
 // @Router /api/v1/admin/categories/parent/{id} [delete]
-func (server *Server) DeleteParentCategory(c *gin.Context) {
+func (s *Server) DeleteParentCategory(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
 		return
 	}
-	pcate, err := server.Store.GetParentCategory(c, int64(id))
+	pcate, err := s.Store.GetParentCategory(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetParentCategory : %w", err)))
@@ -339,38 +339,38 @@ func (server *Server) DeleteParentCategory(c *gin.Context) {
 		return
 	}
 
-	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
-		err = service.DeleteImageSrc(c, &server.Config, pcate.Src)
+	txErr := s.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+		err = service.DeleteImageSrc(c, &s.Config, pcate.Src)
 		if err != nil {
 			return fmt.Errorf("failed to DeleteImageSrc: %w", err)
 		}
 
 		// images_parent_category_relationsの削除
-		err = server.Store.DeleteAllImageParentCategoryRelationsByParentCategoryID(c, pcate.ID)
+		err = s.Store.DeleteAllImageParentCategoryRelationsByParentCategoryID(c, pcate.ID)
 		if err != nil {
 			return fmt.Errorf("failed to DeleteAllImageParentCategoryRelationsByParentCategoryID : %w", err)
 		}
 
 		// parent_category_idと関連するimage_child_category_relationsの削除
-		ccates, err := server.Store.GetChildCategoriesByParentID(c, pcate.ID)
+		ccates, err := s.Store.GetChildCategoriesByParentID(c, pcate.ID)
 		if err != nil {
 			return fmt.Errorf("failed to GetChildCategoriesByParentID: %w", err)
 		}
 		for _, ccate := range ccates {
-			err = server.Store.DeleteAllImageChildCategoryRelationsByChildCategoryID(c, ccate.ID)
+			err = s.Store.DeleteAllImageChildCategoryRelationsByChildCategoryID(c, ccate.ID)
 			if err != nil {
 				return fmt.Errorf("failed to DeleteAllImageChildCategoryRelationsByChildCategoryID: %w", err)
 			}
 		}
 
 		// 関係するchild_categoriesの全削除
-		err = server.Store.DeleteAllChildCategoriesByParentCategoryID(c, pcate.ID)
+		err = s.Store.DeleteAllChildCategoriesByParentCategoryID(c, pcate.ID)
 		if err != nil {
 			return fmt.Errorf("failed to DeleteAllChildCategoriesByParentCategoryID : %w", err)
 		}
 
 		// parent_categoryの削除
-		err = server.Store.DeleteParentCategory(c, pcate.ID)
+		err = s.Store.DeleteParentCategory(c, pcate.ID)
 		if err != nil {
 			return fmt.Errorf("failed to DeleteParentCategory : %w", err)
 		}
@@ -403,7 +403,7 @@ type createChildCategoryRequest struct {
 	ParentID int    `form:"parent_id" binding:"required"`
 }
 
-func (server *Server) CreateChildCategory(c *gin.Context) {
+func (s *Server) CreateChildCategory(c *gin.Context) {
 	var req createChildCategoryRequest
 	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
@@ -414,7 +414,7 @@ func (server *Server) CreateChildCategory(c *gin.Context) {
 		Name:     req.Name,
 		ParentID: int64(req.ParentID),
 	}
-	childCategory, err := server.Store.CreateChildCategory(c, arg)
+	childCategory, err := s.Store.CreateChildCategory(c, arg)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to CreateChildCategory : %w", err)))
 		return
@@ -444,7 +444,7 @@ type editChildCategoryRequest struct {
 // @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No child category found with the given ID"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to update the child category in the database"
 // @Router /api/v1/admin/categories/child/{id} [put]
-func (server *Server) EditChildCategory(c *gin.Context) {
+func (s *Server) EditChildCategory(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
@@ -456,7 +456,7 @@ func (server *Server) EditChildCategory(c *gin.Context) {
 		return
 	}
 
-	ccate, err := server.Store.GetChildCategory(c, int64(id))
+	ccate, err := s.Store.GetChildCategory(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategory : %w", err)))
@@ -466,7 +466,7 @@ func (server *Server) EditChildCategory(c *gin.Context) {
 		return
 	}
 
-	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+	txErr := s.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
 		arg := db.UpdateChildCategoryParams{
 			ID:        ccate.ID,
 			Name:      req.Name,
@@ -474,7 +474,7 @@ func (server *Server) EditChildCategory(c *gin.Context) {
 			UpdatedAt: time.Now(),
 		}
 
-		ccate, err = server.Store.UpdateChildCategory(c, arg)
+		ccate, err = s.Store.UpdateChildCategory(c, arg)
 		if err != nil {
 			return err
 		}
@@ -504,14 +504,14 @@ func (server *Server) EditChildCategory(c *gin.Context) {
 // @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No child category found with the given ID or error in deleting the child category"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to retrieve or delete the child category from the database"
 // @Router /api/v1/admin/categories/child/{id} [delete]
-func (server *Server) DeleteChildCategory(c *gin.Context) {
+func (s *Server) DeleteChildCategory(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
 		return
 	}
 
-	ccate, err := server.Store.GetChildCategory(c, int64(id))
+	ccate, err := s.Store.GetChildCategory(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategory : %w", err)))
@@ -521,7 +521,7 @@ func (server *Server) DeleteChildCategory(c *gin.Context) {
 		return
 	}
 
-	err = server.Store.DeleteChildCategory(c, ccate.ID)
+	err = s.Store.DeleteChildCategory(c, ccate.ID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to DeleteChildCategory : %w", err)))
 		return
