@@ -96,16 +96,12 @@ func UploadImageSrc(c *gin.Context, config *util.Config, formKey string, filenam
 	}
 	defer file.Close()
 
-	storageService := &GCSStorageService{
-		Config: *config,
-	}
+	storageService := NewGCSStorageService(*config)
 	return storageService.UploadFile(c, file, filename, fileType, isSimple)
 }
 
 func DeleteImageSrc(c *gin.Context, config *util.Config, src string) error {
-	storageService := &GCSStorageService{
-		Config: *config,
-	}
+	storageService := NewGCSStorageService(*config)
 	return storageService.DeleteFile(c, src)
 }
 

@@ -1,5 +1,7 @@
 package api
 
+import "shin-monta-no-mori/server/api/middleware"
+
 func SetUserRouters(s *Server) {
 	v1 := s.Router.Group("/api/v1")
 	{
@@ -11,7 +13,7 @@ func SetAdminRouters(s *Server) {
 	v1 := s.Router.Group("/api/v1")
 	admin := v1.Group("/admin")
 	// ログイン認証
-	// admin.Use(middleware.AuthMiddleware(s.TokenMaker))
+	admin.Use(middleware.AuthMiddleware(s.TokenMaker))
 	{
 		illustrations := admin.Group("/illustrations")
 		{

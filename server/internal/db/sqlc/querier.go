@@ -7,6 +7,8 @@ package db
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
@@ -18,6 +20,7 @@ type Querier interface {
 	CreateImageParentCategoryRelations(ctx context.Context, arg CreateImageParentCategoryRelationsParams) (ImageParentCategoriesRelation, error)
 	CreateOperator(ctx context.Context, arg CreateOperatorParams) (Operator, error)
 	CreateParentCategory(ctx context.Context, arg CreateParentCategoryParams) (ParentCategory, error)
+	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	DeleteAllChildCategoriesByParentCategoryID(ctx context.Context, parentID int64) error
 	DeleteAllImageCharacterRelationsByCharacterID(ctx context.Context, characterID int64) error
 	DeleteAllImageCharacterRelationsByImageID(ctx context.Context, imageID int64) error
@@ -38,6 +41,7 @@ type Querier interface {
 	GetImage(ctx context.Context, id int64) (Image, error)
 	GetOperator(ctx context.Context, id int64) (Operator, error)
 	GetParentCategory(ctx context.Context, id int64) (ParentCategory, error)
+	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
 	ListCharacters(ctx context.Context, arg ListCharactersParams) ([]Character, error)
 	ListChildCategories(ctx context.Context, arg ListChildCategoriesParams) ([]ChildCategory, error)
 	ListImage(ctx context.Context, arg ListImageParams) ([]Image, error)
