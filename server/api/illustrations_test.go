@@ -204,6 +204,9 @@ func TestGetIllustration(t *testing.T) {
 	s := i.setUp(t, config)
 	defer i.tearDown(t, config)
 
+	// 認証用トークンの生成
+	accessToken := setAuthUser(t, s)
+
 	type args struct {
 		id string
 	}
@@ -280,6 +283,8 @@ func TestGetIllustration(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/"+tt.arg.id, nil)
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+
 			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
@@ -308,6 +313,9 @@ func TestSearchIllustrations(t *testing.T) {
 	i := illustrationTest{}
 	s := i.setUp(t, config)
 	defer i.tearDown(t, config)
+
+	// 認証用トークンの生成
+	accessToken := setAuthUser(t, s)
 
 	type args struct {
 		p               string
@@ -420,6 +428,8 @@ func TestSearchIllustrations(t *testing.T) {
 			s.Config.ImageFetchLimit = tt.arg.imageFetchLimit
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/search?p="+tt.arg.p+"&q="+tt.arg.q, nil)
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+
 			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
@@ -598,6 +608,9 @@ func TestEditIllustration(t *testing.T) {
 	s := i.setUp(t, config)
 	defer i.tearDown(t, config)
 
+	// 認証用トークンの生成
+	accessToken := setAuthUser(t, s)
+
 	tests := []struct {
 		name         string
 		arg          string
@@ -768,6 +781,7 @@ func TestEditIllustration(t *testing.T) {
 			body, contentType := tt.prepare()
 			req := httptest.NewRequest("PUT", "/api/v1/admin/illustrations/"+tt.arg, body)
 			req.Header.Set("Content-Type", contentType)
+			req.Header.Set("Authorization", "Bearer "+accessToken)
 
 			w := httptest.NewRecorder()
 			s.Router.ServeHTTP(w, req)

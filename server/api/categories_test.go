@@ -32,6 +32,9 @@ func TestListCategories(t *testing.T) {
 	s := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
+	// 認証用トークンの生成
+	accessToken := setAuthUser(t, s)
+
 	type args struct {
 		compareLimit int
 	}
@@ -76,6 +79,8 @@ func TestListCategories(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/categories/list", nil)
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+
 			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
@@ -105,6 +110,9 @@ func TestGetCategory(t *testing.T) {
 	c := categoriesTest{}
 	s := c.setUp(t, config)
 	defer c.tearDown(t, config)
+
+	// 認証用トークンの生成
+	accessToken := setAuthUser(t, s)
 
 	type args struct {
 		id string
@@ -191,6 +199,8 @@ func TestGetCategory(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/categories/"+tt.arg.id, nil)
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+
 			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
@@ -218,6 +228,9 @@ func TestSearchCategories(t *testing.T) {
 	c := categoriesTest{}
 	s := c.setUp(t, config)
 	defer c.tearDown(t, config)
+
+	// 認証用トークンの生成
+	accessToken := setAuthUser(t, s)
 
 	type args struct {
 		q            string
@@ -331,6 +344,8 @@ func TestSearchCategories(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/categories/search?q="+tt.arg.q, nil)
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+
 			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
@@ -360,6 +375,9 @@ func TestEditParentCategory(t *testing.T) {
 	c := categoriesTest{}
 	s := c.setUp(t, config)
 	defer c.tearDown(t, config)
+
+	// 認証用トークンの生成
+	accessToken := setAuthUser(t, s)
 
 	type args struct {
 		ID       string
@@ -442,6 +460,8 @@ func TestEditParentCategory(t *testing.T) {
 			body, contentType := tt.prepare()
 			req, _ := http.NewRequest("PUT", "/api/v1/admin/categories/parent/"+tt.arg.ID, body)
 			req.Header.Set("Content-Type", contentType)
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+
 			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
@@ -473,6 +493,9 @@ func TestEditChildCategory(t *testing.T) {
 	c := categoriesTest{}
 	s := c.setUp(t, config)
 	defer c.tearDown(t, config)
+
+	// 認証用トークンの生成
+	accessToken := setAuthUser(t, s)
 
 	type args struct {
 		ID       string
@@ -556,6 +579,8 @@ func TestEditChildCategory(t *testing.T) {
 			body, contentType := tt.prepare()
 			req, _ := http.NewRequest("PUT", "/api/v1/admin/categories/child/"+tt.arg.ID, body)
 			req.Header.Set("Content-Type", contentType)
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+
 			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
@@ -586,6 +611,9 @@ func TestDeleteChildCategory(t *testing.T) {
 	c := categoriesTest{}
 	s := c.setUp(t, config)
 	defer c.tearDown(t, config)
+
+	// 認証用トークンの生成
+	accessToken := setAuthUser(t, s)
 
 	type args struct {
 		ID string
@@ -643,6 +671,8 @@ func TestDeleteChildCategory(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("DELETE", "/api/v1/admin/categories/child/"+tt.arg.ID, nil)
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+
 			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
@@ -730,6 +760,7 @@ func (c categoriesTest) tearDown(t *testing.T, config util.Config) {
 	queries := []string{
 		"TRUNCATE TABLE child_categories RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE parent_categories RESTART IDENTITY CASCADE;",
+		"TRUNCATE TABLE operators RESTART IDENTITY CASCADE;",
 	}
 	for _, query := range queries {
 		if _, err := store.ExecQuery(context.Background(), query); err != nil {
