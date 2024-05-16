@@ -1,47 +1,59 @@
 DB_URL=postgresql://postgres:password@localhost:5432/shin-monta-no-mori?sslmode=disable
 TEST_DB_URL=postgresql://postgres:password@localhost:5432/shin-monta-no-mori-test?sslmode=disable
 
+.PHONY: createdb
 createdb:
 	docker exec -it shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori
 	docker exec -it shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
 	docker exec -it shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori
 	docker exec -it shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
 
+.PHONY: dropdb
 dropdb:
 	docker exec -it shin-monta-no-mori-db dropdb --username=postgres  shin-monta-no-mori
 	docker exec -it shin-monta-no-mori-db dropdb --username=postgres shin-monta-no-mori-test
 
+.PHONY: new_migration
 new_migration:
 	migrate create -ext sql -dir server/internal/db/migration -seq $(name)
 
+.PHONY: migrateup
 migrateup:
 	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose up
 	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up
 
+.PHONY: migrateup1
 migrateup1:
 	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose up 1
 	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up 1
 
+.PHONY: migratedown
 migratedown:
 	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose down
 	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose down
 
+.PHONY: migratedown1
 migratedown1:
 	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose down 1
 	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose down 1
 
+.PHONY: dc-up
 dc-up:
 	docker compose up --build
 
+.PHONY: dc-down
 dc-down:
 	docker compose down
 
+.PHONY: serve
 serve:
 	cd ./server && air -c .air.toml
 
+.PHONY: sqlc
 sqlc:
 	cd server/ && sqlc generate
 
+.PHONY: test
 test:
 	# テスト実行環境の構築
 	docker exec shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
@@ -68,6 +80,7 @@ test:
 	./tools/aggregate_coverage.sh ./coverage/report.txt
 
 # テストが途中で失敗したなどの理由でテスト環境が汚れてしまった時に使う
+.PHONY: test-reset
 test-reset:
 	docker exec shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
 	docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
