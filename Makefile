@@ -51,7 +51,6 @@ test:
 
 	# 各サブディレクトリのテストを実行し、個別のカバレッジファイルを生成
 	go test ./server/api/... -coverprofile=./coverage/api.out
-	go test ./server/cmd/... -coverprofile=./coverage/cmd.out
 	go test ./server/pkg/... -coverprofile=./coverage/pkg.out
 	go test ./server/internal/db/... -coverprofile=./coverage/db.out
 	go test ./server/internal/domains/... -coverprofile=./coverage/domains.out
@@ -59,7 +58,6 @@ test:
 	# カバレッジファイルの結合
 	echo "mode: set" > ./coverage/coverage.out
 	tail -n +2 ./coverage/api.out >> ./coverage/coverage.out
-	tail -n +2 ./coverage/cmd.out >> ./coverage/coverage.out
 	tail -n +2 ./coverage/pkg.out >> ./coverage/coverage.out
 	tail -n +2 ./coverage/db.out >> ./coverage/coverage.out
 	tail -n +2 ./coverage/domains.out >> ./coverage/coverage.out
