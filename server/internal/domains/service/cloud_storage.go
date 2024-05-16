@@ -14,12 +14,19 @@ import (
 )
 
 type StorageService interface {
-	UploadFile(ctx *gin.Context, file multipart.File, filename string, fileType string) (string, error)
+	UploadFile(ctx *gin.Context, file multipart.File, filename string, fileType string, isSimple bool) (string, error)
 	DeleteFile(ctx *gin.Context, filePath string) error
 }
 
 type GCSStorageService struct {
 	Config util.Config
+}
+
+func NewGCSStorageService(config util.Config) StorageService {
+	service := &GCSStorageService{
+		Config: config,
+	}
+	return service
 }
 
 // GCSアップロード

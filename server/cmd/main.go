@@ -25,8 +25,6 @@ func main() {
 		log.Fatal("cannot connect to db: ", err)
 	}
 
-	log.Println(config.DBUrl, config.MigrationURL)
-
 	// DBのマイグレーションを実行
 	runDBMigration(config.MigrationURL, config.DBUrl)
 

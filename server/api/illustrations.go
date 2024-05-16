@@ -20,7 +20,7 @@ const (
 	IMAGE_TYPE_IMAGE = "image"
 )
 
-func (server *Server) Greet(c *gin.Context) {
+func (s *Server) Greet(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "new Hello World from server.",
 	})
@@ -40,7 +40,7 @@ type listIllustrationsRequest struct {
 // @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: The request is malformed or missing required fields."
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: An error occurred on the server which prevented the completion of the request."
 // @Router /api/v1/admin/illustrations/list [get]
-func (server *Server) ListIllustrations(c *gin.Context) {
+func (s *Server) ListIllustrations(c *gin.Context) {
 	// TODO: bind 周りの処理は関数化して共通化したほうがいい
 	var req listIllustrationsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -51,17 +51,17 @@ func (server *Server) ListIllustrations(c *gin.Context) {
 	illustrations := []*model.Illustration{}
 
 	arg := db.ListImageParams{
-		Limit:  int32(server.Config.ImageFetchLimit),
-		Offset: int32(int(req.Page) * server.Config.ImageFetchLimit),
+		Limit:  int32(s.Config.ImageFetchLimit),
+		Offset: int32(int(req.Page) * s.Config.ImageFetchLimit),
 	}
-	images, err := server.Store.ListImage(c, arg)
+	images, err := s.Store.ListImage(c, arg)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListImage : %w", err)))
 		return
 	}
 
 	for _, i := range images {
-		il := service.FetchRelationInfoForIllustrations(c, server.Store, i)
+		il := service.FetchRelationInfoForIllustrations(c, s.Store, i)
 
 		illustrations = append(illustrations, il)
 	}
@@ -80,14 +80,14 @@ func (server *Server) ListIllustrations(c *gin.Context) {
 // @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No illustration found with the given ID"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to retrieve the illustration from the database"
 // @Router /api/v1/admin/illustrations/{id} [get]
-func (server *Server) GetIllustration(c *gin.Context) {
+func (s *Server) GetIllustration(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
 		return
 	}
 
-	image, err := server.Store.GetImage(c, int64(id))
+	image, err := s.Store.GetImage(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage: %w", err)))
@@ -99,7 +99,7 @@ func (server *Server) GetIllustration(c *gin.Context) {
 	}
 
 	illustration := &model.Illustration{}
-	illustration = service.FetchRelationInfoForIllustrations(c, server.Store, image)
+	illustration = service.FetchRelationInfoForIllustrations(c, s.Store, image)
 
 	c.JSON(http.StatusOK, illustration)
 }
@@ -122,22 +122,22 @@ type searchIllustrationsRequest struct {
 // @Failure 400   {object} request/JSONResponse{data=string} "Bad Request: The request is malformed or missing required fields."
 // @Failure 500   {object} request/JSONResponse{data=string} "Internal Server Error: An error occurred on the server which prevented the completion of the request."
 // @Router /api/v1/admin/illustrations/search [get]
-func (server *Server) SearchIllustrations(c *gin.Context) {
+func (s *Server) SearchIllustrations(c *gin.Context) {
 	var req searchIllustrationsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
 		return
 	}
 	arg := db.SearchImagesParams{
-		Limit:  int32(server.Config.ImageFetchLimit),
-		Offset: int32(req.Page * server.Config.ImageFetchLimit),
+		Limit:  int32(s.Config.ImageFetchLimit),
+		Offset: int32(req.Page * s.Config.ImageFetchLimit),
 		Query: sql.NullString{
 			String: req.Query,
 			Valid:  true,
 		},
 	}
 
-	images, err := server.Store.SearchImages(c, arg)
+	images, err := s.Store.SearchImages(c, arg)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to SearchImages : %w", err)))
 		return
@@ -145,7 +145,7 @@ func (server *Server) SearchIllustrations(c *gin.Context) {
 
 	illustrations := []*model.Illustration{}
 	for _, i := range images {
-		il := service.FetchRelationInfoForIllustrations(c, server.Store, i)
+		il := service.FetchRelationInfoForIllustrations(c, s.Store, i)
 
 		illustrations = append(illustrations, il)
 	}
@@ -180,7 +180,7 @@ type createIllustrationRequest struct {
 // @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Error in data binding or validation"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to create the illustration due to a server error"
 // @Router /api/v1/admin/illustrations/create [post]
-func (server *Server) CreateIllustration(c *gin.Context) {
+func (s *Server) CreateIllustration(c *gin.Context) {
 	var req createIllustrationRequest
 	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
@@ -189,12 +189,12 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
 	var image db.Image
-	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+	txErr := s.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
 
 		var err error
 		var originalSrc string
 		if req.Filename != "" {
-			originalSrc, err = service.UploadImageSrc(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
+			originalSrc, err = service.UploadImageSrc(c, &s.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
 			if err != nil {
 				return fmt.Errorf("failed to UploadImage: %w", err)
 			}
@@ -202,7 +202,7 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 
 		var simpleSrc string
 		if req.Filename != "" && req.SimpleImageFile.Size != 0 {
-			simpleSrc, err = service.UploadImageSrc(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
+			simpleSrc, err = service.UploadImageSrc(c, &s.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
 			if err != nil {
 				return fmt.Errorf("failed to UploadImage: %w", err)
 			}
@@ -220,7 +220,7 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 			arg.SimpleFilename = sql.NullString{String: req.Filename + "_s", Valid: true}
 		}
 
-		image, err = server.Store.CreateImage(c, arg)
+		image, err = s.Store.CreateImage(c, arg)
 		if err != nil {
 			return fmt.Errorf("failed to CreateImage: %w", err)
 		}
@@ -231,7 +231,7 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 				ImageID:     image.ID,
 				CharacterID: c_id,
 			}
-			_, err := server.Store.CreateImageCharacterRelations(c, arg)
+			_, err := s.Store.CreateImageCharacterRelations(c, arg)
 			if err != nil {
 				return fmt.Errorf("failed to CreateImageCharacterRelations: %w", err)
 			}
@@ -244,7 +244,7 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 				ParentCategoryID: pc_id,
 			}
 
-			_, err := server.Store.CreateImageParentCategoryRelations(c, arg)
+			_, err := s.Store.CreateImageParentCategoryRelations(c, arg)
 			if err != nil {
 				return fmt.Errorf("failed to CreateImageParentCategoryRelations: %w", err)
 			}
@@ -256,7 +256,7 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 				ImageID:         image.ID,
 				ChildCategoryID: cc_id,
 			}
-			_, err := server.Store.CreateImageChildCategoryRelations(c, arg)
+			_, err := s.Store.CreateImageChildCategoryRelations(c, arg)
 			if err != nil {
 				return fmt.Errorf("failed to CreateImageChildCategoryRelations: %w", err)
 			}
@@ -270,7 +270,7 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 		return
 	}
 
-	image, err := server.Store.GetImage(c, int64(image.ID))
+	image, err := s.Store.GetImage(c, int64(image.ID))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
@@ -281,7 +281,7 @@ func (server *Server) CreateIllustration(c *gin.Context) {
 		return
 	}
 
-	illustration := service.FetchRelationInfoForIllustrations(c, server.Store, image)
+	illustration := service.FetchRelationInfoForIllustrations(c, s.Store, image)
 
 	c.JSON(http.StatusOK, gin.H{
 		"illustration": illustration,
@@ -316,7 +316,7 @@ type editIllustrationRequest struct {
 // @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No illustration found with the given ID"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to update the illustration due to a server error"
 // @Router /api/v1/admin/illustrations/{id} [put]
-func (server *Server) EditIllustration(c *gin.Context) {
+func (s *Server) EditIllustration(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
@@ -329,7 +329,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
-	image, err := server.Store.GetImage(c, int64(id))
+	image, err := s.Store.GetImage(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
@@ -339,15 +339,15 @@ func (server *Server) EditIllustration(c *gin.Context) {
 		return
 	}
 
-	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+	txErr := s.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
 		originalSrc := image.OriginalSrc
 		if image.OriginalFilename != req.Filename {
-			err := service.DeleteImageSrc(c, &server.Config, image.OriginalSrc)
+			err := service.DeleteImageSrc(c, &s.Config, image.OriginalSrc)
 			if err != nil {
 				return err
 			}
 
-			originalSrc, err = service.UploadImageSrc(c, &server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
+			originalSrc, err = service.UploadImageSrc(c, &s.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
 			if err != nil {
 				return err
 			}
@@ -355,12 +355,12 @@ func (server *Server) EditIllustration(c *gin.Context) {
 
 		simpleSrc := image.SimpleSrc.String
 		if image.OriginalFilename != req.Filename && image.SimpleFilename.String != "" {
-			err := service.DeleteImageSrc(c, &server.Config, image.SimpleSrc.String)
+			err := service.DeleteImageSrc(c, &s.Config, image.SimpleSrc.String)
 			if err != nil {
 				return err
 			}
 
-			simpleSrc, err = service.UploadImageSrc(c, &server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
+			simpleSrc, err = service.UploadImageSrc(c, &s.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
 			if err != nil {
 				return err
 			}
@@ -381,26 +381,26 @@ func (server *Server) EditIllustration(c *gin.Context) {
 			arg.SimpleSrc = sql.NullString{String: simpleSrc, Valid: true}
 			arg.SimpleFilename = sql.NullString{String: req.Filename + "_s", Valid: true}
 		}
-		image, err = server.Store.UpdateImage(c, arg)
+		image, err = s.Store.UpdateImage(c, arg)
 		if err != nil {
 			return err
 		}
 
 		// TODO: relation周りのUpdate処理は共通化できそう
 		// image_character_relationsのUpdate処理
-		err = service.UpdateImageCharacterRelationsIDs(c, server.Store, image.ID, req.Characters)
+		err = service.UpdateImageCharacterRelationsIDs(c, s.Store, image.ID, req.Characters)
 		if err != nil {
 			return fmt.Errorf("failed to server.UpdateImageCharacterRelationsIDs: %w", err)
 		}
 
 		// image_parent_category_relationsのUpdate処理
-		err = service.UpdateImageParentCategoryRelationsIDs(c, server.Store, image.ID, req.ParentCategories)
+		err = service.UpdateImageParentCategoryRelationsIDs(c, s.Store, image.ID, req.ParentCategories)
 		if err != nil {
 			return fmt.Errorf("failed to server.UpdateImageParentCategoryRelationsIDs: %w", err)
 		}
 
 		// image_child_category_relationsのUpdate処理
-		err = service.UpdateImageChildCategoryRelationsIDs(c, server.Store, image.ID, req.ChildCategories)
+		err = service.UpdateImageChildCategoryRelationsIDs(c, s.Store, image.ID, req.ChildCategories)
 		if err != nil {
 			return fmt.Errorf("failed to server.UpdateImageChildCategoryRelationsIDs: %w", err)
 		}
@@ -413,7 +413,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 		return
 	}
 
-	illustration := service.FetchRelationInfoForIllustrations(c, server.Store, image)
+	illustration := service.FetchRelationInfoForIllustrations(c, s.Store, image)
 
 	c.JSON(http.StatusOK, gin.H{
 		"illustration": illustration,
@@ -433,7 +433,7 @@ func (server *Server) EditIllustration(c *gin.Context) {
 // @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No illustration found with the given ID"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to delete the illustration due to a server error"
 // @Router /api/v1/admin/illustrations/{id} [delete]
-func (server *Server) DeleteIllustration(c *gin.Context) {
+func (s *Server) DeleteIllustration(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, util.NewErrorResponse(err))
@@ -441,7 +441,7 @@ func (server *Server) DeleteIllustration(c *gin.Context) {
 	}
 
 	// TODO: illustrationとして取得すれば、冗長な関数を削除できそう
-	image, err := server.Store.GetImage(c, int64(id))
+	image, err := s.Store.GetImage(c, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
@@ -452,38 +452,38 @@ func (server *Server) DeleteIllustration(c *gin.Context) {
 		return
 	}
 
-	txErr := server.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
-		err = service.DeleteImageSrc(c, &server.Config, image.OriginalSrc)
+	txErr := s.Store.ExecTx(c.Request.Context(), func(q *db.Queries) error {
+		err = service.DeleteImageSrc(c, &s.Config, image.OriginalSrc)
 		if err != nil {
 			return fmt.Errorf("failed to DeleteImageSrc: %w", err)
 		}
 
-		err = service.DeleteImageSrc(c, &server.Config, image.SimpleSrc.String)
+		err = service.DeleteImageSrc(c, &s.Config, image.SimpleSrc.String)
 		if err != nil {
 			return fmt.Errorf("failed to DeleteImageSrc: %w", err)
 		}
 
 		// TODO: illustrationとして取得できれば、このrelation取得の処理削除できる
 		// image_child_category_relationsを削除
-		err = server.Store.DeleteAllImageChildCategoryRelationsByImageID(c, image.ID)
+		err = s.Store.DeleteAllImageChildCategoryRelationsByImageID(c, image.ID)
 		if err != nil {
 			return fmt.Errorf("failed to DeleteAllImageChildCategoryRelationsByImageID: %w", err)
 		}
 
 		// image_parent_category_relationsを削除
-		err = server.Store.DeleteAllImageParentCategoryRelationsByImageID(c, image.ID)
+		err = s.Store.DeleteAllImageParentCategoryRelationsByImageID(c, image.ID)
 		if err != nil {
 			return fmt.Errorf("failed to DeleteAllImageParentCategoryRelationsByImageID: %w", err)
 		}
 
 		// image_character_relationsを削除
-		err = server.Store.DeleteAllImageCharacterRelationsByImageID(c, image.ID)
+		err = s.Store.DeleteAllImageCharacterRelationsByImageID(c, image.ID)
 		if err != nil {
 			return fmt.Errorf("failed to DeleteAllImageCharacterRelationsByImageID: %w", err)
 		}
 
 		// Imageを削除
-		err = server.Store.DeleteImage(c, image.ID)
+		err = s.Store.DeleteImage(c, image.ID)
 		if err != nil {
 			return fmt.Errorf("failed to DeleteImage: %w", err)
 		}

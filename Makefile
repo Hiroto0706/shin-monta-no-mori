@@ -43,6 +43,7 @@ sqlc:
 	cd server/ && sqlc generate
 
 test:
+	# テスト実行環境の構築
 	docker exec shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
 	docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
 	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up
@@ -50,23 +51,23 @@ test:
 
 	# 各サブディレクトリのテストを実行し、個別のカバレッジファイルを生成
 	go test ./server/api/... -coverprofile=./coverage/api.out
-	go test ./server/cmd/... -coverprofile=./coverage/cmd.out
 	go test ./server/pkg/... -coverprofile=./coverage/pkg.out
 	go test ./server/internal/db/... -coverprofile=./coverage/db.out
 	go test ./server/internal/domains/... -coverprofile=./coverage/domains.out
 
-	# カバレッジファイルの適切な結合
+	# カバレッジファイルの結合
 	echo "mode: set" > ./coverage/coverage.out
 	tail -n +2 ./coverage/api.out >> ./coverage/coverage.out
-	tail -n +2 ./coverage/cmd.out >> ./coverage/coverage.out
 	tail -n +2 ./coverage/pkg.out >> ./coverage/coverage.out
 	tail -n +2 ./coverage/db.out >> ./coverage/coverage.out
 	tail -n +2 ./coverage/domains.out >> ./coverage/coverage.out
 
+	# テスト結果の集計・出力
 	go tool cover -func=./coverage/coverage.out > ./coverage/report.txt
 	go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
 	./tools/aggregate_coverage.sh ./coverage/report.txt
 
+# テストが途中で失敗したなどの理由でテスト環境が汚れてしまった時に使う
 test-reset:
 	docker exec shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
 	docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test

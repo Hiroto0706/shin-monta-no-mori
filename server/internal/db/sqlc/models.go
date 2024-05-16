@@ -77,12 +77,13 @@ type ParentCategory struct {
 }
 
 type Session struct {
-	ID           uuid.UUID `json:"id"`
-	Name         string    `json:"name"`
-	RefreshToken string    `json:"refresh_token"`
-	UserAgent    string    `json:"user_agent"`
-	ClientIp     string    `json:"client_ip"`
-	IsBlocked    bool      `json:"is_blocked"`
-	ExpiresAt    time.Time `json:"expires_at"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID           uuid.UUID      `json:"id"`
+	Name         string         `json:"name"`
+	RefreshToken string         `json:"refresh_token"`
+	UserAgent    string         `json:"user_agent"`
+	ClientIp     string         `json:"client_ip"`
+	IsBlocked    bool           `json:"is_blocked"`
+	ExpiresAt    time.Time      `json:"expires_at"`
+	CreatedAt    time.Time      `json:"created_at"`
+	Email        sql.NullString `json:"email"`
 }

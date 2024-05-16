@@ -14,13 +14,14 @@ import (
 	"shin-monta-no-mori/server/api"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
-	"shin-monta-no-mori/server/internal/domains/service"
+	"shin-monta-no-mori/server/pkg/token"
 	"shin-monta-no-mori/server/pkg/util"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 )
@@ -33,8 +34,11 @@ func TestListIllustrations(t *testing.T) {
 		log.Fatal("cannot load config :", err)
 	}
 	i := illustrationTest{}
-	server := i.setUp(t, config)
+	s := i.setUp(t, config)
 	defer i.tearDown(t, config)
+
+	// 認証用トークンの生成
+	accessToken := setAuthUser(t, s)
 
 	type args struct {
 		page            string
@@ -164,10 +168,12 @@ func TestListIllustrations(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// 取得するイメージの数を1にする
-			server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
-			w := httptest.NewRecorder()
+			s.Config.ImageFetchLimit = tt.arg.imageFetchLimit
 			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/list?p="+tt.arg.page, nil)
-			server.Router.ServeHTTP(w, req)
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+
+			w := httptest.NewRecorder()
+			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -195,8 +201,11 @@ func TestGetIllustration(t *testing.T) {
 		log.Fatal("cannot load config :", err)
 	}
 	i := illustrationTest{}
-	server := i.setUp(t, config)
+	s := i.setUp(t, config)
 	defer i.tearDown(t, config)
+
+	// 認証用トークンの生成
+	accessToken := setAuthUser(t, s)
 
 	type args struct {
 		id string
@@ -274,7 +283,9 @@ func TestGetIllustration(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/"+tt.arg.id, nil)
-			server.Router.ServeHTTP(w, req)
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+
+			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -300,8 +311,11 @@ func TestSearchIllustrations(t *testing.T) {
 		log.Fatal("cannot load config :", err)
 	}
 	i := illustrationTest{}
-	server := i.setUp(t, config)
+	s := i.setUp(t, config)
 	defer i.tearDown(t, config)
+
+	// 認証用トークンの生成
+	accessToken := setAuthUser(t, s)
 
 	type args struct {
 		p               string
@@ -411,10 +425,12 @@ func TestSearchIllustrations(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// 取得するイメージの数を1にする
-			server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
+			s.Config.ImageFetchLimit = tt.arg.imageFetchLimit
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/search?p="+tt.arg.p+"&q="+tt.arg.q, nil)
-			server.Router.ServeHTTP(w, req)
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+
+			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -559,7 +575,7 @@ func TestSearchIllustrations(t *testing.T) {
 // 			req.Header.Set("Content-Type", contentType)
 
 // 			w := httptest.NewRecorder()
-// 			server.Router.ServeHTTP(w, req)
+// 			s.Router.ServeHTTP(w, req)
 
 // 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -589,8 +605,11 @@ func TestEditIllustration(t *testing.T) {
 		log.Fatal("cannot load config :", err)
 	}
 	i := illustrationTest{}
-	server := i.setUp(t, config)
+	s := i.setUp(t, config)
 	defer i.tearDown(t, config)
+
+	// 認証用トークンの生成
+	accessToken := setAuthUser(t, s)
 
 	tests := []struct {
 		name         string
@@ -762,9 +781,10 @@ func TestEditIllustration(t *testing.T) {
 			body, contentType := tt.prepare()
 			req := httptest.NewRequest("PUT", "/api/v1/admin/illustrations/"+tt.arg, body)
 			req.Header.Set("Content-Type", contentType)
+			req.Header.Set("Authorization", "Bearer "+accessToken)
 
 			w := httptest.NewRecorder()
-			server.Router.ServeHTTP(w, req)
+			s.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -829,14 +849,76 @@ func TestMain(m *testing.M) {
 }
 
 func newTestServer(store *db.Store, config util.Config) (*api.Server, error) {
+	token, err := token.NewPasetoMaker(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker : %w", err)
+	}
 	server := &api.Server{
-		Config: config,
-		Store:  store,
+		Config:     config,
+		Store:      store,
+		TokenMaker: token,
 	}
 	router := gin.Default()
 	server.Router = router
 	api.SetAdminRouters(server)
 	return server, nil
+}
+
+func newTestUserCreation(c *gin.Context, s *api.Server, name, password, email string) (db.Operator, error) {
+	hashedPassword, err := util.HashPassword(password)
+	if err != nil {
+		return db.Operator{}, err
+	}
+	arg := db.CreateOperatorParams{
+		Name:           name,
+		HashedPassword: hashedPassword,
+		Email:          email,
+	}
+
+	user, err := s.Store.CreateOperator(c, arg)
+	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			switch pqErr.Code.Name() {
+			case "unique_violation":
+				return db.Operator{}, err
+			}
+		}
+		return db.Operator{}, err
+	}
+
+	return user, nil
+}
+
+// 認証用トークンの生成
+func setAuthUser(t *testing.T, s *api.Server) string {
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	user, err := newTestUserCreation(c, s, "testuser", "testtest", "test@test.com")
+	require.NoError(t, err)
+	accessToken, _, err := s.TokenMaker.CreateToken(
+		user.Name,
+		s.Config.AccessTokenDuration,
+	)
+	require.NoError(t, err)
+
+	refreshToken, refreshPayload, err := s.TokenMaker.CreateToken(
+		user.Name,
+		s.Config.RefreshTokenDuration,
+	)
+	require.NoError(t, err)
+
+	_, err = s.Store.CreateSession(c, db.CreateSessionParams{
+		ID:           refreshPayload.ID,
+		Name:         user.Name,
+		Email:        sql.NullString{String: user.Email, Valid: true},
+		RefreshToken: refreshToken,
+		ExpiresAt:    refreshPayload.ExpiredAt,
+		UserAgent:    "test",
+		ClientIp:     "test",
+	})
+	require.NoError(t, err)
+
+	return accessToken
 }
 
 func (i illustrationTest) setUp(t *testing.T, config util.Config) *api.Server {
@@ -917,11 +999,11 @@ func (i illustrationTest) setUp(t *testing.T, config util.Config) *api.Server {
 		}
 	}
 
-	server, err := newTestServer(store, config)
+	s, err := newTestServer(store, config)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
-	return server
+	return s
 }
 
 func (i illustrationTest) tearDown(t *testing.T, config util.Config) {
@@ -944,10 +1026,10 @@ func (i illustrationTest) tearDown(t *testing.T, config util.Config) {
 	}
 }
 
-func deleteGCSObject(t require.TestingT, c *gin.Context, config *util.Config, src string) {
-	storageService := &service.GCSStorageService{
-		Config: *config,
-	}
-	err := storageService.DeleteFile(c, src)
-	require.NoError(t, err)
-}
+// func deleteGCSObject(t require.TestingT, c *gin.Context, config *util.Config, src string) {
+// 	storageService := &service.GCSStorageService{
+// 		Config: *config,
+// 	}
+// 	err := storageService.DeleteFile(c, src)
+// 	require.NoError(t, err)
+// }

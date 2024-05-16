@@ -10,7 +10,7 @@ import (
 )
 
 func TestCreateOperator(t *testing.T) {
-	hashedPassword, err := util.HashPassword(util.RandomString(6))
+	hashedPassword, err := util.HashPassword("testtest")
 	require.NoError(t, err)
 	defer TearDown(t, testQueries)
 
