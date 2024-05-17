@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"log"
 	"shin-monta-no-mori/server/api"
+	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
+	"shin-monta-no-mori/server/pkg/token"
 	"shin-monta-no-mori/server/pkg/util"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -29,10 +31,14 @@ func main() {
 	runDBMigration(config.MigrationURL, config.DBUrl)
 
 	store := db.NewStore(conn)
-	server, err := api.NewServer(store, config)
+	token, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
-		log.Fatal("cannot connect to server: ", err)
+		log.Fatal("cannot create token maker : %w", err)
 	}
+	server := app.NewServer(config, store, token)
+
+	// Adminサイドのルート設定
+	api.SetAdminRouters(server)
 
 	err = server.Start(config.ServerAddress)
 	if err != nil {
