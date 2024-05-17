@@ -6,13 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AppContext は gin.Context を拡張したコンテキストです。
+// AppContext は gin.Context を拡張したコンテキスト
 type AppContext struct {
 	*gin.Context
 	Server *Server
 }
 
-// NewAppContext は新しい AppContext を作成します。
+// NewAppContext は新しい AppContext を作成
 func NewAppContext(c *gin.Context, s *Server) *AppContext {
 	return &AppContext{
 		Context: c,
@@ -20,7 +20,7 @@ func NewAppContext(c *gin.Context, s *Server) *AppContext {
 	}
 }
 
-// ErrorResponse はエラーレスポンスを生成します。
+// ErrorResponse はエラーレスポンスを生成
 func (ctx *AppContext) ErrorResponse(err error) (int, gin.H) {
 	return http.StatusInternalServerError, gin.H{"error": err.Error()}
 }

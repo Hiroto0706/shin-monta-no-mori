@@ -17,7 +17,7 @@ type Server struct {
 	TokenMaker token.Maker
 }
 
-// NewServer は新しいサーバーインスタンスを作成します。
+// NewServer は新しいサーバーインスタンスを作成
 func NewServer(config util.Config, store *db.Store, tokenMaker token.Maker) *Server {
 	server := &Server{
 		Config:     config,
@@ -35,7 +35,7 @@ func NewServer(config util.Config, store *db.Store, tokenMaker token.Maker) *Ser
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// TODO: local, stg, prdで値を変更する
+		// TODO: local, stg, prdで値を変更
 		allowedOrigins := []string{"http://localhost:3000", "http://localhost:3030"}
 		origin := c.GetHeader("Origin")
 
