@@ -116,7 +116,6 @@ func TestListCharacters(t *testing.T) {
 				ignoreFields := map[string][]string{
 					"Other": {"CreatedAt", "UpdatedAt"},
 				}
-				log.Println(got.Characters)
 				for i, g := range got.Characters[:tt.arg.compareLimit] {
 					compareCharactersObjects(t, g, tt.want[i], ignoreFields)
 				}
