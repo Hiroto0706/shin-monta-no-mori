@@ -117,6 +117,43 @@ func (q *Queries) ListImageParentCategoryRelationsByParentCategoryID(ctx context
 	return items, nil
 }
 
+const listImageParentCategoryRelationsByParentCategoryIDWithPagination = `-- name: ListImageParentCategoryRelationsByParentCategoryIDWithPagination :many
+SELECT id, image_id, parent_category_id
+FROM image_parent_categories_relations
+WHERE parent_category_id = $3
+ORDER BY parent_category_id DESC
+LIMIT $1 OFFSET $2
+`
+
+type ListImageParentCategoryRelationsByParentCategoryIDWithPaginationParams struct {
+	Limit            int32 `json:"limit"`
+	Offset           int32 `json:"offset"`
+	ParentCategoryID int64 `json:"parent_category_id"`
+}
+
+func (q *Queries) ListImageParentCategoryRelationsByParentCategoryIDWithPagination(ctx context.Context, arg ListImageParentCategoryRelationsByParentCategoryIDWithPaginationParams) ([]ImageParentCategoriesRelation, error) {
+	rows, err := q.db.QueryContext(ctx, listImageParentCategoryRelationsByParentCategoryIDWithPagination, arg.Limit, arg.Offset, arg.ParentCategoryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ImageParentCategoriesRelation{}
+	for rows.Next() {
+		var i ImageParentCategoriesRelation
+		if err := rows.Scan(&i.ID, &i.ImageID, &i.ParentCategoryID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateImageParentCategoryRelations = `-- name: UpdateImageParentCategoryRelations :one
 UPDATE image_parent_categories_relations
 SET image_id = $2,

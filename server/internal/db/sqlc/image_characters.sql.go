@@ -57,7 +57,7 @@ func (q *Queries) DeleteImageCharacterRelations(ctx context.Context, id int64) e
 	return err
 }
 
-const listImageCharacterRelationsByCharacterID = `-- name: ListImageCharacterRelationsByCharacterID :many
+const listImageCharacterRelationsByCharacterIDWIthPagination = `-- name: ListImageCharacterRelationsByCharacterIDWIthPagination :many
 SELECT id, image_id, character_id
 FROM image_characters_relations
 WHERE character_id = $3
@@ -65,14 +65,14 @@ ORDER BY character_id DESC
 LIMIT $1 OFFSET $2
 `
 
-type ListImageCharacterRelationsByCharacterIDParams struct {
+type ListImageCharacterRelationsByCharacterIDWIthPaginationParams struct {
 	Limit       int32 `json:"limit"`
 	Offset      int32 `json:"offset"`
 	CharacterID int64 `json:"character_id"`
 }
 
-func (q *Queries) ListImageCharacterRelationsByCharacterID(ctx context.Context, arg ListImageCharacterRelationsByCharacterIDParams) ([]ImageCharactersRelation, error) {
-	rows, err := q.db.QueryContext(ctx, listImageCharacterRelationsByCharacterID, arg.Limit, arg.Offset, arg.CharacterID)
+func (q *Queries) ListImageCharacterRelationsByCharacterIDWIthPagination(ctx context.Context, arg ListImageCharacterRelationsByCharacterIDWIthPaginationParams) ([]ImageCharactersRelation, error) {
+	rows, err := q.db.QueryContext(ctx, listImageCharacterRelationsByCharacterIDWIthPagination, arg.Limit, arg.Offset, arg.CharacterID)
 	if err != nil {
 		return nil, err
 	}

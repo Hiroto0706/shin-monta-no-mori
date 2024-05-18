@@ -12,6 +12,12 @@ SELECT *
 FROM image_parent_categories_relations
 WHERE parent_category_id = $1
 ORDER BY parent_category_id DESC;
+-- name: ListImageParentCategoryRelationsByParentCategoryIDWithPagination :many
+SELECT *
+FROM image_parent_categories_relations
+WHERE parent_category_id = $3
+ORDER BY parent_category_id DESC
+LIMIT $1 OFFSET $2;
 -- name: UpdateImageParentCategoryRelations :one
 UPDATE image_parent_categories_relations
 SET image_id = $2,

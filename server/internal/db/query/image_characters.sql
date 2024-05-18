@@ -7,7 +7,7 @@ SELECT *
 FROM image_characters_relations
 WHERE image_id = $1
 ORDER BY image_id DESC;
--- name: ListImageCharacterRelationsByCharacterID :many
+-- name: ListImageCharacterRelationsByCharacterIDWIthPagination :many
 SELECT *
 FROM image_characters_relations
 WHERE character_id = $3

@@ -57,15 +57,15 @@ func (q *Queries) DeleteImageChildCategoryRelations(ctx context.Context, id int6
 	return err
 }
 
-const listImageChildCategoryRelationsByImageID = `-- name: ListImageChildCategoryRelationsByImageID :many
+const listImageChildCategoryRelationsByChildCategoryID = `-- name: ListImageChildCategoryRelationsByChildCategoryID :many
 SELECT id, image_id, child_category_id
 FROM image_child_categories_relations
-WHERE image_id = $1
-ORDER BY image_id DESC
+WHERE child_category_id = $1
+ORDER BY child_category_id DESC
 `
 
-func (q *Queries) ListImageChildCategoryRelationsByImageID(ctx context.Context, imageID int64) ([]ImageChildCategoriesRelation, error) {
-	rows, err := q.db.QueryContext(ctx, listImageChildCategoryRelationsByImageID, imageID)
+func (q *Queries) ListImageChildCategoryRelationsByChildCategoryID(ctx context.Context, childCategoryID int64) ([]ImageChildCategoriesRelation, error) {
+	rows, err := q.db.QueryContext(ctx, listImageChildCategoryRelationsByChildCategoryID, childCategoryID)
 	if err != nil {
 		return nil, err
 	}
@@ -87,15 +87,52 @@ func (q *Queries) ListImageChildCategoryRelationsByImageID(ctx context.Context, 
 	return items, nil
 }
 
-const listImageChildCategoryRelationsByParentCategoryID = `-- name: ListImageChildCategoryRelationsByParentCategoryID :many
+const listImageChildCategoryRelationsByChildCategoryIDWithPagination = `-- name: ListImageChildCategoryRelationsByChildCategoryIDWithPagination :many
 SELECT id, image_id, child_category_id
 FROM image_child_categories_relations
-WHERE child_category_id = $1
+WHERE child_category_id = $3
 ORDER BY child_category_id DESC
+LIMIT $1 OFFSET $2
 `
 
-func (q *Queries) ListImageChildCategoryRelationsByParentCategoryID(ctx context.Context, childCategoryID int64) ([]ImageChildCategoriesRelation, error) {
-	rows, err := q.db.QueryContext(ctx, listImageChildCategoryRelationsByParentCategoryID, childCategoryID)
+type ListImageChildCategoryRelationsByChildCategoryIDWithPaginationParams struct {
+	Limit           int32 `json:"limit"`
+	Offset          int32 `json:"offset"`
+	ChildCategoryID int64 `json:"child_category_id"`
+}
+
+func (q *Queries) ListImageChildCategoryRelationsByChildCategoryIDWithPagination(ctx context.Context, arg ListImageChildCategoryRelationsByChildCategoryIDWithPaginationParams) ([]ImageChildCategoriesRelation, error) {
+	rows, err := q.db.QueryContext(ctx, listImageChildCategoryRelationsByChildCategoryIDWithPagination, arg.Limit, arg.Offset, arg.ChildCategoryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ImageChildCategoriesRelation{}
+	for rows.Next() {
+		var i ImageChildCategoriesRelation
+		if err := rows.Scan(&i.ID, &i.ImageID, &i.ChildCategoryID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listImageChildCategoryRelationsByImageID = `-- name: ListImageChildCategoryRelationsByImageID :many
+SELECT id, image_id, child_category_id
+FROM image_child_categories_relations
+WHERE image_id = $1
+ORDER BY image_id DESC
+`
+
+func (q *Queries) ListImageChildCategoryRelationsByImageID(ctx context.Context, imageID int64) ([]ImageChildCategoriesRelation, error) {
+	rows, err := q.db.QueryContext(ctx, listImageChildCategoryRelationsByImageID, imageID)
 	if err != nil {
 		return nil, err
 	}
