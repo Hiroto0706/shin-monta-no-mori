@@ -478,11 +478,6 @@ func (c charactersTest) setUp(t *testing.T, config util.Config) *app.AppContext 
 		(20011, 'test_character_name_20011', 'test_character_src_20011.com', 'test_character_filename_20011'),
 		(20021, 'test_character_name_20021', 'test_character_src_20021.com', 'test_character_filename_20021');
 		`),
-		// fmt.Sprintln(`
-		// INSERT INTO image_characters_relations (id, image_id, character_id)
-		// VALUES
-		// (11001, 999990, 11001);
-		// `),
 	}
 
 	for _, query := range queries {
@@ -503,7 +498,6 @@ func (c charactersTest) tearDown(t *testing.T, config util.Config) {
 
 	queries := []string{
 		"TRUNCATE TABLE characters RESTART IDENTITY CASCADE;",
-		"TRUNCATE TABLE image_characters_relations RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE operators RESTART IDENTITY CASCADE;",
 	}
 	for _, query := range queries {

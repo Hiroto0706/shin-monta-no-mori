@@ -49,19 +49,19 @@ func TestListCategories(t *testing.T) {
 			want: []model.Category{
 				{
 					ParentCategory: db.ParentCategory{
-						ID:   99999,
-						Name: "test_parent_category_name_99999",
-						Src:  "test_parent_category_src_99999.com",
+						ID:   99998,
+						Name: "test_parent_category_name_99998",
+						Src:  "test_parent_category_src_99998.com",
 						Filename: sql.NullString{
-							String: "test_parent_category_filename_99999",
+							String: "test_parent_category_filename_99998",
 							Valid:  true,
 						},
 					},
 					ChildCategory: []db.ChildCategory{
 						{
-							ID:       99999,
-							Name:     "test_child_category_name_99999",
-							ParentID: 99999,
+							ID:       99998,
+							Name:     "test_child_category_name_99998",
+							ParentID: 99998,
 						},
 					},
 				},
@@ -125,12 +125,12 @@ func (c categoriesTest) setUp(t *testing.T, config util.Config) *app.AppContext 
 		fmt.Sprintln(`
 		INSERT INTO parent_categories (id, name, src, filename)
 		VALUES
-		(99999, 'test_parent_category_name_99999', 'test_parent_category_src_99999.com', 'test_parent_category_filename_99999');
+		(99998, 'test_parent_category_name_99998', 'test_parent_category_src_99998.com', 'test_parent_category_filename_99998');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO child_categories (id, name, parent_id)
 		VALUES
-		(99999, 'test_child_category_name_99999', 99999);
+		(99998, 'test_child_category_name_99998', 99998);
 		`),
 	}
 
@@ -153,7 +153,6 @@ func (c categoriesTest) tearDown(t *testing.T, config util.Config) {
 	queries := []string{
 		"TRUNCATE TABLE child_categories RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE parent_categories RESTART IDENTITY CASCADE;",
-		"TRUNCATE TABLE operators RESTART IDENTITY CASCADE;",
 	}
 	for _, query := range queries {
 		if _, err := store.ExecQuery(context.Background(), query); err != nil {

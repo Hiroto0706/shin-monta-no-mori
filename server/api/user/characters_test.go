@@ -153,8 +153,6 @@ func (c charactersTest) tearDown(t *testing.T, config util.Config) {
 
 	queries := []string{
 		"TRUNCATE TABLE characters RESTART IDENTITY CASCADE;",
-		"TRUNCATE TABLE image_characters_relations RESTART IDENTITY CASCADE;",
-		"TRUNCATE TABLE operators RESTART IDENTITY CASCADE;",
 	}
 	for _, query := range queries {
 		if _, err := store.ExecQuery(context.Background(), query); err != nil {

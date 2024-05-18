@@ -506,21 +506,14 @@ func (i illustrationTest) setUp(t *testing.T, config util.Config) *app.AppContex
 		(21001, 'test_image_title_21001', 'test_image_original_src_21001.com', 'test_image_simple_src_21001.com', 'test_image_original_filename_21001'),
 		(999990, 'test_image_title_999990', 'test_image_original_src_999990.com', 'test_image_simple_src_999990.com', 'test_image_original_filename_999990'),
 		(999991, 'test_image_title_999991', 'test_image_original_src_999991.com', 'test_image_simple_src_999991.com', 'test_image_original_filename_999991'),
-		(22001, 'test_image_title_22001', 'test_image_original_src_22001.com', 'test_image_simple_src_22001.com', 'test_image_original_filename_22001'),
-		(24001, 'test_image_title_24001', 'test_image_original_src_24001.com', 'test_image_simple_src_24001.com', 'test_image_original_filename_24001'),
-		(24002, 'test_image_title_24002', 'test_image_original_src_24002.com', 'test_image_simple_src_24002.com', 'test_image_original_filename_24002'),
-		(24003, 'test_image_title_24003', 'test_image_original_src_24003.com', 'test_image_simple_src_24003.com', 'test_image_original_filename_24003'),
-		(24004, 'test_image_title_24004', 'test_image_original_src_24004.com', 'test_image_simple_src_24004.com', 'test_image_original_filename_24004');
+		(22001, 'test_image_title_22001', 'test_image_original_src_22001.com', 'test_image_simple_src_22001.com', 'test_image_original_filename_22001');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO characters (id, name, src)
 		VALUES
 		(21001, 'test_character_name_21001', 'test_character_src_21001.com'),
 		(21002, 'test_character_name_21002', 'test_character_src_21002.com'),
-		(22001, 'test_character_name_22001', 'test_character_src_22001.com'),
-		(23001, 'test_character_name_23001', 'test_character_src_23001.com'),
-		(24001, 'test_character_name_24001', 'test_character_src_24001.com'),
-		(24002, 'test_character_name_24002', 'test_character_src_24002.com');
+		(22001, 'test_character_name_22001', 'test_character_src_22001.com');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_characters_relations (id, image_id, character_id)
@@ -528,18 +521,14 @@ func (i illustrationTest) setUp(t *testing.T, config util.Config) *app.AppContex
 		(21001, 999990, 21001),
 		(21002, 999991, 21001),
 		(21003, 21001, 21002),
-		(22001, 22001, 22001),
-		(24001, 24001, 24001);
+		(22001, 22001, 22001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO parent_categories (id, name, src)
 		VALUES
 		(21001, 'test_parent_category_name_21001', 'test_parent_category_src_21001.com'),
 		(21002, 'test_parent_category_name_21002', 'test_parent_category_src_21002.com'),
-		(22001, 'test_parent_category_name_22001', 'test_parent_category_src_22001.com'),
-		(23001, 'test_parent_category_name_23001', 'test_parent_category_src_23001.com'),
-		(24001, 'test_parent_category_name_24001', 'test_parent_category_src_24001.com'),
-		(24002, 'test_parent_category_name_24002', 'test_parent_category_src_24002.com');
+		(22001, 'test_parent_category_name_22001', 'test_parent_category_src_22001.com');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_parent_categories_relations (id, image_id, parent_category_id)
@@ -547,24 +536,19 @@ func (i illustrationTest) setUp(t *testing.T, config util.Config) *app.AppContex
 		(21001, 999990, 21001),
 		(21002, 999991, 21001),
 		(21003, 21001, 21002),
-		(22001, 22001, 22001),
-		(24001, 24001, 24001);
+		(22001, 22001, 22001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO child_categories (id, name, parent_id)
 		VALUES
 		(21001, 'test_child_category_name_21001', 21001),
 		(21002, 'test_child_category_name_21002', 21002),
-		(22001, 'test_child_category_name_22001', 22001),
-		(23001, 'test_child_category_name_23001', 23001),
-		(24001, 'test_child_category_name_24001', 24001),
-		(24002, 'test_child_category_name_24002', 24002);
+		(22001, 'test_child_category_name_22001', 22001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_child_categories_relations (id, image_id, child_category_id)
 		VALUES
-		(22001, 22001, 22001),
-		(24001, 24001, 24001);
+		(22001, 22001, 22001);
 		`),
 	}
 
@@ -592,7 +576,6 @@ func (i illustrationTest) tearDown(t *testing.T, config util.Config) {
 		"TRUNCATE TABLE parent_categories RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE characters RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE images RESTART IDENTITY CASCADE;",
-		"TRUNCATE TABLE operators RESTART IDENTITY CASCADE;",
 	}
 	for _, query := range queries {
 		if _, err := store.ExecQuery(context.Background(), query); err != nil {
