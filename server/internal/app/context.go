@@ -1,8 +1,6 @@
 package app
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,6 +19,6 @@ func NewAppContext(c *gin.Context, s *Server) *AppContext {
 }
 
 // ErrorResponse はエラーレスポンスを生成
-func (ctx *AppContext) ErrorResponse(err error) (int, gin.H) {
-	return http.StatusInternalServerError, gin.H{"error": err.Error()}
+func ErrorResponse(err error) gin.H {
+	return gin.H{"error": err.Error()}
 }

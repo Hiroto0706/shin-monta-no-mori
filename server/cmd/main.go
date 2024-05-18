@@ -37,6 +37,8 @@ func main() {
 	}
 	server := app.NewServer(config, store, token)
 
+	// Userサイドのルート設定
+	api.SetUserRouters(server)
 	// Adminサイドのルート設定
 	api.SetAdminRouters(server)
 

@@ -1,0 +1,143 @@
+package user
+
+import (
+	"database/sql"
+	"fmt"
+	"net/http"
+	"shin-monta-no-mori/server/internal/app"
+	db "shin-monta-no-mori/server/internal/db/sqlc"
+	model "shin-monta-no-mori/server/internal/domains/models"
+	"shin-monta-no-mori/server/internal/domains/service"
+	"strconv"
+)
+
+const (
+	IMAGE_TYPE_IMAGE = "image"
+)
+
+type listIllustrationsRequest struct {
+	Page int64 `form:"p"`
+}
+
+// ListIllustrations godoc
+// @Summary List illustrations
+// @Description Retrieves a paginated list of illustrations based on the provided page number.
+// @Accept  json
+// @Produce  json
+// @Param   p   query   int  true  "Page number for pagination"
+// @Success 200 {array} model/Illustration "A list of illustrations"
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: The request is malformed or missing required fields."
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: An error occurred on the server which prevented the completion of the request."
+// @Router /api/v1/illustrations/list [get]
+func ListIllustrations(ctx *app.AppContext) {
+	// TODO: bind 周りの処理は関数化して共通化したほうがいい
+	var req listIllustrationsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
+		return
+	}
+
+	illustrations := []*model.Illustration{}
+
+	arg := db.ListImageParams{
+		Limit:  int32(ctx.Server.Config.ImageFetchLimit),
+		Offset: int32(int(req.Page) * ctx.Server.Config.ImageFetchLimit),
+	}
+	images, err := ctx.Server.Store.ListImage(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListImage : %w", err)))
+		return
+	}
+
+	for _, i := range images {
+		il := service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, i)
+
+		illustrations = append(illustrations, il)
+	}
+
+	ctx.JSON(http.StatusOK, illustrations)
+}
+
+// GetIllustration godoc
+// @Summary Retrieve an illustration
+// @Description Retrieves a single illustration by its ID
+// @Accept  json
+// @Produce  json
+// @Param   id   path   int  true  "ID of the illustration to retrieve"
+// @Success 200 {object} model/Illustration "The requested illustration"
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Failed to parse 'id' number from path parameter"
+// @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No illustration found with the given ID"
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to retrieve the illustration from the database"
+// @Router /api/v1/illustrations/{id} [get]
+func GetIllustration(ctx *app.AppContext) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
+		return
+	}
+
+	image, err := ctx.Server.Store.GetImage(ctx.Context, int64(id))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetImage: %w", err)))
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
+		return
+	}
+
+	illustration := &model.Illustration{}
+	illustration = service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, image)
+
+	ctx.JSON(http.StatusOK, illustration)
+}
+
+type searchIllustrationsRequest struct {
+	Page  int    `form:"p"`
+	Query string `form:"q"`
+}
+
+// TODO: imageだけでなく、カテゴリでも検索ができるようにする。
+// また、検索結果をtrimし、被りがないようにする
+// SearchIllustrations godoc
+// @Summary Search illustrations
+// @Description Searches for illustrations based on a query and page number.
+// @Accept  json
+// @Produce  json
+// @Param   p     query   int    true  "Page number for pagination"
+// @Param   q     query   string true  "Query string for searching illustrations by title or category"
+// @Success 200   {array} model/Illustration "List of matched illustrations"
+// @Failure 400   {object} request/JSONResponse{data=string} "Bad Request: The request is malformed or missing required fields."
+// @Failure 500   {object} request/JSONResponse{data=string} "Internal Server Error: An error occurred on the server which prevented the completion of the request."
+// @Router /api/v1/illustrations/search [get]
+func SearchIllustrations(ctx *app.AppContext) {
+	var req searchIllustrationsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
+		return
+	}
+	arg := db.SearchImagesParams{
+		Limit:  int32(ctx.Server.Config.ImageFetchLimit),
+		Offset: int32(req.Page * ctx.Server.Config.ImageFetchLimit),
+		Query: sql.NullString{
+			String: req.Query,
+			Valid:  true,
+		},
+	}
+
+	images, err := ctx.Server.Store.SearchImages(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to SearchImages : %w", err)))
+		return
+	}
+
+	illustrations := []*model.Illustration{}
+	for _, i := range images {
+		il := service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, i)
+
+		illustrations = append(illustrations, il)
+	}
+
+	ctx.JSON(http.StatusOK, illustrations)
+}

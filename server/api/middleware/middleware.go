@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"shin-monta-no-mori/server/internal/app"
 	"shin-monta-no-mori/server/pkg/token"
-	"shin-monta-no-mori/server/pkg/util"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +25,7 @@ func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		// ヘッダーが存在しない場合、エラーを返す
 		if len(authorizationHeader) == 0 {
 			err := errors.New("authorization header is not provided")
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, util.NewErrorResponse(err))
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, app.ErrorResponse(err))
 			return
 		}
 
@@ -33,7 +33,7 @@ func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		fields := strings.Fields(authorizationHeader)
 		if len(fields) < 2 {
 			err := errors.New("invalid authorization header format")
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, util.NewErrorResponse(err))
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, app.ErrorResponse(err))
 			return
 		}
 
@@ -41,7 +41,7 @@ func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		authorizationType := strings.ToLower(fields[0])
 		if authorizationType != authorizationTypeBearer {
 			err := fmt.Errorf("unsupported authorization type %s", authorizationType)
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, util.NewErrorResponse(err))
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, app.ErrorResponse(err))
 			return
 		}
 
@@ -49,7 +49,7 @@ func AuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		accessToken := fields[1]
 		payload, err := tokenMaker.VerifyToken(accessToken)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, util.NewErrorResponse(err))
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, app.ErrorResponse(err))
 			return
 		}
 
