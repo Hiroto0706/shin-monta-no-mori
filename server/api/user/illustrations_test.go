@@ -69,23 +69,23 @@ func TestListIllustrations(t *testing.T) {
 					},
 					Character: []db.Character{
 						{
-							ID:   11001,
-							Name: "test_character_name_11001",
-							Src:  "test_character_src_11001.com",
+							ID:   21001,
+							Name: "test_character_name_21001",
+							Src:  "test_character_src_21001.com",
 						},
 					},
 					Category: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{
-								ID:   11001,
-								Name: "test_parent_category_name_11001",
-								Src:  "test_parent_category_src_11001.com",
+								ID:   21001,
+								Name: "test_parent_category_name_21001",
+								Src:  "test_parent_category_src_21001.com",
 							},
 							ChildCategory: []db.ChildCategory{
 								{
-									ID:       11001,
-									Name:     "test_child_category_name_11001",
-									ParentID: 11001,
+									ID:       21001,
+									Name:     "test_child_category_name_21001",
+									ParentID: 21001,
 								},
 							},
 						},
@@ -115,23 +115,23 @@ func TestListIllustrations(t *testing.T) {
 					},
 					Character: []db.Character{
 						{
-							ID:   11001,
-							Name: "test_character_name_11001",
-							Src:  "test_character_src_11001.com",
+							ID:   21001,
+							Name: "test_character_name_21001",
+							Src:  "test_character_src_21001.com",
 						},
 					},
 					Category: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{
-								ID:   11001,
-								Name: "test_parent_category_name_11001",
-								Src:  "test_parent_category_src_11001.com",
+								ID:   21001,
+								Name: "test_parent_category_name_21001",
+								Src:  "test_parent_category_src_21001.com",
 							},
 							ChildCategory: []db.ChildCategory{
 								{
-									ID:       11001,
-									Name:     "test_child_category_name_11001",
-									ParentID: 11001,
+									ID:       21001,
+									Name:     "test_child_category_name_21001",
+									ParentID: 21001,
 								},
 							},
 						},
@@ -213,38 +213,38 @@ func TestGetIllustration(t *testing.T) {
 		{
 			name: "正常系",
 			arg: args{
-				id: "11001",
+				id: "21001",
 			},
 			want: model.Illustration{
 				Image: db.Image{
-					ID:          11001,
-					Title:       "test_image_title_11001",
-					OriginalSrc: "test_image_original_src_11001.com",
+					ID:          21001,
+					Title:       "test_image_title_21001",
+					OriginalSrc: "test_image_original_src_21001.com",
 					SimpleSrc: sql.NullString{
-						String: "test_image_simple_src_11001.com",
+						String: "test_image_simple_src_21001.com",
 						Valid:  true,
 					},
-					OriginalFilename: "test_image_original_filename_11001",
+					OriginalFilename: "test_image_original_filename_21001",
 				},
 				Character: []db.Character{
 					{
-						ID:   11002,
-						Name: "test_character_name_11002",
-						Src:  "test_character_src_11002.com",
+						ID:   21002,
+						Name: "test_character_name_21002",
+						Src:  "test_character_src_21002.com",
 					},
 				},
 				Category: []*model.Category{
 					{
 						ParentCategory: db.ParentCategory{
-							ID:   11002,
-							Name: "test_parent_category_name_11002",
-							Src:  "test_parent_category_src_11002.com",
+							ID:   21002,
+							Name: "test_parent_category_name_21002",
+							Src:  "test_parent_category_src_21002.com",
 						},
 						ChildCategory: []db.ChildCategory{
 							{
-								ID:       11002,
-								Name:     "test_child_category_name_11002",
-								ParentID: 11002,
+								ID:       21002,
+								Name:     "test_child_category_name_21002",
+								ParentID: 21002,
 							},
 						},
 					},
@@ -323,40 +323,40 @@ func TestSearchIllustrations(t *testing.T) {
 			name: "正常系",
 			arg: args{
 				p:               "0",
-				q:               "test_image_title_12001",
+				q:               "test_image_title_22001",
 				imageFetchLimit: 1,
 			},
 			want: []model.Illustration{
 				{
 					Image: db.Image{
-						ID:          12001,
-						Title:       "test_image_title_12001",
-						OriginalSrc: "test_image_original_src_12001.com",
+						ID:          22001,
+						Title:       "test_image_title_22001",
+						OriginalSrc: "test_image_original_src_22001.com",
 						SimpleSrc: sql.NullString{
-							String: "test_image_simple_src_12001.com",
+							String: "test_image_simple_src_22001.com",
 							Valid:  true,
 						},
-						OriginalFilename: "test_image_original_filename_12001",
+						OriginalFilename: "test_image_original_filename_22001",
 					},
 					Character: []db.Character{
 						{
-							ID:   12001,
-							Name: "test_character_name_12001",
-							Src:  "test_character_src_12001.com",
+							ID:   22001,
+							Name: "test_character_name_22001",
+							Src:  "test_character_src_22001.com",
 						},
 					},
 					Category: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{
-								ID:   12001,
-								Name: "test_parent_category_name_12001",
-								Src:  "test_parent_category_src_12001.com",
+								ID:   22001,
+								Name: "test_parent_category_name_22001",
+								Src:  "test_parent_category_src_22001.com",
 							},
 							ChildCategory: []db.ChildCategory{
 								{
-									ID:       12001,
-									Name:     "test_child_category_name_12001",
-									ParentID: 12001,
+									ID:       22001,
+									Name:     "test_child_category_name_22001",
+									ParentID: 22001,
 								},
 							},
 						},
@@ -503,68 +503,68 @@ func (i illustrationTest) setUp(t *testing.T, config util.Config) *app.AppContex
 		fmt.Sprintln(`
 		INSERT INTO images (id, title, original_src, simple_src, original_filename)
 		VALUES
-		(11001, 'test_image_title_11001', 'test_image_original_src_11001.com', 'test_image_simple_src_11001.com', 'test_image_original_filename_11001'),
+		(21001, 'test_image_title_21001', 'test_image_original_src_21001.com', 'test_image_simple_src_21001.com', 'test_image_original_filename_21001'),
 		(999990, 'test_image_title_999990', 'test_image_original_src_999990.com', 'test_image_simple_src_999990.com', 'test_image_original_filename_999990'),
 		(999991, 'test_image_title_999991', 'test_image_original_src_999991.com', 'test_image_simple_src_999991.com', 'test_image_original_filename_999991'),
-		(12001, 'test_image_title_12001', 'test_image_original_src_12001.com', 'test_image_simple_src_12001.com', 'test_image_original_filename_12001'),
-		(14001, 'test_image_title_14001', 'test_image_original_src_14001.com', 'test_image_simple_src_14001.com', 'test_image_original_filename_14001'),
-		(14002, 'test_image_title_14002', 'test_image_original_src_14002.com', 'test_image_simple_src_14002.com', 'test_image_original_filename_14002'),
-		(14003, 'test_image_title_14003', 'test_image_original_src_14003.com', 'test_image_simple_src_14003.com', 'test_image_original_filename_14003'),
-		(14004, 'test_image_title_14004', 'test_image_original_src_14004.com', 'test_image_simple_src_14004.com', 'test_image_original_filename_14004');
+		(22001, 'test_image_title_22001', 'test_image_original_src_22001.com', 'test_image_simple_src_22001.com', 'test_image_original_filename_22001'),
+		(24001, 'test_image_title_24001', 'test_image_original_src_24001.com', 'test_image_simple_src_24001.com', 'test_image_original_filename_24001'),
+		(24002, 'test_image_title_24002', 'test_image_original_src_24002.com', 'test_image_simple_src_24002.com', 'test_image_original_filename_24002'),
+		(24003, 'test_image_title_24003', 'test_image_original_src_24003.com', 'test_image_simple_src_24003.com', 'test_image_original_filename_24003'),
+		(24004, 'test_image_title_24004', 'test_image_original_src_24004.com', 'test_image_simple_src_24004.com', 'test_image_original_filename_24004');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO characters (id, name, src)
 		VALUES
-		(11001, 'test_character_name_11001', 'test_character_src_11001.com'),
-		(11002, 'test_character_name_11002', 'test_character_src_11002.com'),
-		(12001, 'test_character_name_12001', 'test_character_src_12001.com'),
-		(13001, 'test_character_name_13001', 'test_character_src_13001.com'),
-		(14001, 'test_character_name_14001', 'test_character_src_14001.com'),
-		(14002, 'test_character_name_14002', 'test_character_src_14002.com');
+		(21001, 'test_character_name_21001', 'test_character_src_21001.com'),
+		(21002, 'test_character_name_21002', 'test_character_src_21002.com'),
+		(22001, 'test_character_name_22001', 'test_character_src_22001.com'),
+		(23001, 'test_character_name_23001', 'test_character_src_23001.com'),
+		(24001, 'test_character_name_24001', 'test_character_src_24001.com'),
+		(24002, 'test_character_name_24002', 'test_character_src_24002.com');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_characters_relations (id, image_id, character_id)
 		VALUES
-		(11001, 999990, 11001),
-		(11002, 999991, 11001),
-		(11003, 11001, 11002),
-		(12001, 12001, 12001),
-		(14001, 14001, 14001);
+		(21001, 999990, 21001),
+		(21002, 999991, 21001),
+		(21003, 21001, 21002),
+		(22001, 22001, 22001),
+		(24001, 24001, 24001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO parent_categories (id, name, src)
 		VALUES
-		(11001, 'test_parent_category_name_11001', 'test_parent_category_src_11001.com'),
-		(11002, 'test_parent_category_name_11002', 'test_parent_category_src_11002.com'),
-		(12001, 'test_parent_category_name_12001', 'test_parent_category_src_12001.com'),
-		(13001, 'test_parent_category_name_13001', 'test_parent_category_src_13001.com'),
-		(14001, 'test_parent_category_name_14001', 'test_parent_category_src_14001.com'),
-		(14002, 'test_parent_category_name_14002', 'test_parent_category_src_14002.com');
+		(21001, 'test_parent_category_name_21001', 'test_parent_category_src_21001.com'),
+		(21002, 'test_parent_category_name_21002', 'test_parent_category_src_21002.com'),
+		(22001, 'test_parent_category_name_22001', 'test_parent_category_src_22001.com'),
+		(23001, 'test_parent_category_name_23001', 'test_parent_category_src_23001.com'),
+		(24001, 'test_parent_category_name_24001', 'test_parent_category_src_24001.com'),
+		(24002, 'test_parent_category_name_24002', 'test_parent_category_src_24002.com');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_parent_categories_relations (id, image_id, parent_category_id)
 		VALUES
-		(11001, 999990, 11001),
-		(11002, 999991, 11001),
-		(11003, 11001, 11002),
-		(12001, 12001, 12001),
-		(14001, 14001, 14001);
+		(21001, 999990, 21001),
+		(21002, 999991, 21001),
+		(21003, 21001, 21002),
+		(22001, 22001, 22001),
+		(24001, 24001, 24001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO child_categories (id, name, parent_id)
 		VALUES
-		(11001, 'test_child_category_name_11001', 11001),
-		(11002, 'test_child_category_name_11002', 11002),
-		(12001, 'test_child_category_name_12001', 12001),
-		(13001, 'test_child_category_name_13001', 13001),
-		(14001, 'test_child_category_name_14001', 14001),
-		(14002, 'test_child_category_name_14002', 14002);
+		(21001, 'test_child_category_name_21001', 21001),
+		(21002, 'test_child_category_name_21002', 21002),
+		(22001, 'test_child_category_name_22001', 22001),
+		(23001, 'test_child_category_name_23001', 23001),
+		(24001, 'test_child_category_name_24001', 24001),
+		(24002, 'test_child_category_name_24002', 24002);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_child_categories_relations (id, image_id, child_category_id)
 		VALUES
-		(12001, 12001, 12001),
-		(14001, 14001, 14001);
+		(22001, 22001, 22001),
+		(24001, 24001, 24001);
 		`),
 	}
 
