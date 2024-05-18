@@ -16,6 +16,7 @@ func SetUserRouters(s *app.Server) {
 			illustrations.GET("/list", app.HandlerFuncWrapper(s, user.ListIllustrations))
 			illustrations.GET("/search", app.HandlerFuncWrapper(s, user.SearchIllustrations))
 			illustrations.GET("/random", app.HandlerFuncWrapper(s, user.FetchRandomIllustrations))
+			illustrations.GET("/character/:id", app.HandlerFuncWrapper(s, user.ListIllustrationsByCharacterID))
 		}
 		characters := v1.Group("/characters")
 		{

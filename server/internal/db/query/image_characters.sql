@@ -7,11 +7,12 @@ SELECT *
 FROM image_characters_relations
 WHERE image_id = $1
 ORDER BY image_id DESC;
--- name: ListImageCharacterRelationsByParentCategoryID :many
+-- name: ListImageCharacterRelationsByCharacterID :many
 SELECT *
 FROM image_characters_relations
-WHERE character_id = $1
-ORDER BY character_id DESC;
+WHERE character_id = $3
+ORDER BY character_id DESC
+LIMIT $1 OFFSET $2;
 -- name: UpdateImageCharacterRelations :one
 UPDATE image_characters_relations
 SET image_id = $2,
