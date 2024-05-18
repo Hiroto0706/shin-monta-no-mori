@@ -18,7 +18,7 @@ func SetUserRouters(s *app.Server) {
 		}
 		categories := v1.Group("/categories")
 		{
-			categories.GET("/list", app.HandlerFuncWrapper(s, admin.ListCategories))
+			categories.GET("/list", app.HandlerFuncWrapper(s, user.ListCategories))
 		}
 	}
 }

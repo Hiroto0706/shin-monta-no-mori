@@ -1,7 +1,6 @@
 package user
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 	"shin-monta-no-mori/server/internal/app"
@@ -45,11 +44,6 @@ func ListCategories(ctx *app.AppContext) {
 	for i, pcate := range pcates {
 		ccates, err := ctx.Server.Store.GetChildCategoriesByParentID(ctx, pcate.ID)
 		if err != nil {
-			if err == sql.ErrNoRows {
-				ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID: %w", err)))
-				return
-			}
-
 			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
 			return
 		}
