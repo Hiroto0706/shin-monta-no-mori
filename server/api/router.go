@@ -15,6 +15,11 @@ func SetUserRouters(s *app.Server) {
 			illustrations.GET("/:id", app.HandlerFuncWrapper(s, user.GetIllustration))
 			illustrations.GET("/list", app.HandlerFuncWrapper(s, user.ListIllustrations))
 			illustrations.GET("/search", app.HandlerFuncWrapper(s, user.SearchIllustrations))
+			illustrations.GET("/random", app.HandlerFuncWrapper(s, user.FetchRandomIllustrations))
+		}
+		characters := v1.Group("/characters")
+		{
+			characters.GET("/list", app.HandlerFuncWrapper(s, user.ListCharacters))
 		}
 		categories := v1.Group("/categories")
 		{

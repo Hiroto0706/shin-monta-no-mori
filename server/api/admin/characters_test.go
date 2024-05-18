@@ -189,7 +189,7 @@ func TestSearchCharacters(t *testing.T) {
 				page:         "0",
 				query:        "not exist character name",
 				fetchLimit:   1,
-				compareLimit: 1,
+				compareLimit: 0,
 			},
 			want: []db.Character{
 				{},

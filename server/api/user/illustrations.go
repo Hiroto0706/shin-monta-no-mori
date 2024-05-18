@@ -141,3 +141,42 @@ func SearchIllustrations(ctx *app.AppContext) {
 
 	ctx.JSON(http.StatusOK, illustrations)
 }
+
+type listFetchRandomIllustrationsRequest struct {
+	Limit int64 `form:"limit"`
+}
+
+// FetchRandomIllustrations godoc
+// @Summary Fetch random illustrations
+// @Description Retrieves a list of illustrations randomly selected from the database.
+// @Accept  json
+// @Produce  json
+// @Param   limit   query   int  true  "Number of illustrations to retrieve"
+// @Success 200 {array} models.Illustration "A list of illustrations"
+// @Failure 400 {object} app.ErrorResponse "Bad Request: The request is malformed or missing required fields."
+// @Failure 500 {object} app.ErrorResponse "Internal Server Error: An error occurred on the server which prevented the completion of the request."
+// @Router /api/v1/illustrations/random [get]
+func FetchRandomIllustrations(ctx *app.AppContext) {
+	// TODO: bind 周りの処理は関数化して共通化したほうがいい
+	var req listFetchRandomIllustrationsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
+		return
+	}
+
+	illustrations := []*model.Illustration{}
+
+	images, err := ctx.Server.Store.FetchRandomImage(ctx, int32(req.Limit))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to FetchRandomImage : %w", err)))
+		return
+	}
+
+	for _, i := range images {
+		il := service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, i)
+
+		illustrations = append(illustrations, il)
+	}
+
+	ctx.JSON(http.StatusOK, illustrations)
+}

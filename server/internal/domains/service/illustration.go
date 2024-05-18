@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// FetchRelationInfoForIllustrations はimageと関連するcharacterやcategoryを取得する処理
 func FetchRelationInfoForIllustrations(c *gin.Context, store *db.Store, i db.Image) *model.Illustration {
 	// キャラクターの取得
 	icrs, err := store.ListImageCharacterRelationsByImageID(c, i.ID)
