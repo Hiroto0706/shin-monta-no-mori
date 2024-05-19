@@ -231,6 +231,7 @@ func CreateIllustration(ctx *app.AppContext) {
 			}
 		}
 
+		// TODO: わんちゃん親カテゴリの保存はParamで受け取らなくてもいいかも。子カテゴリのIDを元に親カテゴリを保存する形で良さそう？？
 		// ImageParentCategoryRelationsの保存
 		for _, pc_id := range req.ParentCategories {
 			arg := db.CreateImageParentCategoryRelationsParams{
