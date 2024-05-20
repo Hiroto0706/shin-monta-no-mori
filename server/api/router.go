@@ -1,54 +1,76 @@
 package api
 
-import "shin-monta-no-mori/server/api/middleware"
+import (
+	"shin-monta-no-mori/server/api/admin"
+	"shin-monta-no-mori/server/api/middleware"
+	"shin-monta-no-mori/server/api/user"
+	"shin-monta-no-mori/server/internal/app"
+)
 
-func SetUserRouters(s *Server) {
+func SetUserRouters(s *app.Server) {
 	v1 := s.Router.Group("/api/v1")
 	{
-		v1.GET("/", s.Greet)
+		illustrations := v1.Group("/illustrations")
+		{
+			illustrations.GET("/:id", app.HandlerFuncWrapper(s, user.GetIllustration))
+			illustrations.GET("/list", app.HandlerFuncWrapper(s, user.ListIllustrations))
+			illustrations.GET("/search", app.HandlerFuncWrapper(s, user.SearchIllustrations))
+			illustrations.GET("/random", app.HandlerFuncWrapper(s, user.FetchRandomIllustrations))
+			illustrations.GET("/character/:id", app.HandlerFuncWrapper(s, user.ListIllustrationsByCharacterID))
+			illustrations.GET("/category/parent/:id", app.HandlerFuncWrapper(s, user.ListIllustrationsByParentCategoryID))
+			illustrations.GET("/category/child/:id", app.HandlerFuncWrapper(s, user.ListIllustrationsByChildCategoryID))
+		}
+		characters := v1.Group("/characters")
+		{
+			characters.GET("/list", app.HandlerFuncWrapper(s, user.ListCharacters))
+		}
+		categories := v1.Group("/categories")
+		{
+			categories.GET("/list", app.HandlerFuncWrapper(s, user.ListCategories))
+		}
 	}
 }
 
-func SetAdminRouters(s *Server) {
+func SetAdminRouters(s *app.Server) {
 	v1 := s.Router.Group("/api/v1")
-	admin := v1.Group("/admin")
+	adminGroup := v1.Group("/admin")
 	// ログイン認証
-	admin.Use(middleware.AuthMiddleware(s.TokenMaker))
+	adminGroup.Use(middleware.AuthMiddleware(s.TokenMaker))
 	{
-		illustrations := admin.Group("/illustrations")
+		illustrations := adminGroup.Group("/illustrations")
 		{
-			illustrations.GET("/list", s.ListIllustrations)
-			illustrations.GET("/search", s.SearchIllustrations)
-			illustrations.GET("/:id", s.GetIllustration)
-			illustrations.POST("/create", s.CreateIllustration)
-			illustrations.DELETE("/:id", s.DeleteIllustration)
-			illustrations.PUT("/:id", s.EditIllustration)
+			illustrations.GET("/:id", app.HandlerFuncWrapper(s, admin.GetIllustration))
+			illustrations.GET("/list", app.HandlerFuncWrapper(s, admin.ListIllustrations))
+			illustrations.GET("/search", app.HandlerFuncWrapper(s, admin.SearchIllustrations))
+			illustrations.POST("/create", app.HandlerFuncWrapper(s, admin.CreateIllustration))
+			illustrations.DELETE("/:id", app.HandlerFuncWrapper(s, admin.DeleteIllustration))
+			illustrations.PUT("/:id", app.HandlerFuncWrapper(s, admin.EditIllustration))
 		}
-		characters := admin.Group("/characters")
+		characters := adminGroup.Group("/characters")
 		{
-			characters.GET("/list", s.ListCharacters)
-			characters.GET("/search", s.SearchCharacters)
-			characters.GET("/:id", s.GetCharacter)
-			characters.POST("/create", s.CreateCharacter)
-			characters.DELETE("/:id", s.DeleteCharacter)
-			characters.PUT("/:id", s.EditCharacter)
+			characters.GET("/list", app.HandlerFuncWrapper(s, admin.ListCharacters))
+			characters.GET("/search", app.HandlerFuncWrapper(s, admin.SearchCharacters))
+			characters.GET("/:id", app.HandlerFuncWrapper(s, admin.GetCharacter))
+			characters.POST("/create", app.HandlerFuncWrapper(s, admin.CreateCharacter))
+			characters.DELETE("/:id", app.HandlerFuncWrapper(s, admin.DeleteCharacter))
+			characters.PUT("/:id", app.HandlerFuncWrapper(s, admin.EditCharacter))
 		}
-		categories := admin.Group("/categories")
+		categories := adminGroup.Group("/categories")
 		{
-			categories.GET("/list", s.ListCategories)
-			categories.GET("/search", s.SearchCategories)
-			categories.GET("/:id", s.GetCategory)
+			categories.GET("/list", app.HandlerFuncWrapper(s, admin.ListCategories))
+			categories.GET("/search", app.HandlerFuncWrapper(s, admin.SearchCategories))
+			categories.GET("/:id", app.HandlerFuncWrapper(s, admin.GetCategory))
 			parent_categories := categories.Group("/parent")
 			{
-				parent_categories.POST("/create", s.CreateParentCategory)
-				parent_categories.PUT("/:id", s.EditParentCategory)
-				parent_categories.DELETE("/:id", s.DeleteParentCategory)
+				parent_categories.POST("/create", app.HandlerFuncWrapper(s, admin.CreateParentCategory))
+				parent_categories.PUT("/:id", app.HandlerFuncWrapper(s, admin.EditParentCategory))
+				parent_categories.DELETE("/:id", app.HandlerFuncWrapper(s, admin.DeleteParentCategory))
 			}
 			child_categories := categories.Group("/child")
 			{
-				child_categories.POST("/create", s.CreateChildCategory)
-				child_categories.PUT("/:id", s.EditChildCategory)
-				child_categories.DELETE("/:id", s.DeleteChildCategory)
+				child_categories.POST("/create", app.HandlerFuncWrapper(s, admin.CreateChildCategory))
+				child_categories.PUT("/:id", app.HandlerFuncWrapper(s, admin.EditChildCategory))
+				child_categories.DELETE("/:id", app.HandlerFuncWrapper(s, admin.DeleteChildCategory))
 			}
 		}
 	}

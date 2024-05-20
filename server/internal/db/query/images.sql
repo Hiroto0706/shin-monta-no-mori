@@ -38,3 +38,12 @@ WHERE title LIKE '%' || COALESCE(sqlc.arg(query)) || '%'
   OR original_filename LIKE '%' || COALESCE(sqlc.arg(query)) || '%'
 ORDER BY id DESC
 LIMIT $1 OFFSET $2;
+-- name: FetchRandomImage :many
+SELECT *
+FROM images
+WHERE id IN (
+    SELECT id
+    FROM images
+    ORDER BY RANDOM()
+    LIMIT $1
+  );

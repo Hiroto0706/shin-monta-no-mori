@@ -57,15 +57,22 @@ func (q *Queries) DeleteImageCharacterRelations(ctx context.Context, id int64) e
 	return err
 }
 
-const listImageCharacterRelationsByImageID = `-- name: ListImageCharacterRelationsByImageID :many
+const listImageCharacterRelationsByCharacterIDWIthPagination = `-- name: ListImageCharacterRelationsByCharacterIDWIthPagination :many
 SELECT id, image_id, character_id
 FROM image_characters_relations
-WHERE image_id = $1
-ORDER BY image_id DESC
+WHERE character_id = $3
+ORDER BY character_id DESC
+LIMIT $1 OFFSET $2
 `
 
-func (q *Queries) ListImageCharacterRelationsByImageID(ctx context.Context, imageID int64) ([]ImageCharactersRelation, error) {
-	rows, err := q.db.QueryContext(ctx, listImageCharacterRelationsByImageID, imageID)
+type ListImageCharacterRelationsByCharacterIDWIthPaginationParams struct {
+	Limit       int32 `json:"limit"`
+	Offset      int32 `json:"offset"`
+	CharacterID int64 `json:"character_id"`
+}
+
+func (q *Queries) ListImageCharacterRelationsByCharacterIDWIthPagination(ctx context.Context, arg ListImageCharacterRelationsByCharacterIDWIthPaginationParams) ([]ImageCharactersRelation, error) {
+	rows, err := q.db.QueryContext(ctx, listImageCharacterRelationsByCharacterIDWIthPagination, arg.Limit, arg.Offset, arg.CharacterID)
 	if err != nil {
 		return nil, err
 	}
@@ -87,15 +94,15 @@ func (q *Queries) ListImageCharacterRelationsByImageID(ctx context.Context, imag
 	return items, nil
 }
 
-const listImageCharacterRelationsByParentCategoryID = `-- name: ListImageCharacterRelationsByParentCategoryID :many
+const listImageCharacterRelationsByImageID = `-- name: ListImageCharacterRelationsByImageID :many
 SELECT id, image_id, character_id
 FROM image_characters_relations
-WHERE character_id = $1
-ORDER BY character_id DESC
+WHERE image_id = $1
+ORDER BY image_id DESC
 `
 
-func (q *Queries) ListImageCharacterRelationsByParentCategoryID(ctx context.Context, characterID int64) ([]ImageCharactersRelation, error) {
-	rows, err := q.db.QueryContext(ctx, listImageCharacterRelationsByParentCategoryID, characterID)
+func (q *Queries) ListImageCharacterRelationsByImageID(ctx context.Context, imageID int64) ([]ImageCharactersRelation, error) {
+	rows, err := q.db.QueryContext(ctx, listImageCharacterRelationsByImageID, imageID)
 	if err != nil {
 		return nil, err
 	}

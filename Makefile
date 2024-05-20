@@ -62,14 +62,18 @@ test:
 	mkdir -p coverage
 
 	# 各サブディレクトリのテストを実行し、個別のカバレッジファイルを生成
-	go test ./server/api/... -coverprofile=./coverage/api.out
+	go test ./server/api/admin/... -coverprofile=./coverage/api_admin.out
+	go test ./server/api/user/... -coverprofile=./coverage/api_user.out
+	go test ./server/api/middleware/... -coverprofile=./coverage/api_middleware.out
 	go test ./server/pkg/... -coverprofile=./coverage/pkg.out
 	go test ./server/internal/db/... -coverprofile=./coverage/db.out
 	go test ./server/internal/domains/... -coverprofile=./coverage/domains.out
 
 	# カバレッジファイルの結合
 	echo "mode: set" > ./coverage/coverage.out
-	tail -n +2 ./coverage/api.out >> ./coverage/coverage.out
+	tail -n +2 ./coverage/api_admin.out >> ./coverage/coverage.out
+	tail -n +2 ./coverage/api_user.out >> ./coverage/coverage.out
+	tail -n +2 ./coverage/api_middleware.out >> ./coverage/coverage.out
 	tail -n +2 ./coverage/pkg.out >> ./coverage/coverage.out
 	tail -n +2 ./coverage/db.out >> ./coverage/coverage.out
 	tail -n +2 ./coverage/domains.out >> ./coverage/coverage.out

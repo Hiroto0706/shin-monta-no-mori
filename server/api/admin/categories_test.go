@@ -1,4 +1,4 @@
-package api_test
+package admin_test
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
-	"shin-monta-no-mori/server/api"
+	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
 	"shin-monta-no-mori/server/pkg/util"
@@ -24,16 +24,16 @@ import (
 type categoriesTest struct{}
 
 func TestListCategories(t *testing.T) {
-	config, err := util.LoadConfig("../")
+	config, err := util.LoadConfig(AppEnvPath)
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}
 	c := categoriesTest{}
-	s := c.setUp(t, config)
+	ctx := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	// 認証用トークンの生成
-	accessToken := setAuthUser(t, s)
+	accessToken := setAuthUser(t, ctx)
 
 	type args struct {
 		compareLimit int
@@ -81,7 +81,7 @@ func TestListCategories(t *testing.T) {
 			req, _ := http.NewRequest("GET", "/api/v1/admin/categories/list", nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
-			s.Router.ServeHTTP(w, req)
+			ctx.Server.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -94,6 +94,7 @@ func TestListCategories(t *testing.T) {
 				ignoreFields := map[string][]string{
 					"Other": {"CreatedAt", "UpdatedAt"},
 				}
+				log.Println("categoriesの長さ -> ", len(got))
 				for i, g := range got[:tt.arg.compareLimit] {
 					compareCategoriesObjects(t, g, tt.want[i], ignoreFields)
 				}
@@ -103,16 +104,16 @@ func TestListCategories(t *testing.T) {
 }
 
 func TestGetCategory(t *testing.T) {
-	config, err := util.LoadConfig("../")
+	config, err := util.LoadConfig(AppEnvPath)
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}
 	c := categoriesTest{}
-	s := c.setUp(t, config)
+	ctx := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	// 認証用トークンの生成
-	accessToken := setAuthUser(t, s)
+	accessToken := setAuthUser(t, ctx)
 
 	type args struct {
 		id string
@@ -201,7 +202,7 @@ func TestGetCategory(t *testing.T) {
 			req, _ := http.NewRequest("GET", "/api/v1/admin/categories/"+tt.arg.id, nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
-			s.Router.ServeHTTP(w, req)
+			ctx.Server.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -221,16 +222,16 @@ func TestGetCategory(t *testing.T) {
 }
 
 func TestSearchCategories(t *testing.T) {
-	config, err := util.LoadConfig("../")
+	config, err := util.LoadConfig(AppEnvPath)
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}
 	c := categoriesTest{}
-	s := c.setUp(t, config)
+	ctx := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	// 認証用トークンの生成
-	accessToken := setAuthUser(t, s)
+	accessToken := setAuthUser(t, ctx)
 
 	type args struct {
 		q            string
@@ -346,7 +347,7 @@ func TestSearchCategories(t *testing.T) {
 			req, _ := http.NewRequest("GET", "/api/v1/admin/categories/search?q="+tt.arg.q, nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
-			s.Router.ServeHTTP(w, req)
+			ctx.Server.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -359,6 +360,7 @@ func TestSearchCategories(t *testing.T) {
 				ignoreFields := map[string][]string{
 					"Other": {"CreatedAt", "UpdatedAt"},
 				}
+				log.Println("categoriesの長さ -> ", len(got))
 				for i, g := range got[:tt.arg.compareLimit] {
 					compareCategoriesObjects(t, g, tt.want[i], ignoreFields)
 				}
@@ -368,16 +370,16 @@ func TestSearchCategories(t *testing.T) {
 }
 
 func TestEditParentCategory(t *testing.T) {
-	config, err := util.LoadConfig("../")
+	config, err := util.LoadConfig(AppEnvPath)
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}
 	c := categoriesTest{}
-	s := c.setUp(t, config)
+	ctx := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	// 認証用トークンの生成
-	accessToken := setAuthUser(t, s)
+	accessToken := setAuthUser(t, ctx)
 
 	type args struct {
 		ID       string
@@ -462,7 +464,7 @@ func TestEditParentCategory(t *testing.T) {
 			req.Header.Set("Content-Type", contentType)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
-			s.Router.ServeHTTP(w, req)
+			ctx.Server.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -486,16 +488,16 @@ func TestEditParentCategory(t *testing.T) {
 }
 
 func TestEditChildCategory(t *testing.T) {
-	config, err := util.LoadConfig("../")
+	config, err := util.LoadConfig(AppEnvPath)
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}
 	c := categoriesTest{}
-	s := c.setUp(t, config)
+	ctx := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	// 認証用トークンの生成
-	accessToken := setAuthUser(t, s)
+	accessToken := setAuthUser(t, ctx)
 
 	type args struct {
 		ID       string
@@ -581,7 +583,7 @@ func TestEditChildCategory(t *testing.T) {
 			req.Header.Set("Content-Type", contentType)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
-			s.Router.ServeHTTP(w, req)
+			ctx.Server.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -604,16 +606,16 @@ func TestEditChildCategory(t *testing.T) {
 	}
 }
 func TestDeleteChildCategory(t *testing.T) {
-	config, err := util.LoadConfig("../")
+	config, err := util.LoadConfig(AppEnvPath)
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}
 	c := categoriesTest{}
-	s := c.setUp(t, config)
+	ctx := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	// 認証用トークンの生成
-	accessToken := setAuthUser(t, s)
+	accessToken := setAuthUser(t, ctx)
 
 	type args struct {
 		ID string
@@ -673,7 +675,7 @@ func TestDeleteChildCategory(t *testing.T) {
 			req, _ := http.NewRequest("DELETE", "/api/v1/admin/categories/child/"+tt.arg.ID, nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
-			s.Router.ServeHTTP(w, req)
+			ctx.Server.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -714,7 +716,7 @@ func compareChildCategoryObjects(t *testing.T, got db.ChildCategory, want db.Chi
 	}
 }
 
-func (c categoriesTest) setUp(t *testing.T, config util.Config) *api.Server {
+func (c categoriesTest) setUp(t *testing.T, config util.Config) *app.AppContext {
 	store := createConn(config)
 
 	queries := []string{

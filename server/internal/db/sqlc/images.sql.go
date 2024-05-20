@@ -63,6 +63,49 @@ func (q *Queries) DeleteImage(ctx context.Context, id int64) error {
 	return err
 }
 
+const fetchRandomImage = `-- name: FetchRandomImage :many
+SELECT id, title, original_src, simple_src, updated_at, created_at, original_filename, simple_filename
+FROM images
+WHERE id IN (
+    SELECT id
+    FROM images
+    ORDER BY RANDOM()
+    LIMIT $1
+  )
+`
+
+func (q *Queries) FetchRandomImage(ctx context.Context, limit int32) ([]Image, error) {
+	rows, err := q.db.QueryContext(ctx, fetchRandomImage, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Image{}
+	for rows.Next() {
+		var i Image
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.OriginalSrc,
+			&i.SimpleSrc,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+			&i.OriginalFilename,
+			&i.SimpleFilename,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getImage = `-- name: GetImage :one
 SELECT id, title, original_src, simple_src, updated_at, created_at, original_filename, simple_filename
 FROM images

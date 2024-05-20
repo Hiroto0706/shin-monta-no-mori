@@ -1,4 +1,4 @@
-package api_test
+package admin_test
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
-	"shin-monta-no-mori/server/api"
+	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	"shin-monta-no-mori/server/pkg/util"
 	"testing"
@@ -23,16 +23,16 @@ import (
 type charactersTest struct{}
 
 func TestListCharacters(t *testing.T) {
-	config, err := util.LoadConfig("../")
+	config, err := util.LoadConfig(AppEnvPath)
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}
 	c := charactersTest{}
-	s := c.setUp(t, config)
+	ctx := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	// 認証用トークンの生成
-	accessToken := setAuthUser(t, s)
+	accessToken := setAuthUser(t, ctx)
 
 	type args struct {
 		page         string
@@ -95,12 +95,12 @@ func TestListCharacters(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// 取得するイメージの数を1にする
-			s.Config.CharacterFetchLimit = tt.arg.fetchLimit
+			ctx.Server.Config.CharacterFetchLimit = tt.arg.fetchLimit
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/characters/list?p="+tt.arg.page, nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
-			s.Router.ServeHTTP(w, req)
+			ctx.Server.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -116,7 +116,6 @@ func TestListCharacters(t *testing.T) {
 				ignoreFields := map[string][]string{
 					"Other": {"CreatedAt", "UpdatedAt"},
 				}
-				log.Println(got.Characters)
 				for i, g := range got.Characters[:tt.arg.compareLimit] {
 					compareCharactersObjects(t, g, tt.want[i], ignoreFields)
 				}
@@ -126,16 +125,16 @@ func TestListCharacters(t *testing.T) {
 }
 
 func TestSearchCharacters(t *testing.T) {
-	config, err := util.LoadConfig("../")
+	config, err := util.LoadConfig(AppEnvPath)
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}
 	c := charactersTest{}
-	s := c.setUp(t, config)
+	ctx := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	// 認証用トークンの生成
-	accessToken := setAuthUser(t, s)
+	accessToken := setAuthUser(t, ctx)
 
 	type args struct {
 		page         string
@@ -190,7 +189,7 @@ func TestSearchCharacters(t *testing.T) {
 				page:         "0",
 				query:        "not exist character name",
 				fetchLimit:   1,
-				compareLimit: 1,
+				compareLimit: 0,
 			},
 			want: []db.Character{
 				{},
@@ -216,12 +215,12 @@ func TestSearchCharacters(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// 取得するイメージの数を1にする
-			s.Config.CharacterFetchLimit = tt.arg.fetchLimit
+			ctx.Server.Config.CharacterFetchLimit = tt.arg.fetchLimit
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/admin/characters/search?p="+tt.arg.page+"&q="+tt.arg.query, nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
-			s.Router.ServeHTTP(w, req)
+			ctx.Server.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -246,16 +245,16 @@ func TestSearchCharacters(t *testing.T) {
 }
 
 func TestGetCharacter(t *testing.T) {
-	config, err := util.LoadConfig("../")
+	config, err := util.LoadConfig(AppEnvPath)
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}
 	c := charactersTest{}
-	s := c.setUp(t, config)
+	ctx := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	// 認証用トークンの生成
-	accessToken := setAuthUser(t, s)
+	accessToken := setAuthUser(t, ctx)
 
 	type args struct {
 		id string
@@ -306,7 +305,7 @@ func TestGetCharacter(t *testing.T) {
 			req, _ := http.NewRequest("GET", "/api/v1/admin/characters/"+tt.arg.id, nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
-			s.Router.ServeHTTP(w, req)
+			ctx.Server.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -329,16 +328,16 @@ func TestGetCharacter(t *testing.T) {
 }
 
 func TestEditCharacter(t *testing.T) {
-	config, err := util.LoadConfig("../")
+	config, err := util.LoadConfig(AppEnvPath)
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}
 	c := charactersTest{}
-	s := c.setUp(t, config)
+	ctx := c.setUp(t, config)
 	defer c.tearDown(t, config)
 
 	// 認証用トークンの生成
-	accessToken := setAuthUser(t, s)
+	accessToken := setAuthUser(t, ctx)
 
 	type args struct {
 		ID       string
@@ -439,7 +438,7 @@ func TestEditCharacter(t *testing.T) {
 			req.Header.Set("Content-Type", contentType)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
-			s.Router.ServeHTTP(w, req)
+			ctx.Server.Router.ServeHTTP(w, req)
 
 			require.Equal(t, tt.expectedCode, w.Code)
 
@@ -467,7 +466,7 @@ func compareCharactersObjects(t *testing.T, got db.Character, want db.Character,
 	}
 }
 
-func (c charactersTest) setUp(t *testing.T, config util.Config) *api.Server {
+func (c charactersTest) setUp(t *testing.T, config util.Config) *app.AppContext {
 	store := createConn(config)
 
 	queries := []string{
@@ -479,11 +478,6 @@ func (c charactersTest) setUp(t *testing.T, config util.Config) *api.Server {
 		(20011, 'test_character_name_20011', 'test_character_src_20011.com', 'test_character_filename_20011'),
 		(20021, 'test_character_name_20021', 'test_character_src_20021.com', 'test_character_filename_20021');
 		`),
-		// fmt.Sprintln(`
-		// INSERT INTO image_characters_relations (id, image_id, character_id)
-		// VALUES
-		// (11001, 999990, 11001);
-		// `),
 	}
 
 	for _, query := range queries {
@@ -504,7 +498,6 @@ func (c charactersTest) tearDown(t *testing.T, config util.Config) {
 
 	queries := []string{
 		"TRUNCATE TABLE characters RESTART IDENTITY CASCADE;",
-		"TRUNCATE TABLE image_characters_relations RESTART IDENTITY CASCADE;",
 		"TRUNCATE TABLE operators RESTART IDENTITY CASCADE;",
 	}
 	for _, query := range queries {

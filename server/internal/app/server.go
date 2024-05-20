@@ -1,4 +1,4 @@
-package api
+package app
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Server は、アプリケーション全体の設定、依存関係、およびルーターを保持する構造体
 type Server struct {
 	Config     util.Config
 	Store      *db.Store
@@ -16,33 +17,25 @@ type Server struct {
 	TokenMaker token.Maker
 }
 
-// NewServer creates a new HTTP server and setup routing
-func NewServer(store *db.Store, config util.Config) (*Server, error) {
-	token, err := token.NewPasetoMaker(config.TokenSymmetricKey)
-	if err != nil {
-		return nil, fmt.Errorf("cannot create token maker : %w", err)
-	}
+// NewServer は新しいサーバーインスタンスを作成
+func NewServer(config util.Config, store *db.Store, tokenMaker token.Maker) *Server {
 	server := &Server{
 		Config:     config,
 		Store:      store,
-		TokenMaker: token,
+		Router:     gin.Default(),
+		TokenMaker: tokenMaker,
 	}
 
 	router := gin.Default()
 	router.Use(CORSMiddleware())
 	server.Router = router
 
-	// Userサイドのルート設定
-	SetUserRouters(server)
-	// Adminサイドのルート設定
-	SetAdminRouters(server)
-
-	return server, nil
+	return server
 }
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// TODO: local, stg, prdで値を変更する
+		// TODO: local, stg, prdで値を変更
 		allowedOrigins := []string{"http://localhost:3000", "http://localhost:3030"}
 		origin := c.GetHeader("Origin")
 

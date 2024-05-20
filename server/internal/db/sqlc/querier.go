@@ -35,6 +35,7 @@ type Querier interface {
 	DeleteImageChildCategoryRelations(ctx context.Context, id int64) error
 	DeleteImageParentCategoryRelations(ctx context.Context, id int64) error
 	DeleteParentCategory(ctx context.Context, id int64) error
+	FetchRandomImage(ctx context.Context, limit int32) ([]Image, error)
 	GetCharacter(ctx context.Context, id int64) (Character, error)
 	GetChildCategoriesByParentID(ctx context.Context, parentID int64) ([]ChildCategory, error)
 	GetChildCategory(ctx context.Context, id int64) (ChildCategory, error)
@@ -45,12 +46,14 @@ type Querier interface {
 	ListCharacters(ctx context.Context, arg ListCharactersParams) ([]Character, error)
 	ListChildCategories(ctx context.Context, arg ListChildCategoriesParams) ([]ChildCategory, error)
 	ListImage(ctx context.Context, arg ListImageParams) ([]Image, error)
+	ListImageCharacterRelationsByCharacterIDWIthPagination(ctx context.Context, arg ListImageCharacterRelationsByCharacterIDWIthPaginationParams) ([]ImageCharactersRelation, error)
 	ListImageCharacterRelationsByImageID(ctx context.Context, imageID int64) ([]ImageCharactersRelation, error)
-	ListImageCharacterRelationsByParentCategoryID(ctx context.Context, characterID int64) ([]ImageCharactersRelation, error)
+	ListImageChildCategoryRelationsByChildCategoryID(ctx context.Context, childCategoryID int64) ([]ImageChildCategoriesRelation, error)
+	ListImageChildCategoryRelationsByChildCategoryIDWithPagination(ctx context.Context, arg ListImageChildCategoryRelationsByChildCategoryIDWithPaginationParams) ([]ImageChildCategoriesRelation, error)
 	ListImageChildCategoryRelationsByImageID(ctx context.Context, imageID int64) ([]ImageChildCategoriesRelation, error)
-	ListImageChildCategoryRelationsByParentCategoryID(ctx context.Context, childCategoryID int64) ([]ImageChildCategoriesRelation, error)
 	ListImageParentCategoryRelationsByImageID(ctx context.Context, imageID int64) ([]ImageParentCategoriesRelation, error)
 	ListImageParentCategoryRelationsByParentCategoryID(ctx context.Context, parentCategoryID int64) ([]ImageParentCategoriesRelation, error)
+	ListImageParentCategoryRelationsByParentCategoryIDWithPagination(ctx context.Context, arg ListImageParentCategoryRelationsByParentCategoryIDWithPaginationParams) ([]ImageParentCategoriesRelation, error)
 	ListParentCategories(ctx context.Context) ([]ParentCategory, error)
 	SearchCharacters(ctx context.Context, arg SearchCharactersParams) ([]Character, error)
 	SearchImages(ctx context.Context, arg SearchImagesParams) ([]Image, error)

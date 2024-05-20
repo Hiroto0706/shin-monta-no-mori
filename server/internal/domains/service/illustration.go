@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
 	"shin-monta-no-mori/server/pkg/util"
@@ -11,22 +12,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// FetchRelationInfoForIllustrations はimageと関連するcharacterやcategoryを取得する処理
 func FetchRelationInfoForIllustrations(c *gin.Context, store *db.Store, i db.Image) *model.Illustration {
 	// キャラクターの取得
 	icrs, err := store.ListImageCharacterRelationsByImageID(c, i.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
+			c.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID : %w", err)))
 		}
 
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID() : %w", err)))
+		c.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID : %w", err)))
 	}
 
 	characters := []db.Character{}
 	for _, icr := range icrs {
 		char, err := store.GetCharacter(c, icr.CharacterID)
 		if err != nil {
-			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetCharacter() : %w", err)))
+			if err == sql.ErrNoRows {
+				c.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetImage: %w", err)))
+			}
+
+			c.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 		}
 
 		characters = append(characters, char)
@@ -35,26 +41,27 @@ func FetchRelationInfoForIllustrations(c *gin.Context, store *db.Store, i db.Ima
 	// image.IDに関連するparent_categoryの取得
 	ipcrs, err := store.ListImageParentCategoryRelationsByImageID(c, i.ID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID : %w", err)))
+		c.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID : %w", err)))
 	}
 	pCates := []db.ParentCategory{}
 	for _, ipcr := range ipcrs {
 		pCate, err := store.GetParentCategory(c, ipcr.ParentCategoryID)
 		if err != nil {
-			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetParentCategory() : %w", err)))
+			c.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetParentCategory : %w", err)))
 		}
 		pCates = append(pCates, pCate)
 	}
+
 	// image.IDに関連するchild_categoryの取得
 	iccrs, err := store.ListImageChildCategoryRelationsByImageID(c, i.ID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, util.NewErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID : %w", err)))
+		c.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID : %w", err)))
 	}
 	cCates := []db.ChildCategory{}
 	for _, iccr := range iccrs {
 		cCate, err := store.GetChildCategory(c, iccr.ChildCategoryID)
 		if err != nil {
-			c.JSON(http.StatusNotFound, util.NewErrorResponse(fmt.Errorf("failed to GetChildCategory() : %w", err)))
+			c.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetChildCategory : %w", err)))
 		}
 		cCates = append(cCates, cCate)
 	}
@@ -96,12 +103,16 @@ func UploadImageSrc(c *gin.Context, config *util.Config, formKey string, filenam
 	}
 	defer file.Close()
 
-	storageService := NewGCSStorageService(*config)
+	storageService := &GCSStorageService{
+		Config: *config,
+	}
 	return storageService.UploadFile(c, file, filename, fileType, isSimple)
 }
 
 func DeleteImageSrc(c *gin.Context, config *util.Config, src string) error {
-	storageService := NewGCSStorageService(*config)
+	storageService := &GCSStorageService{
+		Config: *config,
+	}
 	return storageService.DeleteFile(c, src)
 }
 
