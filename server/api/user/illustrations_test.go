@@ -440,6 +440,400 @@ func TestSearchIllustrations(t *testing.T) {
 	}
 }
 
+func TestListIllustrationsByParentCategoryID(t *testing.T) {
+	config, err := util.LoadConfig(AppEnvPath)
+	if err != nil {
+		log.Fatal("cannot load config :", err)
+	}
+	i := illustrationTest{}
+	c := i.setUp(t, config)
+	defer i.tearDown(t, config)
+
+	type args struct {
+		p               string
+		id              string
+		imageFetchLimit int
+	}
+
+	tests := []struct {
+		name         string
+		arg          args
+		want         []model.Illustration
+		wantErr      bool
+		expectedCode int
+	}{
+		{
+			name: "正常系",
+			arg: args{
+				p:               "0",
+				id:              "23001",
+				imageFetchLimit: 1,
+			},
+			want: []model.Illustration{
+				{
+					Image: db.Image{
+						ID:          23001,
+						Title:       "test_image_title_23001",
+						OriginalSrc: "test_image_original_src_23001.com",
+						SimpleSrc: sql.NullString{
+							String: "test_image_simple_src_23001.com",
+							Valid:  true,
+						},
+						OriginalFilename: "test_image_original_filename_23001",
+					},
+					Character: []db.Character{
+						{
+							ID:   23001,
+							Name: "test_character_name_23001",
+							Src:  "test_character_src_23001.com",
+						},
+					},
+					Category: []*model.Category{
+						{
+							ParentCategory: db.ParentCategory{
+								ID:   23001,
+								Name: "test_parent_category_name_23001",
+								Src:  "test_parent_category_src_23001.com",
+							},
+							ChildCategory: []db.ChildCategory{
+								{
+									ID:       23001,
+									Name:     "test_child_category_name_23001",
+									ParentID: 23001,
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr:      false,
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "正常系（存在しないparent_idを指定している場合）",
+			arg: args{
+				p:               "0",
+				id:              "999999",
+				imageFetchLimit: 1,
+			},
+			want:         []model.Illustration{},
+			wantErr:      false,
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "異常系（idの値が不正な場合）",
+			arg: args{
+				p:               "0",
+				id:              "aaa",
+				imageFetchLimit: 0,
+			},
+			want:         []model.Illustration{},
+			wantErr:      true,
+			expectedCode: http.StatusBadRequest,
+		},
+		{
+			name: "異常系（pagerの値が不正な場合）",
+			arg: args{
+				p:               "aaa",
+				id:              "999999",
+				imageFetchLimit: 0,
+			},
+			want:         []model.Illustration{},
+			wantErr:      true,
+			expectedCode: http.StatusBadRequest,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// 取得するイメージの数を1にする
+			c.Server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/api/v1/illustrations/category/parent/"+tt.arg.id+"?p="+tt.arg.p, nil)
+
+			c.Server.Router.ServeHTTP(w, req)
+
+			require.Equal(t, tt.expectedCode, w.Code)
+
+			if tt.wantErr {
+				require.NotEmpty(t, w.Body.String())
+			} else {
+				var got []model.Illustration
+				err := json.Unmarshal(w.Body.Bytes(), &got)
+				require.NoError(t, err)
+				ignoreFields := map[string][]string{
+					"Image": {"CreatedAt", "UpdatedAt"},
+					"Other": {"CreatedAt", "UpdatedAt"},
+				}
+				for i, g := range got {
+					compareIllustrationsObjects(t, g, tt.want[i], ignoreFields)
+				}
+			}
+		})
+	}
+}
+func TestListIllustrationsByCharacterID(t *testing.T) {
+	config, err := util.LoadConfig(AppEnvPath)
+	if err != nil {
+		log.Fatal("cannot load config :", err)
+	}
+	i := illustrationTest{}
+	c := i.setUp(t, config)
+	defer i.tearDown(t, config)
+
+	type args struct {
+		p               string
+		id              string
+		imageFetchLimit int
+	}
+
+	tests := []struct {
+		name         string
+		arg          args
+		want         []model.Illustration
+		wantErr      bool
+		expectedCode int
+	}{
+		{
+			name: "正常系",
+			arg: args{
+				p:               "0",
+				id:              "24001",
+				imageFetchLimit: 1,
+			},
+			want: []model.Illustration{
+				{
+					Image: db.Image{
+						ID:          24001,
+						Title:       "test_image_title_24001",
+						OriginalSrc: "test_image_original_src_24001.com",
+						SimpleSrc: sql.NullString{
+							String: "test_image_simple_src_24001.com",
+							Valid:  true,
+						},
+						OriginalFilename: "test_image_original_filename_24001",
+					},
+					Character: []db.Character{
+						{
+							ID:   24001,
+							Name: "test_character_name_24001",
+							Src:  "test_character_src_24001.com",
+						},
+					},
+					Category: []*model.Category{
+						{
+							ParentCategory: db.ParentCategory{
+								ID:   24001,
+								Name: "test_parent_category_name_24001",
+								Src:  "test_parent_category_src_24001.com",
+							},
+							ChildCategory: []db.ChildCategory{
+								{
+									ID:       24001,
+									Name:     "test_child_category_name_24001",
+									ParentID: 24001,
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr:      false,
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "正常系（存在しないcharacter_idを指定している場合）",
+			arg: args{
+				p:               "0",
+				id:              "999999",
+				imageFetchLimit: 1,
+			},
+			want:         []model.Illustration{},
+			wantErr:      false,
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "異常系（idの値が不正な場合）",
+			arg: args{
+				p:               "0",
+				id:              "aaa",
+				imageFetchLimit: 0,
+			},
+			want:         []model.Illustration{},
+			wantErr:      true,
+			expectedCode: http.StatusBadRequest,
+		},
+		{
+			name: "異常系（pagerの値が不正な場合）",
+			arg: args{
+				p:               "aaa",
+				id:              "999999",
+				imageFetchLimit: 0,
+			},
+			want:         []model.Illustration{},
+			wantErr:      true,
+			expectedCode: http.StatusBadRequest,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// 取得するイメージの数を1にする
+			c.Server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/api/v1/illustrations/character/"+tt.arg.id+"?p="+tt.arg.p, nil)
+
+			c.Server.Router.ServeHTTP(w, req)
+
+			require.Equal(t, tt.expectedCode, w.Code)
+
+			if tt.wantErr {
+				require.NotEmpty(t, w.Body.String())
+			} else {
+				var got []model.Illustration
+				err := json.Unmarshal(w.Body.Bytes(), &got)
+				require.NoError(t, err)
+				ignoreFields := map[string][]string{
+					"Image": {"CreatedAt", "UpdatedAt"},
+					"Other": {"CreatedAt", "UpdatedAt"},
+				}
+				for i, g := range got {
+					compareIllustrationsObjects(t, g, tt.want[i], ignoreFields)
+				}
+			}
+		})
+	}
+}
+func TestListIllustrationsByChildCategoryID(t *testing.T) {
+	config, err := util.LoadConfig(AppEnvPath)
+	if err != nil {
+		log.Fatal("cannot load config :", err)
+	}
+	i := illustrationTest{}
+	c := i.setUp(t, config)
+	defer i.tearDown(t, config)
+
+	type args struct {
+		p               string
+		id              string
+		imageFetchLimit int
+	}
+
+	tests := []struct {
+		name         string
+		arg          args
+		want         []model.Illustration
+		wantErr      bool
+		expectedCode int
+	}{
+		{
+			name: "正常系",
+			arg: args{
+				p:               "0",
+				id:              "25001",
+				imageFetchLimit: 1,
+			},
+			want: []model.Illustration{
+				{
+					Image: db.Image{
+						ID:          25001,
+						Title:       "test_image_title_25001",
+						OriginalSrc: "test_image_original_src_25001.com",
+						SimpleSrc: sql.NullString{
+							String: "test_image_simple_src_25001.com",
+							Valid:  true,
+						},
+						OriginalFilename: "test_image_original_filename_25001",
+					},
+					Character: []db.Character{
+						{
+							ID:   25001,
+							Name: "test_character_name_25001",
+							Src:  "test_character_src_25001.com",
+						},
+					},
+					Category: []*model.Category{
+						{
+							ParentCategory: db.ParentCategory{
+								ID:   25001,
+								Name: "test_parent_category_name_25001",
+								Src:  "test_parent_category_src_25001.com",
+							},
+							ChildCategory: []db.ChildCategory{
+								{
+									ID:       25001,
+									Name:     "test_child_category_name_25001",
+									ParentID: 25001,
+								},
+							},
+						},
+					},
+				},
+			},
+			wantErr:      false,
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "正常系（存在しないchild_idを指定している場合）",
+			arg: args{
+				p:               "0",
+				id:              "999999",
+				imageFetchLimit: 1,
+			},
+			want:         []model.Illustration{},
+			wantErr:      false,
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "異常系（idの値が不正な場合）",
+			arg: args{
+				p:               "0",
+				id:              "aaa",
+				imageFetchLimit: 0,
+			},
+			want:         []model.Illustration{},
+			wantErr:      true,
+			expectedCode: http.StatusBadRequest,
+		},
+		{
+			name: "異常系（pagerの値が不正な場合）",
+			arg: args{
+				p:               "aaa",
+				id:              "999999",
+				imageFetchLimit: 0,
+			},
+			want:         []model.Illustration{},
+			wantErr:      true,
+			expectedCode: http.StatusBadRequest,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// 取得するイメージの数を1にする
+			c.Server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/api/v1/illustrations/category/child/"+tt.arg.id+"?p="+tt.arg.p, nil)
+
+			c.Server.Router.ServeHTTP(w, req)
+
+			require.Equal(t, tt.expectedCode, w.Code)
+
+			if tt.wantErr {
+				require.NotEmpty(t, w.Body.String())
+			} else {
+				var got []model.Illustration
+				err := json.Unmarshal(w.Body.Bytes(), &got)
+				require.NoError(t, err)
+				ignoreFields := map[string][]string{
+					"Image": {"CreatedAt", "UpdatedAt"},
+					"Other": {"CreatedAt", "UpdatedAt"},
+				}
+				for i, g := range got {
+					compareIllustrationsObjects(t, g, tt.want[i], ignoreFields)
+				}
+			}
+		})
+	}
+}
+
 func compareIllustrationsObjects(t *testing.T, got model.Illustration, want model.Illustration, ignoreFieldsMap map[string][]string) {
 	// イメージ比較
 	if d := cmp.Diff(got.Image, want.Image, cmpopts.IgnoreFields(got.Image, ignoreFieldsMap["Image"]...)); len(d) != 0 {
@@ -506,14 +900,20 @@ func (i illustrationTest) setUp(t *testing.T, config util.Config) *app.AppContex
 		(21001, 'test_image_title_21001', 'test_image_original_src_21001.com', 'test_image_simple_src_21001.com', 'test_image_original_filename_21001'),
 		(999990, 'test_image_title_999990', 'test_image_original_src_999990.com', 'test_image_simple_src_999990.com', 'test_image_original_filename_999990'),
 		(999991, 'test_image_title_999991', 'test_image_original_src_999991.com', 'test_image_simple_src_999991.com', 'test_image_original_filename_999991'),
-		(22001, 'test_image_title_22001', 'test_image_original_src_22001.com', 'test_image_simple_src_22001.com', 'test_image_original_filename_22001');
+		(22001, 'test_image_title_22001', 'test_image_original_src_22001.com', 'test_image_simple_src_22001.com', 'test_image_original_filename_22001'),
+		(23001, 'test_image_title_23001', 'test_image_original_src_23001.com', 'test_image_simple_src_23001.com', 'test_image_original_filename_23001'),
+		(24001, 'test_image_title_24001', 'test_image_original_src_24001.com', 'test_image_simple_src_24001.com', 'test_image_original_filename_24001'),
+		(25001, 'test_image_title_25001', 'test_image_original_src_25001.com', 'test_image_simple_src_25001.com', 'test_image_original_filename_25001');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO characters (id, name, src)
 		VALUES
 		(21001, 'test_character_name_21001', 'test_character_src_21001.com'),
 		(21002, 'test_character_name_21002', 'test_character_src_21002.com'),
-		(22001, 'test_character_name_22001', 'test_character_src_22001.com');
+		(22001, 'test_character_name_22001', 'test_character_src_22001.com'),
+		(23001, 'test_character_name_23001', 'test_character_src_23001.com'),
+		(24001, 'test_character_name_24001', 'test_character_src_24001.com'),
+		(25001, 'test_character_name_25001', 'test_character_src_25001.com');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_characters_relations (id, image_id, character_id)
@@ -521,14 +921,20 @@ func (i illustrationTest) setUp(t *testing.T, config util.Config) *app.AppContex
 		(21001, 999990, 21001),
 		(21002, 999991, 21001),
 		(21003, 21001, 21002),
-		(22001, 22001, 22001);
+		(22001, 22001, 22001),
+		(23001, 23001, 23001),
+		(24001, 24001, 24001),
+		(25001, 25001, 25001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO parent_categories (id, name, src)
 		VALUES
 		(21001, 'test_parent_category_name_21001', 'test_parent_category_src_21001.com'),
 		(21002, 'test_parent_category_name_21002', 'test_parent_category_src_21002.com'),
-		(22001, 'test_parent_category_name_22001', 'test_parent_category_src_22001.com');
+		(22001, 'test_parent_category_name_22001', 'test_parent_category_src_22001.com'),
+		(23001, 'test_parent_category_name_23001', 'test_parent_category_src_23001.com'),
+		(24001, 'test_parent_category_name_24001', 'test_parent_category_src_24001.com'),
+		(25001, 'test_parent_category_name_25001', 'test_parent_category_src_25001.com');
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_parent_categories_relations (id, image_id, parent_category_id)
@@ -536,19 +942,28 @@ func (i illustrationTest) setUp(t *testing.T, config util.Config) *app.AppContex
 		(21001, 999990, 21001),
 		(21002, 999991, 21001),
 		(21003, 21001, 21002),
-		(22001, 22001, 22001);
+		(22001, 22001, 22001),
+		(23001, 23001, 23001),
+		(24001, 24001, 24001),
+		(25001, 25001, 25001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO child_categories (id, name, parent_id)
 		VALUES
 		(21001, 'test_child_category_name_21001', 21001),
 		(21002, 'test_child_category_name_21002', 21002),
-		(22001, 'test_child_category_name_22001', 22001);
+		(22001, 'test_child_category_name_22001', 22001),
+		(23001, 'test_child_category_name_23001', 23001),
+		(24001, 'test_child_category_name_24001', 24001),
+		(25001, 'test_child_category_name_25001', 25001);
 		`),
 		fmt.Sprintln(`
 		INSERT INTO image_child_categories_relations (id, image_id, child_category_id)
 		VALUES
-		(22001, 22001, 22001);
+		(22001, 22001, 22001),
+		(23001, 23001, 23001),
+		(24001, 24001, 24001),
+		(25001, 25001, 25001);
 		`),
 	}
 
