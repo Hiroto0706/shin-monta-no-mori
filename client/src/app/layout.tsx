@@ -16,14 +16,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="jp">
+    <html lang="jp" className="text-gray-600">
       <body className={inter.className}>
         <Header></Header>
         <Sidebar></Sidebar>
-        <div className="pl-20 pt-20">
-          {children}
-          <BackgroundImage></BackgroundImage>
-        </div>
+        <div className="pl-20 pt-16">{children}</div>
+        <div className="background-image"></div>
       </body>
     </html>
   );

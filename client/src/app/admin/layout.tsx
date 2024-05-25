@@ -3,5 +3,5 @@ export default function AdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <div className="pl-16">{children}</div>;
+  return <div className="p-12">{children}</div>;
 }

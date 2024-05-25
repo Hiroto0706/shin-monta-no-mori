@@ -1,64 +1,48 @@
 "use client";
 
-import axios from "axios";
-import { useState, useEffect } from "react";
-// import FetchData from "@/utils/helloWorld";
+import Image from "next/image";
 
-const FetchData = async () => {
-  try {
-    const response = await axios.get(
-      "http://localhost:8080/api/v1/illustrations/list?p=0"
-    );
-    console.log(response.data);
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
+const links = [
+  {
+    href: "/admin/illustrations",
+    icon: "/icon/illustration.png",
+    text: "イラスト",
+  },
+  { href: "/admin/characters", icon: "/icon/character.png", text: "キャラ" },
+  { href: "/admin/categories", icon: "/icon/category.png", text: "カテゴリ" },
+];
 
-export default function Home() {
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await FetchData();
-      setData(result);
-    };
-    fetchData();
-  }, []);
-
+export default function TOP() {
   return (
-    <main>
-      <h1 className="m-10 text-4xl text-red-700">Hello World from admin!!</h1>
-      {data.length > 0 ? (
-        <>
-          {data.map((item) => (
-            <>
-              <div key={item.Image.id}>image : {item.Image.title}</div>
-              {item.Character.map((c) => (
-                <>
-                  <div key={c.id}>character : {c.name}</div>
-                  <br></br>
-                </>
-              ))}
-              {item.Category.map((c) => (
-                <>
-                  <div key={c.ParentCategory.id}>
-                    category.parent : {c.ParentCategory.name}
-                  </div>
-                  <br></br>
-                  <div key={c.ChildCategory[0].id}>
-                    category.child : {c.ChildCategory[0].name}
-                  </div>
-                </>
-              ))}
-            </>
+    <div>
+      <h1 className="text-4xl font-bold">管理者画面トップ</h1>
+
+      <div className="my-12">
+        <ul
+          className="
+        grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8
+        "
+        >
+          {links.map((link, index) => (
+            <li
+              key={index}
+              className="
+              p-2 border-2 border-gray-200 rounded-xl min-w-[220px] bg-white
+              "
+            >
+              <a href={link.href} className="flex items-center">
+                <Image
+                  src={link.icon}
+                  alt={`${link.text}アイコン`}
+                  height={60}
+                  width={60}
+                />
+                <span className="ml-4 font-bold text-2xl">{link.text}</span>
+              </a>
+            </li>
           ))}
-        </>
-      ) : (
-        <p>loading</p>
-      )}
-    </main>
+        </ul>
+      </div>
+    </div>
   );
 }

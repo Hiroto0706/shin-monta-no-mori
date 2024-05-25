@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .background-image {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 60vw;
+    max-width: 700px;
+    min-width: 400px;
+    height: 60vw;
+    max-width: 700px;
+    min-height: 400px;
+    background-image: url("/forest-image.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom right;
+    opacity: 0.2;
+    z-index: -1;
+  }
+}
