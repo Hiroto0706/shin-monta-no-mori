@@ -4,6 +4,7 @@ export { metadata };
 
 import Header from "@/components/common/header";
 import BackgroundImage from "@/components/common/backgroundImage";
+import Sidebar from "@/components/admin/common/sidebar";
 
 import "@/styles/globals.css";
 
@@ -18,8 +19,11 @@ export default function RootLayout({
     <html lang="jp">
       <body className={inter.className}>
         <Header></Header>
-        {children}
-        <BackgroundImage></BackgroundImage>
+        <Sidebar></Sidebar>
+        <div className="pl-20 pt-20">
+          {children}
+          <BackgroundImage></BackgroundImage>
+        </div>
       </body>
     </html>
   );
