@@ -27,7 +27,6 @@ func NewServer(config util.Config, store *db.Store, tokenMaker token.Maker) *Ser
 	}
 
 	router := gin.Default()
-	router.Use(CORSMiddleware())
 	server.Router = router
 
 	return server
