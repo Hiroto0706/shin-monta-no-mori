@@ -7,7 +7,7 @@ import (
 type (
 	Illustration struct {
 		Image     db.Image
-		Character []db.Character
+		Character []*Character
 		Category  []*Category
 	}
 )
@@ -15,7 +15,7 @@ type (
 func NewIllustration() *Illustration {
 	return &Illustration{
 		Image:     db.Image{},
-		Character: []db.Character{},
+		Character: []*Character{},
 		Category: []*Category{
 			{
 				ParentCategory: db.ParentCategory{},

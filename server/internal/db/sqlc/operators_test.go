@@ -120,7 +120,7 @@ func TestGetOperator(t *testing.T) {
 			operator1, err := testQueries.CreateOperator(context.Background(), tt.arg.params)
 			require.NoError(t, err)
 
-			operator2, err := testQueries.GetOperator(context.Background(), operator1.ID)
+			operator2, err := testQueries.GetOperatorByName(context.Background(), operator1.Name)
 
 			if tt.wantErr {
 				require.Error(t, err)

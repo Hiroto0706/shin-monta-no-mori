@@ -24,7 +24,7 @@ func FetchRelationInfoForIllustrations(c *gin.Context, store *db.Store, i db.Ima
 		c.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByImageID : %w", err)))
 	}
 
-	characters := []db.Character{}
+	characters := []*model.Character{}
 	for _, icr := range icrs {
 		char, err := store.GetCharacter(c, icr.CharacterID)
 		if err != nil {
@@ -34,8 +34,9 @@ func FetchRelationInfoForIllustrations(c *gin.Context, store *db.Store, i db.Ima
 
 			c.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 		}
+		character := &model.Character{Character: char}
 
-		characters = append(characters, char)
+		characters = append(characters, character)
 	}
 
 	// image.IDに関連するparent_categoryの取得

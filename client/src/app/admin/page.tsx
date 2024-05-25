@@ -15,7 +15,7 @@ const links = [
 export default function TOP() {
   return (
     <div>
-      <h1 className="text-4xl font-bold">管理者画面トップ</h1>
+      <h1 className="text-2xl font-bold">管理者画面トップ</h1>
 
       <div className="my-12">
         <ul
@@ -34,10 +34,10 @@ export default function TOP() {
                 <Image
                   src={link.icon}
                   alt={`${link.text}アイコン`}
-                  height={60}
-                  width={60}
+                  height={40}
+                  width={40}
                 />
-                <span className="ml-4 font-bold text-2xl">{link.text}</span>
+                <span className="ml-4 text-xl">{link.text}</span>
               </a>
             </li>
           ))}

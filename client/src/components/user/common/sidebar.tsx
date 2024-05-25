@@ -3,13 +3,16 @@
 import Image from "next/image";
 
 const links = [
-  { href: "/admin", icon: "/icon/home.png", text: "TOP" },
-  { href: "/admin/illustrations", icon: "/icon/illustration.png", text: "イラスト" },
-  { href: "/admin/characters", icon: "/icon/character.png", text: "キャラ" },
-  { href: "/admin/categories", icon: "/icon/category.png", text: "カテゴリ" },
+  {
+    href: "/illustrations",
+    icon: "/icon/illustration.png",
+    text: "イラスト",
+  },
+  { href: "/characters", icon: "/icon/character.png", text: "キャラ" },
+  { href: "/categories", icon: "/icon/category.png", text: "カテゴリ" },
 ];
 
-function AdminSidebar() {
+function UserSidebar() {
   return (
     <div className="w-20 h-full fixed inset-0 z-30 border-r-2 border-gray-200 bg-gray-50">
       <div className="pt-16">
@@ -33,4 +36,4 @@ function AdminSidebar() {
   );
 }
 
-export default AdminSidebar;
+export default UserSidebar;

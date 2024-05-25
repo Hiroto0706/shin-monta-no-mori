@@ -33,6 +33,12 @@ func SetUserRouters(s *app.Server) {
 
 func SetAdminRouters(s *app.Server) {
 	v1 := s.Router.Group("/api/v1")
+
+	auth := v1.Group("/auth")
+	{
+		auth.POST("/login", app.HandlerFuncWrapper(s, admin.Login))
+	}
+
 	adminGroup := v1.Group("/admin")
 	// ログイン認証
 	adminGroup.Use(middleware.AuthMiddleware(s.TokenMaker))

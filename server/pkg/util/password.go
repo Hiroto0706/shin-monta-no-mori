@@ -20,3 +20,12 @@ func HashPassword(password string) (string, error) {
 func CheckPassword(password string, hashedPassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
+
+// CheckPassword checks if the provider email is correct or not
+func CheckEmail(gotEmail string, email string) error {
+	if gotEmail == email {
+		return nil
+	} else {
+		return fmt.Errorf("%v is not a valid email", gotEmail)
+	}
+}

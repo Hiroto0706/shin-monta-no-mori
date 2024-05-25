@@ -22,6 +22,7 @@ type Config struct {
 	TestDBUrl            string        `mapstructure:"TEST_DB_URL"`
 	TestDBName           string        `mapstructure:"TEST_DB_NAME"`
 	MigrationURL         string        `mapstructure:"MIGRATION_URL"`
+	SeedURL              string        `mapstructure:"SEED_URL"`
 	JsonPath             string        `mapstructure:"JSON_PATH"`
 	BucketName           string        `mapstructure:"BUCKET_NAME"`
 	TokenSymmetricKey    string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
