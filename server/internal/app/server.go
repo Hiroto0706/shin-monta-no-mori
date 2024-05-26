@@ -34,21 +34,11 @@ func NewServer(config util.Config, store *db.Store, tokenMaker token.Maker) *Ser
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// TODO: local, stg, prdで値を変更
-		allowedOrigins := []string{"http://localhost:3000", "http://localhost:3030"}
-		origin := c.GetHeader("Origin")
-
-		for _, allowedOrigin := range allowedOrigins {
-			if origin == allowedOrigin {
-				c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-				c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
-				c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, multipart/form-data")
-				c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
-				c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-
-				break
-			}
-		}
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, Authorization")
+		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)

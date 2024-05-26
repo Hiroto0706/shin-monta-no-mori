@@ -3,35 +3,20 @@ package admin
 import (
 	"database/sql"
 	"net/http"
-	"time"
 
 	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	"shin-monta-no-mori/server/pkg/util"
-
-	"github.com/google/uuid"
 )
 
 type (
-	operatorResponse struct {
-		Username  string    `json:"username"`
-		Email     string    `json:"email"`
-		CreatedAt time.Time `json:"created_at"`
-	}
-
 	loginRequest struct {
-		Username string `json:"username" binding:"required,alphanum"`
 		Password string `json:"password" binding:"required,min=6"`
 		Email    string `json:"email" binding:"required,email"`
 	}
 
 	loginResponse struct {
-		SessionID             uuid.UUID        `json:"session_id"`
-		AccessToken           string           `json:"access_token"`
-		AccessTokenExpiresAt  time.Time        `json:"access_token_expires_at"`
-		RefreshToken          string           `json:"refresh_token"`
-		RefreshTokenExpiresAt time.Time        `json:"refresh_token_expires_at"`
-		Operator              operatorResponse `json:"operator"`
+		AccessToken string `json:"access_token"`
 	}
 )
 
@@ -42,7 +27,7 @@ func Login(ctx *app.AppContext) {
 		return
 	}
 
-	operator, err := ctx.Server.Store.GetOperatorByName(ctx, req.Username)
+	operator, err := ctx.Server.Store.GetOperatorByEmail(ctx, req.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, app.ErrorResponse(err))
@@ -62,7 +47,7 @@ func Login(ctx *app.AppContext) {
 	}
 
 	// アクセストークンとリフレッシュトークンを作成し、セッションに保存
-	accessToken, accessPayload, err := ctx.Server.TokenMaker.CreateToken(
+	accessToken, _, err := ctx.Server.TokenMaker.CreateToken(
 		operator.Name,
 		ctx.Server.Config.AccessTokenDuration,
 	)
@@ -80,7 +65,7 @@ func Login(ctx *app.AppContext) {
 		return
 	}
 
-	session, err := ctx.Server.Store.CreateSession(ctx, db.CreateSessionParams{
+	_, err = ctx.Server.Store.CreateSession(ctx, db.CreateSessionParams{
 		ID:           refreshPayload.ID,
 		Name:         operator.Name,
 		Email:        sql.NullString{String: req.Email, Valid: true},
@@ -93,16 +78,7 @@ func Login(ctx *app.AppContext) {
 	}
 
 	rsp := loginResponse{
-		SessionID:             session.ID,
-		AccessToken:           accessToken,
-		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
-		RefreshToken:          refreshToken,
-		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
-		Operator: operatorResponse{
-			Email:     operator.Email,
-			Username:  operator.Name,
-			CreatedAt: operator.CreatedAt,
-		},
+		AccessToken: accessToken,
 	}
 
 	ctx.JSON(http.StatusOK, rsp)

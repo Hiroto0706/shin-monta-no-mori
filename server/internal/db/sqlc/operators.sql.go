@@ -34,15 +34,15 @@ func (q *Queries) CreateOperator(ctx context.Context, arg CreateOperatorParams) 
 	return i, err
 }
 
-const getOperatorByName = `-- name: GetOperatorByName :one
+const getOperatorByEmail = `-- name: GetOperatorByEmail :one
 SELECT id, name, hashed_password, email, created_at
 FROM operators
-WHERE name = $1
+WHERE email = $1
 LIMIT 1
 `
 
-func (q *Queries) GetOperatorByName(ctx context.Context, name string) (Operator, error) {
-	row := q.db.QueryRowContext(ctx, getOperatorByName, name)
+func (q *Queries) GetOperatorByEmail(ctx context.Context, email string) (Operator, error) {
+	row := q.db.QueryRowContext(ctx, getOperatorByEmail, email)
 	var i Operator
 	err := row.Scan(
 		&i.ID,

@@ -2,10 +2,10 @@
 INSERT INTO operators (name, hashed_password, email)
 VALUES ($1, $2, $3)
 RETURNING *;
--- name: GetOperatorByName :one
+-- name: GetOperatorByEmail :one
 SELECT *
 FROM operators
-WHERE name = $1
+WHERE email = $1
 LIMIT 1;
 -- name: UpdateOperator :one
 UPDATE operators
