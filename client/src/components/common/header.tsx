@@ -23,8 +23,6 @@ export default function Header() {
             </div>
           )}
         </a>
-
-        <button>button</button>
       </nav>
     </header>
   );

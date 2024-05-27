@@ -1,17 +1,19 @@
 import axios from "axios";
 import { Illustration } from "@/types/illustration";
 import Illustrations from "@/components/admin/illustrations/illustrations";
-import { getAccessToken } from "@/utils/accessToken";
+import { GetAccessToken, SetBearerToken } from "@/utils/accessToken";
 
-const fetchIllustrations = async (): Promise<Illustration[]> => {
-  const accessToken = getAccessToken();
+const fetchIllustrations = async (
+  page: number = 0
+): Promise<Illustration[]> => {
+  const accessToken = GetAccessToken();
 
   try {
     const response = await axios.get(
-      "http://localhost:8080/api/v1/admin/illustrations/list/?p=0",
+      "http://localhost:8080/api/v1/admin/illustrations/list/?p=" + page,
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: SetBearerToken(accessToken),
         },
       }
     );
@@ -22,7 +24,13 @@ const fetchIllustrations = async (): Promise<Illustration[]> => {
   }
 };
 
-export default async function IllustrationsPage() {
-  const illustrations = await fetchIllustrations();
+export default async function IllustrationsPage({
+  searchParams,
+}: {
+  searchParams: { p: string };
+}) {
+  const page = searchParams.p ? parseInt(searchParams.p, 10) : 0;
+  console.log("page", page);
+  const illustrations = await fetchIllustrations(page);
   return <Illustrations illustrations={illustrations} />;
 }

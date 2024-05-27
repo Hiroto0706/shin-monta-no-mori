@@ -1,5 +1,5 @@
 export const Verify = () => {
-  return process.env.NEXT_PUBLIC_BASE_API + "auth/";
+  return process.env.NEXT_PUBLIC_BASE_API + "auth/verify";
 };
 
 export const AuthLogin = () => {
