@@ -36,6 +36,7 @@ func SetAdminRouters(s *app.Server) {
 
 	auth := v1.Group("/auth")
 	{
+		auth.POST("/", app.HandlerFuncWrapper(s, admin.VerifyAccessToken))
 		auth.POST("/login", app.HandlerFuncWrapper(s, admin.Login))
 	}
 

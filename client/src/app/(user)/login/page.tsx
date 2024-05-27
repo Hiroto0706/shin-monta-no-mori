@@ -19,18 +19,14 @@ export default function TOP() {
       return;
     }
 
-    // フォームの送信処理
-    console.log("Email:", email);
-    console.log("Password:", password);
-    console.log("Password Check:", passwordCheck);
     const formData = {
       email: email,
       password: password,
     };
-
     try {
-      const response = await axios.post(AuthLogin(), formData);
-      localStorage.setItem("access_token", response.data.access_token);
+      const response = await axios.post(AuthLogin(), formData, {
+        withCredentials: true,
+      });
       router.push("/admin");
     } catch (error: any) {
       if (error.code === "ERR_NETWORK") {

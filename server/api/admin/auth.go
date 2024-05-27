@@ -3,10 +3,13 @@ package admin
 import (
 	"database/sql"
 	"net/http"
+	"time"
 
 	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	"shin-monta-no-mori/server/pkg/util"
+
+	"github.com/gin-gonic/gin"
 )
 
 type (
@@ -77,9 +80,42 @@ func Login(ctx *app.AppContext) {
 		return
 	}
 
+	// クッキーにトークンを設定
+	cookie := &http.Cookie{
+		Name:     "access_token",
+		Value:    accessToken,
+		Path:     "/",
+		Expires:  time.Now().Add(ctx.Server.Config.AccessTokenDuration),
+		HttpOnly: true,
+		Secure:   true,
+	}
+	if ctx.Server.Config.Environment == "dev" {
+		cookie.Secure = false
+	}
+	http.SetCookie(ctx.Writer, cookie)
+
 	rsp := loginResponse{
 		AccessToken: accessToken,
 	}
 
 	ctx.JSON(http.StatusOK, rsp)
+}
+
+type verifyRequest struct {
+	AccessToken string `form:"access_token" binding:"required"`
+}
+
+func VerifyAccessToken(ctx *app.AppContext) {
+	var req verifyRequest
+	if err := ctx.ShouldBind(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
+		return
+	}
+	_, err := ctx.Server.TokenMaker.VerifyToken(req.AccessToken)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, app.ErrorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"result": true})
 }
