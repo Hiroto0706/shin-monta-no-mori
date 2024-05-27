@@ -31,6 +31,10 @@ func main() {
 	runDBMigration(config.MigrationURL, config.DBUrl)
 
 	store := db.NewStore(conn)
+	// DBのシードファイルを実行
+	if config.Environment == "dev" {
+		util.Seeding(store)
+	}
 	token, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		log.Fatal("cannot create token maker : %w", err)

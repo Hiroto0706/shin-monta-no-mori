@@ -72,11 +72,13 @@ func TestListIllustrations(t *testing.T) {
 						},
 						OriginalFilename: "test_image_original_filename_999991",
 					},
-					Character: []db.Character{
+					Character: []*model.Character{
 						{
-							ID:   11001,
-							Name: "test_character_name_11001",
-							Src:  "test_character_src_11001.com",
+							Character: db.Character{
+								ID:   11001,
+								Name: "test_character_name_11001",
+								Src:  "test_character_src_11001.com",
+							},
 						},
 					},
 					Category: []*model.Category{
@@ -118,11 +120,13 @@ func TestListIllustrations(t *testing.T) {
 						},
 						OriginalFilename: "test_image_original_filename_999990",
 					},
-					Character: []db.Character{
+					Character: []*model.Character{
 						{
-							ID:   11001,
-							Name: "test_character_name_11001",
-							Src:  "test_character_src_11001.com",
+							Character: db.Character{
+								ID:   11001,
+								Name: "test_character_name_11001",
+								Src:  "test_character_src_11001.com",
+							},
 						},
 					},
 					Category: []*model.Category{
@@ -235,11 +239,13 @@ func TestGetIllustration(t *testing.T) {
 					},
 					OriginalFilename: "test_image_original_filename_11001",
 				},
-				Character: []db.Character{
+				Character: []*model.Character{
 					{
-						ID:   11002,
-						Name: "test_character_name_11002",
-						Src:  "test_character_src_11002.com",
+						Character: db.Character{
+							ID:   11002,
+							Name: "test_character_name_11002",
+							Src:  "test_character_src_11002.com",
+						},
 					},
 				},
 				Category: []*model.Category{
@@ -351,11 +357,13 @@ func TestSearchIllustrations(t *testing.T) {
 						},
 						OriginalFilename: "test_image_original_filename_12001",
 					},
-					Character: []db.Character{
+					Character: []*model.Character{
 						{
-							ID:   12001,
-							Name: "test_character_name_12001",
-							Src:  "test_character_src_12001.com",
+							Character: db.Character{
+								ID:   12001,
+								Name: "test_character_name_12001",
+								Src:  "test_character_src_12001.com",
+							},
 						},
 					},
 					Category: []*model.Category{
@@ -389,7 +397,7 @@ func TestSearchIllustrations(t *testing.T) {
 			want: []model.Illustration{
 				{
 					Image:     db.Image{},
-					Character: []db.Character{},
+					Character: []*model.Character{},
 					Category: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{},
@@ -411,7 +419,7 @@ func TestSearchIllustrations(t *testing.T) {
 			want: []model.Illustration{
 				{
 					Image:     db.Image{},
-					Character: []db.Character{},
+					Character: []*model.Character{},
 					Category: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{},
@@ -646,16 +654,20 @@ func TestEditIllustration(t *testing.T) {
 					Title:            "test_image_title_14001_edited",
 					OriginalFilename: "test_image_original_filename_14001",
 				},
-				Character: []db.Character{
+				Character: []*model.Character{
 					{
-						ID:   14001,
-						Name: "test_character_name_14001",
-						Src:  "test_character_src_14001.com",
+						Character: db.Character{
+							ID:   14001,
+							Name: "test_character_name_14001",
+							Src:  "test_character_src_14001.com",
+						},
 					},
 					{
-						ID:   14002,
-						Name: "test_character_name_14002",
-						Src:  "test_character_src_14002.com",
+						Character: db.Character{
+							ID:   14002,
+							Name: "test_character_name_14002",
+							Src:  "test_character_src_14002.com",
+						},
 					},
 				},
 				Category: []*model.Category{
@@ -816,7 +828,7 @@ func compareIllustrationsObjects(t *testing.T, got model.Illustration, want mode
 
 	// キャラクター比較
 	for i, gch := range got.Character {
-		if d := cmp.Diff(gch, want.Character[i], cmpopts.IgnoreFields(gch, ignoreFieldsMap["Other"]...)); len(d) != 0 {
+		if d := cmp.Diff(gch.Character, want.Character[i].Character, cmpopts.IgnoreFields(gch.Character, ignoreFieldsMap["Other"]...)); len(d) != 0 {
 			t.Errorf("differs: (-got +want)\n%s", d)
 		}
 	}

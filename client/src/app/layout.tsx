@@ -3,8 +3,7 @@ import { metadata } from "@/components/common/metaData";
 export { metadata };
 
 import Header from "@/components/common/header";
-import BackgroundImage from "@/components/common/backgroundImage";
-import Sidebar from "@/components/admin/common/sidebar";
+import Sidebar from "@/components/common/sidebar";
 
 import "@/styles/globals.css";
 
