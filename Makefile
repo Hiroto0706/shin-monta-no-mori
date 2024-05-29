@@ -57,6 +57,10 @@ dc-down:
 serve:
 	cd ./server && air -c .air.toml
 
+.PHONY: front
+front:
+	cd ./client && npm run dev
+
 .PHONY: sqlc
 sqlc:
 	cd server/ && sqlc generate

@@ -30,7 +30,6 @@ export default async function IllustrationsPage({
   searchParams: { p: string };
 }) {
   const page = searchParams.p ? parseInt(searchParams.p, 10) : 0;
-  console.log("page", page);
   const illustrations = await fetchIllustrations(page);
   return <Illustrations illustrations={illustrations} />;
 }

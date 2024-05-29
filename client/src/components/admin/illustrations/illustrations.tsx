@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Illustration } from "@/types/illustration";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface IllustrationsProps {
   illustrations: Illustration[];
@@ -13,6 +13,30 @@ export default function Illustrations({ illustrations }: IllustrationsProps) {
   const [categories, setCategories] = useState<number[]>([]);
   const [showCharacterModal, setShowCharacterModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        (event.target as HTMLElement).closest(".character-modal") === null &&
+        (event.target as HTMLElement).closest(".character-modal-content") ===
+          null
+      ) {
+        setShowCharacterModal(false);
+      }
+      if (
+        (event.target as HTMLElement).closest(".category-modal") === null &&
+        (event.target as HTMLElement).closest(".category-modal-content") ===
+          null
+      ) {
+        setShowCategoryModal(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleCharacterSelect = (id: number) => {
     setCharacters((prev) => {
@@ -40,7 +64,7 @@ export default function Illustrations({ illustrations }: IllustrationsProps) {
     <div>
       <div className="flex flex-col flex-col-reverse lg:flex-row justify-between">
         <form className="lg:flex">
-          <div className="lg:mr-4 mb-6 lg:mb-0 w-full lg:w-auto">
+          <div className="lg:mr-3 mb-6 lg:mb-0 w-full lg:w-auto">
             <input
               type="text"
               placeholder="タイトル検索"
@@ -48,56 +72,80 @@ export default function Illustrations({ illustrations }: IllustrationsProps) {
             />
           </div>
 
-          <div className="lg:mr-4 mb-6 lg:mb-0 relative">
+          <div className="lg:mr-3 mb-6 lg:mb-0 relative">
             <div
               onClick={() => setShowCharacterModal(!showCharacterModal)}
-              className="border-2 border-gray-200 py-2 px-4 rounded bg-white flex justify-between"
+              className="border-2 border-gray-200 py-2 px-4 rounded bg-white flex justify-between cursor-pointer w-full lg:w-44 character-modal"
             >
-              <span className="mr-8">キャラクター</span>
-              <span
+              <span>キャラクター</span>
+              <Image
                 className={!showCharacterModal ? `-rotate-90` : `rotate-90`}
-              >
-                &lt;
-              </span>
+                src="/icon/arrow.png"
+                alt="arrowアイコン"
+                width={20}
+                height={20}
+              />
             </div>
             {showCharacterModal && (
-              <div className="absolute top-12 bg-white border-2 border-gray-300 p-4 rounded w-48 z-50">
+              <div className="absolute top-12 bg-white border-2 border-gray-300 p-4 rounded w-48 z-50 shadow-md character-modal-content">
                 {[1, 2, 3].map((charId) => (
-                  <div key={charId} className="flex items-center mb-2">
+                  <div
+                    key={charId}
+                    className="flex items-center mb-2 rounded hover:bg-gray-200 cursor-pointer"
+                  >
                     <input
                       type="checkbox"
                       checked={characters.includes(charId)}
                       onChange={() => handleCharacterSelect(charId)}
-                      className="12"
+                      className="mx-2 cursor-pointer"
+                      id={`character-${charId}`}
                     />
-                    <label>Character {charId}</label>
+                    <label
+                      htmlFor={`character-${charId}`}
+                      className="cursor-pointer"
+                    >
+                      Character {charId}
+                    </label>
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          <div className="lg:mr-4 mb-6 lg:mb-0 relative">
+          <div className="lg:mr-3 mb-6 lg:mb-0 relative">
             <div
               onClick={() => setShowCategoryModal(!showCategoryModal)}
-              className="border-2 border-gray-200 py-2 px-4 rounded bg-white flex justify-between"
+              className="border-2 border-gray-200 py-2 px-4 rounded bg-white flex justify-between cursor-pointer w-full lg:w-44 category-modal"
             >
-              <span className="mr-8">カテゴリ</span>
-              <span className={!showCategoryModal ? `-rotate-90` : `rotate-90`}>
-                &lt;
-              </span>
+              <span>カテゴリ</span>
+              <Image
+                className={!showCategoryModal ? `-rotate-90` : `rotate-90`}
+                src="/icon/arrow.png"
+                alt="arrowアイコン"
+                width={20}
+                height={20}
+              />
             </div>
             {showCategoryModal && (
-              <div className="absolute top-12 bg-white border-2 border-gray-300 p-4 rounded w-48 z-50">
+              <div className="absolute top-12 bg-white border-2 border-gray-300 p-4 rounded w-48 z-50 shadow-md  category-modal-content">
                 {[1, 2, 3].map((cateId) => (
-                  <div key={cateId} className="flex items-center mb-2">
+                  <div
+                    key={cateId}
+                    className="flex items-center mb-2 rounded hover:bg-gray-200 cursor-pointer"
+                  >
                     <input
                       type="checkbox"
                       checked={categories.includes(cateId)}
                       onChange={() => handleCategoriesSelect(cateId)}
-                      className="mr-2"
+                      className="mx-2 cursor-pointer"
+                      id={`category-${cateId}`}
                     />
-                    <label>Category {cateId}</label>
+                    <label
+                      htmlFor={`category-${cateId}`}
+                      className="cursor-pointer"
+                    >
+                      Category {cateId}
+                    </label>
                   </div>
                 ))}
               </div>
@@ -117,7 +165,7 @@ export default function Illustrations({ illustrations }: IllustrationsProps) {
 
         <a
           href="illustrations/new"
-          className="flex items-center bg-green-600 text-white py-2.5 px-4 font-bold rounded-md mb-6 ml-auto lg:mb-0 w-40 justify-center"
+          className="flex items-center bg-green-600 text-white py-2.5 font-bold rounded-md mb-6 ml-auto lg:mb-0 w-36 justify-center"
         >
           + イラスト追加
         </a>
