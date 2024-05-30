@@ -17,16 +17,16 @@ const links = [
     icon_active: "/icon/illustration-active.png",
     text: "イラスト",
     sublinks: [
-      {
-        href: "/admin/illustrations/new",
-        icon: "/icon/create.png",
-        text: "新規作成",
-      },
-      {
-        href: "/admin/illustrations/",
-        icon: "/icon/list.png",
-        text: "一覧",
-      },
+      // {
+      //   href: "/admin/illustrations/new",
+      //   icon: "/icon/create.png",
+      //   text: "新規作成",
+      // },
+      // {
+      //   href: "/admin/illustrations/",
+      //   icon: "/icon/list.png",
+      //   text: "一覧",
+      // },
     ],
   },
   {
@@ -34,36 +34,14 @@ const links = [
     icon: "/icon/character.png",
     icon_active: "/icon/character-active.png",
     text: "キャラ",
-    sublinks: [
-      {
-        href: "/admin/characters/new",
-        icon: "/icon/create.png",
-        text: "新規作成",
-      },
-      {
-        href: "/admin/characters/",
-        icon: "/icon/list.png",
-        text: "一覧",
-      },
-    ],
+    sublinks: [],
   },
   {
     href: "/admin/categories",
     icon: "/icon/category.png",
     icon_active: "/icon/category-active.png",
     text: "カテゴリ",
-    sublinks: [
-      {
-        href: "/admin/categories/new",
-        icon: "/icon/create.png",
-        text: "新規作成",
-      },
-      {
-        href: "/admin/categories/",
-        icon: "/icon/list.png",
-        text: "一覧",
-      },
-    ],
+    sublinks: [],
   },
 ];
 
@@ -74,14 +52,12 @@ function AdminSidebar() {
     <>
       {links.map((link, index) => {
         const isActive =
-          pathname === link.href ||
-          link.sublinks.some((sublink) => pathname.startsWith(sublink.href));
+          pathname === link.href;
 
         return (
           <li
-            className={`mt-4 ${
-              isActive ? "" : "hover:opacity-50"
-            }`}
+            className={`mt-4 ${isActive ? "" : "hover:opacity-50"
+              }`}
             key={index}
           >
             <a href={link.href} className="flex flex-col items-center">
@@ -98,7 +74,7 @@ function AdminSidebar() {
               >
                 {link.text}
               </span>
-              {isActive && link.sublinks.length > 0 && (
+              {/* {isActive && link.sublinks.length > 0 && (
                 <ul className="mt-4 pt-4 bg-gray-200 w-20 flex flex-col items-center">
                   {link.sublinks.map((sublink, subIndex) => (
                     <li key={subIndex} className="hover:opacity-50 mb-4">
@@ -117,7 +93,7 @@ function AdminSidebar() {
                     </li>
                   ))}
                 </ul>
-              )}
+              )} */}
             </a>
           </li>
         );
