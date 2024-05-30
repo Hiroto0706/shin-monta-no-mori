@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 
 const links = [
   {
@@ -37,12 +36,12 @@ const links = [
     text: "キャラ",
     sublinks: [
       {
-        href: "/admin/illustrations/new",
+        href: "/admin/characters/new",
         icon: "/icon/create.png",
         text: "新規作成",
       },
       {
-        href: "/admin/illustrations/",
+        href: "/admin/characters/",
         icon: "/icon/list.png",
         text: "一覧",
       },
@@ -55,12 +54,12 @@ const links = [
     text: "カテゴリ",
     sublinks: [
       {
-        href: "/admin/illustrations/new",
+        href: "/admin/categories/new",
         icon: "/icon/create.png",
         text: "新規作成",
       },
       {
-        href: "/admin/illustrations/",
+        href: "/admin/categories/",
         icon: "/icon/list.png",
         text: "一覧",
       },
@@ -73,47 +72,56 @@ function AdminSidebar() {
 
   return (
     <>
-      {links.map((link, index) => (
-        <li className="mt-4" key={index}>
-          <a href={link.href} className="flex flex-col items-center">
-            <Image
-              src={pathname == link.href ? link.icon_active : link.icon}
-              alt={`${link.text}アイコン`}
-              height={36}
-              width={36}
-            />
-            <span
-              className={
-                pathname == link.href
-                  ? `text-green-600 font-bold`
-                  : `text-gray-600` + `text-xs`
-              }
-            >
-              {link.text}
-            </span>
-            {pathname === link.href && link.sublinks.length > 0 && (
-              <ul className="mt-2 pt-4 bg-gray-200 w-20 flex flex-col items-center">
-                {link.sublinks.map((sublink, subIndex) => (
-                  <li key={subIndex} className="hover:opacity-50 mb-4 ">
-                    <a
-                      href={sublink.href}
-                      className="text-gray-600 text-xs flex flex-col items-center"
-                    >
-                      <Image
-                        src={sublink.icon}
-                        alt={`${sublink.text}アイコン`}
-                        height={32}
-                        width={32}
-                      />
-                      <span>{sublink.text}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </a>
-        </li>
-      ))}
+      {links.map((link, index) => {
+        const isActive =
+          pathname === link.href ||
+          link.sublinks.some((sublink) => pathname.startsWith(sublink.href));
+
+        return (
+          <li
+            className={`mt-4 ${
+              isActive ? "" : "hover:opacity-50"
+            }`}
+            key={index}
+          >
+            <a href={link.href} className="flex flex-col items-center">
+              <Image
+                src={isActive ? link.icon_active : link.icon}
+                alt={`${link.text}アイコン`}
+                height={36}
+                width={36}
+              />
+              <span
+                className={`text-xs mt-1
+                  ${isActive ? `text-green-600 font-bold` : `text-gray-600`}
+                `}
+              >
+                {link.text}
+              </span>
+              {isActive && link.sublinks.length > 0 && (
+                <ul className="mt-4 pt-4 bg-gray-200 w-20 flex flex-col items-center">
+                  {link.sublinks.map((sublink, subIndex) => (
+                    <li key={subIndex} className="hover:opacity-50 mb-4">
+                      <a
+                        href={sublink.href}
+                        className="text-gray-600 text-xs flex flex-col items-center"
+                      >
+                        <Image
+                          src={sublink.icon}
+                          alt={`${sublink.text}アイコン`}
+                          height={32}
+                          width={32}
+                        />
+                        <span className="mt-1">{sublink.text}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </a>
+          </li>
+        );
+      })}
     </>
   );
 }
