@@ -17,16 +17,12 @@ const links = [
     icon_active: "/icon/illustration-active.png",
     text: "イラスト",
     sublinks: [
-      // {
-      //   href: "/admin/illustrations/new",
-      //   icon: "/icon/create.png",
-      //   text: "新規作成",
-      // },
-      // {
-      //   href: "/admin/illustrations/",
-      //   icon: "/icon/list.png",
-      //   text: "一覧",
-      // },
+      {
+        href: "/admin/illustrations/new",
+      },
+      {
+        href: "/admin/illustrations/",
+      },
     ],
   },
   {
@@ -52,12 +48,14 @@ function AdminSidebar() {
     <>
       {links.map((link, index) => {
         const isActive =
-          pathname === link.href;
+          pathname === link.href ||
+          link.sublinks.some((sublink) => pathname.startsWith(sublink.href));
 
         return (
           <li
-            className={`mt-4 ${isActive ? "" : "hover:opacity-50"
-              }`}
+            className={`mt-4 p-1 w-16 duration-200 rounded-lg ${
+              isActive ? "" : "hover:bg-gray-200"
+            }`}
             key={index}
           >
             <a href={link.href} className="flex flex-col items-center">

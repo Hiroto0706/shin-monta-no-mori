@@ -68,7 +68,9 @@ func ListCategories(ctx *app.AppContext) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, categories)
+	ctx.JSON(http.StatusOK, gin.H{
+		"categories": categories,
+	})
 }
 
 // GetCategory godoc
