@@ -19,6 +19,7 @@ const fetchIllustrations = async (
         },
       }
     );
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -57,7 +58,6 @@ const fetchCategories = async (): Promise<Category[]> => {
         },
       }
     );
-    console.log(response.data.categories);
     return response.data.categories;
   } catch (error) {
     console.error(error);
@@ -71,9 +71,9 @@ export default async function IllustrationsPage({
   searchParams: { p: string };
 }) {
   const page = searchParams.p ? parseInt(searchParams.p, 10) : 0;
-  const illustrations = await fetchIllustrations(page);
-  const characters = await fetchCharacters(page);
-  const categories = await fetchCategories();
+  const illustrations: Illustration[] = await fetchIllustrations(page);
+  const characters: Character[] = await fetchCharacters(page);
+  const categories: Category[] = await fetchCategories();
   return (
     <Illustrations
       illustrations={illustrations}

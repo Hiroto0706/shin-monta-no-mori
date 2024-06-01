@@ -82,8 +82,8 @@ func FetchRelationInfoForIllustrations(c *gin.Context, store *db.Store, i db.Ima
 	il := model.NewIllustration()
 
 	il.Image = i
-	il.Character = characters
-	il.Category = categories
+	il.Characters = characters
+	il.Categories = categories
 
 	return il
 }
