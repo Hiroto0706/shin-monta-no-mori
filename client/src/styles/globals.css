@@ -20,4 +20,8 @@
     opacity: 0.2;
     z-index: -1;
   }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }

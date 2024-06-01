@@ -4,6 +4,7 @@ import { Illustration } from "@/types/illustration";
 import SearchBox from "./searcBox";
 import { Character } from "@/types/character";
 import { Category } from "@/types/category";
+import ItemsList from "./itemsList";
 
 type Props = {
   illustrations: Illustration[];
@@ -31,19 +32,7 @@ const Illustrations: React.FC<Props> = ({
         categories={categories}
       />
 
-      <div className="my-12">
-        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {illustrations.map((illustration, index) => (
-            <li key={index} className="p-2 border-2 border-gray-200 rounded-xl">
-              <div className="flex items-center">
-                <span className="ml-4 font-bold text-2xl">
-                  {illustration.Image.title}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <ItemsList illustrations={illustrations} />
     </div>
   );
 };

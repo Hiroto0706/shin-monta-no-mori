@@ -16,7 +16,7 @@ LIMIT 1;
 -- name: ListImage :many
 SELECT *
 FROM images
-ORDER BY id DESC
+ORDER BY id ASC
 LIMIT $1 OFFSET $2;
 -- name: UpdateImage :one
 UPDATE images

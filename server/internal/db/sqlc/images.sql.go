@@ -132,7 +132,7 @@ func (q *Queries) GetImage(ctx context.Context, id int64) (Image, error) {
 const listImage = `-- name: ListImage :many
 SELECT id, title, original_src, simple_src, updated_at, created_at, original_filename, simple_filename
 FROM images
-ORDER BY id DESC
+ORDER BY id ASC
 LIMIT $1 OFFSET $2
 `
 

@@ -18,11 +18,14 @@ const SearchBox: React.FC<Props> = ({
   characters,
   categories,
 }) => {
+  const displayLimit = 4;
   const charactersIDs = characters.map((c) => c.id);
   const [checkedCharactersIDs, setCheckedCharactersIDs] = useState<number[]>(
     []
   );
-  const categoriesIDs = categories.map((c) => c.id);
+  const categoriesIDs = categories.flatMap((c) =>
+    c.ChildCategory.map((child) => child.id)
+  );
   const [checkedCategoriesIDs, setCheckedCategoriesIDs] = useState<number[]>(
     []
   );
@@ -86,12 +89,30 @@ const SearchBox: React.FC<Props> = ({
           />
         </div>
 
-        <div className="lg:mr-3 mb-6 lg:mb-0 relative w-1/2 lg:w-44">
+        <div className="pr-2 lg:pr-0 lg:mr-3 mb-6 lg:mb-0 relative w-1/2 lg:w-52">
           <div
             onClick={() => setShowCharacterModal(!showCharacterModal)}
             className="border-2 border-gray-200 py-2 px-4 rounded bg-white flex justify-between cursor-pointer character-modal"
           >
-            <span>キャラクター</span>
+            <div>
+              {checkedCharactersIDs.length > 0 ? (
+                <div>
+                  {checkedCharactersIDs.slice(0, displayLimit).map((id) => (
+                    <span
+                      key={id}
+                      className="bg-gray-200 px-1 mr-1 rounded border-2 border-gray-400"
+                    >
+                      {id}
+                    </span>
+                  ))}
+                  {checkedCharactersIDs.length > displayLimit && (
+                    <span>...</span>
+                  )}
+                </div>
+              ) : (
+                <span>キャラクター</span>
+              )}
+            </div>
             <Image
               className={`duration-100 ${
                 !showCharacterModal ? "rotate-90" : "-rotate-90"
@@ -128,12 +149,30 @@ const SearchBox: React.FC<Props> = ({
           )}
         </div>
 
-        <div className="lg:mr-3 mb-6 lg:mb-0 relative w-1/2 lg:w-44">
+        <div className="pl-2 lg:pl-0 lg:mr-3 mb-6 lg:mb-0 relative w-1/2 lg:w-52">
           <div
             onClick={() => setShowCategoryModal(!showCategoryModal)}
             className="border-2 border-gray-200 py-2 px-4 rounded bg-white flex justify-between cursor-pointer category-modal"
           >
-            <span>カテゴリ</span>
+            <div>
+              {checkedCategoriesIDs.length > 0 ? (
+                <div>
+                  {checkedCategoriesIDs.slice(0, displayLimit).map((id) => (
+                    <span
+                      key={id}
+                      className="bg-gray-200 px-1 mr-1 rounded border-2 border-gray-400"
+                    >
+                      {id}
+                    </span>
+                  ))}
+                  {checkedCategoriesIDs.length > displayLimit && (
+                    <span>...</span>
+                  )}
+                </div>
+              ) : (
+                <span>子カテゴリ</span>
+              )}
+            </div>{" "}
             <Image
               className={`duration-100 ${
                 !showCategoryModal ? "rotate-90" : "-rotate-90"
@@ -162,7 +201,15 @@ const SearchBox: React.FC<Props> = ({
                     htmlFor={`category-${cateId}`}
                     className="cursor-pointer"
                   >
-                    {truncateText(characters.find((c) => c.id == cateId)?.name)}{" "}
+                    {truncateText(
+                      categories
+                        .flatMap(
+                          (c) =>
+                            c.ChildCategory.find((cc) => cc.id == cateId)
+                              ?.name || ""
+                        )
+                        .join("")
+                    )}
                   </label>
                 </div>
               ))}
@@ -170,8 +217,8 @@ const SearchBox: React.FC<Props> = ({
           )}
         </div>
 
-        <button className="flex justify-center items-center lg:justify-start bg-green-600 text-white rounded-md font-bold py-2 pl-3 pr-2 lg:mb-0 w-full lg:w-auto hover:opacity-70 duration-200">
-          <span className="mr-2">検索</span>
+        <button className="flex justify-center items-center lg:justify-start bg-green-600 text-white rounded-md font-bold py-2 pl-4 pr-3 lg:mb-0 w-full lg:w-auto hover:opacity-70 duration-200">
+          <span className="mr-1">検索</span>
           <Image
             src="/icon/search.png"
             alt="searchアイコン"
