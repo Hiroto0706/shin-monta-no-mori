@@ -6,11 +6,7 @@ type Props = {
   illustrations: Illustration[];
 };
 
-const ItemsList: React.FC<Props> = ({ illustrations }) => {
-  console.log(illustrations);
-  console.log(illustrations.map((i) => i.Characters));
-  console.log(illustrations.map((i) => i.Categories));
-
+const ListTable: React.FC<Props> = ({ illustrations }) => {
   return (
     <div className="my-12 w-full bg-white overflow-x-auto rounded-lg border-2 border-gray-200 scrollbar-hide">
       <table className="table-auto min-w-max w-full">
@@ -108,4 +104,4 @@ const ItemsList: React.FC<Props> = ({ illustrations }) => {
   );
 };
 
-export default ItemsList;
+export default ListTable;

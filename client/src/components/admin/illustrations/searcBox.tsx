@@ -74,25 +74,21 @@ const SearchBox: React.FC<Props> = ({
     });
   };
 
-  if (!illustrations || illustrations.length === 0) {
-    return <div>No illustrations available</div>;
-  }
-
   return (
     <div className="flex flex-col flex-col-reverse lg:flex-row justify-between">
       <form className="flex flex-wrap">
-        <div className="lg:mr-3 mb-6 lg:mb-0 w-full lg:w-auto">
+        <div className="lg:mr-3 mb-6 lg:mb-0 w-full lg:w-72">
           <input
             type="text"
             placeholder="タイトル検索"
-            className="border-2 border-gray-200 py-2 px-4 rounded-md w-full"
+            className="border-2 border-gray-200 py-3 px-4 rounded-md w-full"
           />
         </div>
 
         <div className="pr-2 lg:pr-0 lg:mr-3 mb-6 lg:mb-0 relative w-1/2 lg:w-52">
           <div
             onClick={() => setShowCharacterModal(!showCharacterModal)}
-            className="border-2 border-gray-200 py-2 px-4 rounded bg-white flex justify-between cursor-pointer character-modal"
+            className="border-2 border-gray-200 py-3 px-4 rounded bg-white flex justify-between cursor-pointer character-modal"
           >
             <div>
               {checkedCharactersIDs.length > 0 ? (
@@ -152,7 +148,7 @@ const SearchBox: React.FC<Props> = ({
         <div className="pl-2 lg:pl-0 lg:mr-3 mb-6 lg:mb-0 relative w-1/2 lg:w-52">
           <div
             onClick={() => setShowCategoryModal(!showCategoryModal)}
-            className="border-2 border-gray-200 py-2 px-4 rounded bg-white flex justify-between cursor-pointer category-modal"
+            className="border-2 border-gray-200 py-3 px-4 rounded bg-white flex justify-between cursor-pointer category-modal"
           >
             <div>
               {checkedCategoriesIDs.length > 0 ? (

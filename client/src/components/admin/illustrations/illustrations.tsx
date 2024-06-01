@@ -4,7 +4,7 @@ import { Illustration } from "@/types/illustration";
 import SearchBox from "./searcBox";
 import { Character } from "@/types/character";
 import { Category } from "@/types/category";
-import ItemsList from "./itemsList";
+import ListTable from "@/components/admin/illustrations/listTable";
 
 type Props = {
   illustrations: Illustration[];
@@ -32,7 +32,7 @@ const Illustrations: React.FC<Props> = ({
         categories={categories}
       />
 
-      <ItemsList illustrations={illustrations} />
+      <ListTable illustrations={illustrations} />
     </div>
   );
 };
