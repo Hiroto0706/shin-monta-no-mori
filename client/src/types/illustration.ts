@@ -23,3 +23,10 @@ export interface Illustration {
   Characters: { Character: Character }[];
   Categories: Category[];
 }
+
+// fetchIllustrations で期待する型
+export interface FetchIllustrationsResponse {
+  illustrations: Illustration[];
+  total_pages: number;
+  total_count: number;
+}

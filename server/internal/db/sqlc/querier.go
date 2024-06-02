@@ -12,6 +12,7 @@ import (
 )
 
 type Querier interface {
+	CountImages(ctx context.Context) (int64, error)
 	CreateCharacter(ctx context.Context, arg CreateCharacterParams) (Character, error)
 	CreateChildCategory(ctx context.Context, arg CreateChildCategoryParams) (ChildCategory, error)
 	CreateImage(ctx context.Context, arg CreateImageParams) (Image, error)

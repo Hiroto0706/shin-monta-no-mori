@@ -1,12 +1,13 @@
-import { Illustration } from "@/types/illustration";
+import { FetchIllustrationsResponse } from "@/types/illustration";
 import { formatDate, truncateText } from "@/utils/text";
 import Image from "next/image";
 
 type Props = {
-  illustrations: Illustration[];
+  illustrations: FetchIllustrationsResponse;
 };
 
 const ListTable: React.FC<Props> = ({ illustrations }) => {
+  const maxTextLength = 15;
   return (
     <div className="my-12 w-full bg-white overflow-x-auto rounded-lg border-2 border-gray-200 scrollbar-hide">
       <table className="table-auto min-w-max w-full">
@@ -23,8 +24,8 @@ const ListTable: React.FC<Props> = ({ illustrations }) => {
           </tr>
         </thead>
         <tbody>
-          {illustrations.map((illustration, index) => (
-            <tr key={index} className="border-2 border-gray-100">
+          {illustrations.illustrations.map((illustration, index) => (
+            <tr key={index} className="border-2 border-gray-100 cursor-pointer duration-200 hover:bg-gray-50">
               <td className="px-6 py-4">{illustration.Image.id}</td>
               <td className="px-6 py-4">{illustration.Image.title}</td>
               <td className="px-6 py-4">
@@ -32,7 +33,7 @@ const ListTable: React.FC<Props> = ({ illustrations }) => {
                   <Image
                     className="border-2 rounded-lg border-gray-200 p-2"
                     src={illustration.Image.original_src}
-                    alt={illustration.Image.original_filename}
+                    alt={`${illustration.Image.title}の画像`}
                     width={90}
                     height={90}
                   />
@@ -41,7 +42,7 @@ const ListTable: React.FC<Props> = ({ illustrations }) => {
                       <Image
                         className="ml-4 border-2 rounded-lg border-gray-200 p-2"
                         src={illustration.Image.simple_src.String}
-                        alt={illustration.Image.simple_filename.String}
+                        alt={`${illustration.Image.title}の画像`}
                         width={90}
                         height={90}
                       />
@@ -62,7 +63,7 @@ const ListTable: React.FC<Props> = ({ illustrations }) => {
                             index > 0 ? "ml-2" : ""
                           }`}
                           src={c.Character.src}
-                          alt={c.Character.filename}
+                          alt={`${c.Character.name}の画像`}
                           width={60}
                           height={60}
                         />
@@ -82,7 +83,7 @@ const ListTable: React.FC<Props> = ({ illustrations }) => {
                             key={c.id}
                             className="py-2 px-4 bg-gray-100 rounded-full mx-1"
                           >
-                            # {truncateText(c.name, 10)}
+                            # {truncateText(c.name, maxTextLength)}
                           </span>
                         ))
                       )}

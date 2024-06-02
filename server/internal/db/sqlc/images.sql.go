@@ -11,6 +11,18 @@ import (
 	"time"
 )
 
+const countImages = `-- name: CountImages :one
+SELECT count(*)
+FROM images
+`
+
+func (q *Queries) CountImages(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countImages)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createImage = `-- name: CreateImage :one
 INSERT INTO images (
     title,
@@ -132,7 +144,7 @@ func (q *Queries) GetImage(ctx context.Context, id int64) (Image, error) {
 const listImage = `-- name: ListImage :many
 SELECT id, title, original_src, simple_src, updated_at, created_at, original_filename, simple_filename
 FROM images
-ORDER BY id ASC
+ORDER BY id DESC
 LIMIT $1 OFFSET $2
 `
 

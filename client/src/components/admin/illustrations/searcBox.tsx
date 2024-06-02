@@ -2,19 +2,17 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Illustration } from "@/types/illustration";
+import { FetchIllustrationsResponse } from "@/types/illustration";
 import { Character } from "@/types/character";
 import { truncateText } from "@/utils/text";
 import { Category } from "@/types/category";
 
 type Props = {
-  illustrations: Illustration[];
   characters: Character[];
   categories: Category[];
 };
 
 const SearchBox: React.FC<Props> = ({
-  illustrations,
   characters,
   categories,
 }) => {
@@ -120,7 +118,7 @@ const SearchBox: React.FC<Props> = ({
             />
           </div>
           {showCharacterModal && (
-            <div className="absolute top-12 left-0 bg-white border-2 border-gray-300 p-4 rounded w-60 z-50 shadow-md character-modal-content">
+            <div className="absolute top-16 left-0 bg-white border-2 border-gray-300 p-4 rounded w-60 z-50 shadow-md character-modal-content">
               {charactersIDs.map((charId) => (
                 <div
                   key={charId}
@@ -180,7 +178,7 @@ const SearchBox: React.FC<Props> = ({
             />
           </div>
           {showCategoryModal && (
-            <div className="absolute top-12 left-0 bg-white border-2 border-gray-300 p-4 rounded w-60 z-50 shadow-md  category-modal-content">
+            <div className="absolute top-16 left-0 bg-white border-2 border-gray-300 p-4 rounded w-60 z-50 shadow-md  category-modal-content">
               {categoriesIDs.map((cateId) => (
                 <div
                   key={cateId}
@@ -213,7 +211,7 @@ const SearchBox: React.FC<Props> = ({
           )}
         </div>
 
-        <button className="flex justify-center items-center lg:justify-start bg-green-600 text-white rounded-md font-bold py-2 pl-4 pr-3 lg:mb-0 w-full lg:w-auto hover:opacity-70 duration-200">
+        <button className="flex justify-center items-center lg:justify-start bg-green-600 text-white rounded-md font-bold py-3 pl-4 pr-3 lg:mb-0 w-full lg:w-auto hover:opacity-70 duration-200">
           <span className="mr-1">検索</span>
           <Image
             src="/icon/search.png"

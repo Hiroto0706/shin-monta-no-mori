@@ -16,7 +16,7 @@ LIMIT 1;
 -- name: ListImage :many
 SELECT *
 FROM images
-ORDER BY id ASC
+ORDER BY id DESC
 LIMIT $1 OFFSET $2;
 -- name: UpdateImage :one
 UPDATE images
@@ -47,3 +47,6 @@ WHERE id IN (
     ORDER BY RANDOM()
     LIMIT $1
   );
+-- name: CountImages :one
+SELECT count(*)
+FROM images;

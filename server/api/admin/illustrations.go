@@ -24,6 +24,12 @@ type listIllustrationsRequest struct {
 	Page int64 `form:"p"`
 }
 
+type listIllustrationsResponse struct {
+	Illustrations []*model.Illustration `json:"illustrations"`
+	TotalPages    int64                 `json:"total_pages"`
+	TotalCount    int64                 `json:"total_count"`
+}
+
 // ListIllustrations godoc
 // @Summary List illustrations
 // @Description Retrieves a paginated list of illustrations based on the provided page number.
@@ -60,7 +66,18 @@ func ListIllustrations(ctx *app.AppContext) {
 		illustrations = append(illustrations, il)
 	}
 
-	ctx.JSON(http.StatusOK, illustrations)
+	totalCount, err := ctx.Server.Store.CountImages(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CountImages : %w", err)))
+		return
+	}
+	totalPages := (totalCount + int64(ctx.Server.Config.ImageFetchLimit-1)) / int64(ctx.Server.Config.ImageFetchLimit)
+
+	ctx.JSON(http.StatusOK, listIllustrationsResponse{
+		Illustrations: illustrations,
+		TotalPages:    totalPages,
+		TotalCount:    totalCount,
+	})
 }
 
 // GetIllustration godoc
