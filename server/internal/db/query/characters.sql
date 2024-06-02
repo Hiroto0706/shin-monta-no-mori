@@ -12,6 +12,10 @@ SELECT *
 FROM characters
 ORDER BY id DESC
 LIMIT $1 OFFSET $2;
+-- name: ListAllCharacters :many
+SELECT *
+FROM characters
+ORDER BY id DESC;
 -- name: UpdateCharacter :one
 UPDATE characters
 SET name = $2,

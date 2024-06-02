@@ -68,6 +68,42 @@ func (q *Queries) GetCharacter(ctx context.Context, id int64) (Character, error)
 	return i, err
 }
 
+const listAllCharacters = `-- name: ListAllCharacters :many
+SELECT id, name, src, updated_at, created_at, filename
+FROM characters
+ORDER BY id DESC
+`
+
+func (q *Queries) ListAllCharacters(ctx context.Context) ([]Character, error) {
+	rows, err := q.db.QueryContext(ctx, listAllCharacters)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Character{}
+	for rows.Next() {
+		var i Character
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Src,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+			&i.Filename,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listCharacters = `-- name: ListCharacters :many
 SELECT id, name, src, updated_at, created_at, filename
 FROM characters

@@ -26,12 +26,12 @@ const fetchIllustrations = async (
   }
 };
 
-const fetchCharacters = async (page: number = 0): Promise<Character[]> => {
+export const fetchCharacters = async (): Promise<Character[]> => {
   const accessToken = GetAccessToken();
 
   try {
     const response = await axios.get(
-      process.env.NEXT_PUBLIC_BASE_API + "admin/characters/list?p=" + page,
+      process.env.NEXT_PUBLIC_BASE_API + "admin/characters/list",
       {
         headers: {
           Authorization: SetBearerToken(accessToken),
@@ -45,7 +45,7 @@ const fetchCharacters = async (page: number = 0): Promise<Character[]> => {
   }
 };
 
-const fetchCategories = async (): Promise<Category[]> => {
+export const fetchCategories = async (): Promise<Category[]> => {
   const accessToken = GetAccessToken();
 
   try {
@@ -64,7 +64,7 @@ const fetchCategories = async (): Promise<Category[]> => {
   }
 };
 
-export default async function IllustrationsPage({
+export default async function IllustrationsListPage({
   searchParams,
 }: {
   searchParams: { p: string };
@@ -75,7 +75,7 @@ export default async function IllustrationsPage({
   );
   const totalCount = illustrations.total_count;
   const totalPages = illustrations.total_pages;
-  const characters: Character[] = await fetchCharacters(page);
+  const characters: Character[] = await fetchCharacters();
   const categories: Category[] = await fetchCategories();
 
   return (

@@ -44,6 +44,7 @@ type Querier interface {
 	GetOperatorByEmail(ctx context.Context, email string) (Operator, error)
 	GetParentCategory(ctx context.Context, id int64) (ParentCategory, error)
 	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
+	ListAllCharacters(ctx context.Context) ([]Character, error)
 	ListCharacters(ctx context.Context, arg ListCharactersParams) ([]Character, error)
 	ListChildCategories(ctx context.Context, arg ListChildCategoriesParams) ([]ChildCategory, error)
 	ListImage(ctx context.Context, arg ListImageParams) ([]Image, error)
