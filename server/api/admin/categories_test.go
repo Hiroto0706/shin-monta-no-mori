@@ -88,14 +88,17 @@ func TestListCategories(t *testing.T) {
 			if tt.wantErr {
 				require.NotEmpty(t, w.Body.String())
 			} else {
-				var got []model.Category
+				type wantType struct {
+					Categories []model.Category `json:"categories"`
+				}
+				var got wantType
 				err := json.Unmarshal(w.Body.Bytes(), &got)
 				require.NoError(t, err)
 				ignoreFields := map[string][]string{
 					"Other": {"CreatedAt", "UpdatedAt"},
 				}
-				log.Println("categoriesの長さ -> ", len(got))
-				for i, g := range got[:tt.arg.compareLimit] {
+				log.Println("categoriesの長さ -> ", len(got.Categories))
+				for i, g := range got.Categories[:tt.arg.compareLimit] {
 					compareCategoriesObjects(t, g, tt.want[i], ignoreFields)
 				}
 			}
