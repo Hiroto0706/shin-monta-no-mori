@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
 import useSelectCategories from "@/hooks/selectCategories";
@@ -10,10 +9,11 @@ import { Character } from "@/types/character";
 import { truncateText } from "@/utils/text";
 import { useEffect, useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
-import { CreateIllustrationAPI } from "@/api/illustration";
+import { EditIllustrationAPI } from "@/api/illustration";
 import { Illustration } from "@/types/illustration";
 
 type Props = {
+  id: number;
   illustration: Illustration;
   characters: Character[];
   categories: Category[];
@@ -21,12 +21,12 @@ type Props = {
 };
 
 const EditIllustration: React.FC<Props> = ({
+  id,
   illustration,
   characters,
   categories,
   accessToken,
 }) => {
-  const router = useRouter();
   const displayLimit = 5;
   const displayTextLimit = 50;
 
@@ -79,7 +79,7 @@ const EditIllustration: React.FC<Props> = ({
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const editIllustration = async (event: React.FormEvent) => {
     event.preventDefault();
 
     const formData = new FormData();
@@ -101,8 +101,11 @@ const EditIllustration: React.FC<Props> = ({
       formData.append("simple_image_file", simpleImageFile);
     }
 
+    console.log(formData.get("filename"));
+    console.log(formData.get("simple_image_file"));
+
     try {
-      const response = await axios.post(CreateIllustrationAPI(), formData, {
+      const response = await axios.put(EditIllustrationAPI(id), formData, {
         headers: {
           Authorization: SetBearerToken(accessToken),
         },
@@ -110,7 +113,6 @@ const EditIllustration: React.FC<Props> = ({
 
       if (response.status === 200) {
         alert(response.data.message);
-        router.push("/admin/illustrations");
       }
     } catch (error) {
       console.error("イラストの編集に失敗しました", error);
@@ -155,7 +157,7 @@ const EditIllustration: React.FC<Props> = ({
         <h1 className="text-2xl font-bold mb-6">イラストの編集</h1>
         <form
           className="border-2 border-gray-300 rounded-lg p-12 bg-white"
-          onSubmit={handleSubmit}
+          onSubmit={editIllustration}
         >
           <div className="mb-16">
             <label className="text-xl">タイトル</label>
@@ -357,7 +359,7 @@ const EditIllustration: React.FC<Props> = ({
                   onFileChange(e, setOriginalImageSrc, setOriginalImageFile)
                 }
                 className="w-full mt-4"
-                required
+                required={originalImageSrc !== "" ? false : true}
               />
             </div>
 

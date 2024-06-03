@@ -68,31 +68,7 @@ const CreateIllustration: React.FC<Props> = ({
     }
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        (event.target as HTMLElement).closest(".character-modal") === null &&
-        (event.target as HTMLElement).closest(".character-modal-content") ===
-          null
-      ) {
-        toggleCharactersModal(false);
-      }
-      if (
-        (event.target as HTMLElement).closest(".category-modal") === null &&
-        (event.target as HTMLElement).closest(".category-modal-content") ===
-          null
-      ) {
-        toggleCategoriesModal(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const handleSubmit = async (event: React.FormEvent) => {
+  const createIllustration = async (event: React.FormEvent) => {
     event.preventDefault();
 
     const formData = new FormData();
@@ -131,13 +107,37 @@ const CreateIllustration: React.FC<Props> = ({
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        (event.target as HTMLElement).closest(".character-modal") === null &&
+        (event.target as HTMLElement).closest(".character-modal-content") ===
+          null
+      ) {
+        toggleCharactersModal(false);
+      }
+      if (
+        (event.target as HTMLElement).closest(".category-modal") === null &&
+        (event.target as HTMLElement).closest(".category-modal-content") ===
+          null
+      ) {
+        toggleCategoriesModal(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <>
       <div className="max-w-7xl m-auto">
         <h1 className="text-2xl font-bold mb-6">イラストの作成</h1>
         <form
           className="border-2 border-gray-300 rounded-lg p-12 bg-white"
-          onSubmit={handleSubmit}
+          onSubmit={createIllustration}
         >
           <div className="mb-16">
             <label className="text-xl">タイトル</label>

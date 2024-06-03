@@ -377,16 +377,27 @@ func EditIllustration(ctx *app.AppContext) {
 			}
 		}
 
+		// Conditions for updating simpleSrc:
+		// 1. ファイル名のみ変更
+		// 2. ファイル名＆イメージが変更
+		// 3. イメージのみ変更
+		// 4. イメージの削除
+		shouldUpdateSimpleSrc := image.OriginalFilename != req.Filename || req.SimpleImageFile.Filename != ""
+
 		simpleSrc := image.SimpleSrc.String
-		if image.OriginalFilename != req.Filename && image.SimpleFilename.String != "" {
-			err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, image.SimpleSrc.String)
-			if err != nil {
-				return err
+		if shouldUpdateSimpleSrc {
+			if simpleSrc != "" {
+				err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, simpleSrc)
+				if err != nil {
+					return err
+				}
 			}
 
-			simpleSrc, err = service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
-			if err != nil {
-				return err
+			if req.SimpleImageFile.Filename != "" {
+				simpleSrc, err = service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
+				if err != nil {
+					return err
+				}
 			}
 		}
 

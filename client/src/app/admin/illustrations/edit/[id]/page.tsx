@@ -29,7 +29,6 @@ const getIllustration = async (
 };
 
 const EditIllustrationPage = async ({ params }: { params: { id: number } }) => {
-  console.log(params);
   const accessToken = getServerAccessToken();
   const illustrationRes: GetIllustrationResponse = await getIllustration(
     params.id,
@@ -42,6 +41,7 @@ const EditIllustrationPage = async ({ params }: { params: { id: number } }) => {
     <>
       {illustrationRes.illustration && (
         <EditIllustration
+          id={params.id}
           illustration={illustrationRes.illustration}
           characters={characters}
           categories={categories}
