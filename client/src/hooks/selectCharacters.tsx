@@ -1,8 +1,9 @@
 import { Character } from "@/types/character";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 interface selectCharacters {
   checkedCharacters: Character[];
+  setCheckedCharacters: Dispatch<SetStateAction<Character[]>>;
   showCharacterModal: boolean;
   handleCharacterSelect: (character: Character) => void;
   toggleCharactersModal: (status: boolean) => void;
@@ -27,6 +28,7 @@ const useSelectCharacters = (): selectCharacters => {
 
   return {
     checkedCharacters,
+    setCheckedCharacters,
     showCharacterModal,
     handleCharacterSelect,
     toggleCharactersModal,

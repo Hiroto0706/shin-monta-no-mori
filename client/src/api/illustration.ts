@@ -4,6 +4,12 @@ export const FetchIllustrationsAPI = (page: number) => {
   );
 };
 
+export const GetIllustrationAPI = (id: number) => {
+  return (
+    process.env.NEXT_PUBLIC_BASE_API + "admin/illustrations/" + id
+  );
+};
+
 export const CreateIllustrationAPI = () => {
   return process.env.NEXT_PUBLIC_BASE_API + "admin/illustrations/create";
 };

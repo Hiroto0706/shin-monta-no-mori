@@ -8,6 +8,8 @@ import SearchBox from "@/components/admin/illustrations/searcBox";
 import ListTable from "@/components/admin/illustrations/listTable";
 import { FetchIllustrationsAPI } from "@/api/illustration";
 import { getServerAccessToken } from "@/utils/accessToken/server";
+import { FetchCharactersAPI } from "@/api/character";
+import { FetchCategoriesAPI } from "@/api/category";
 
 const fetchIllustrations = async (
   page: number = 0,
@@ -30,14 +32,11 @@ export const fetchCharacters = async (
   accessToken: string | undefined
 ): Promise<Character[]> => {
   try {
-    const response = await axios.get(
-      process.env.NEXT_PUBLIC_BASE_API + "admin/characters/list",
-      {
-        headers: {
-          Authorization: SetBearerToken(accessToken),
-        },
-      }
-    );
+    const response = await axios.get(FetchCharactersAPI(), {
+      headers: {
+        Authorization: SetBearerToken(accessToken),
+      },
+    });
     return response.data.characters;
   } catch (error) {
     console.error(error);
@@ -49,14 +48,11 @@ export const fetchCategories = async (
   accessToken: string | undefined
 ): Promise<Category[]> => {
   try {
-    const response = await axios.get(
-      process.env.NEXT_PUBLIC_BASE_API + "admin/categories/list",
-      {
-        headers: {
-          Authorization: SetBearerToken(accessToken),
-        },
-      }
-    );
+    const response = await axios.get(FetchCategoriesAPI(), {
+      headers: {
+        Authorization: SetBearerToken(accessToken),
+      },
+    });
     return response.data.categories;
   } catch (error) {
     console.error(error);

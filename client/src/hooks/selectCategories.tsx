@@ -1,9 +1,10 @@
 import { Category, ChildCategory } from "@/types/category";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 interface selectCategories {
   childCategories: ChildCategory[];
   checkedChildCategories: ChildCategory[];
+  setCheckedChildCategories: Dispatch<SetStateAction<ChildCategory[]>>;
   showCategoryModal: boolean;
   handleCategoriesSelect: (category: ChildCategory) => void;
   toggleCategoriesModal: (status: boolean) => void;
@@ -34,6 +35,7 @@ const useSelectCategories = (categories: Category[]): selectCategories => {
   return {
     childCategories,
     checkedChildCategories,
+    setCheckedChildCategories,
     showCategoryModal,
     handleCategoriesSelect,
     toggleCategoriesModal,

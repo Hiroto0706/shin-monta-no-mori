@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { FetchIllustrationsResponse } from "@/types/illustration";
 import { formatDate, truncateText } from "@/utils/text";
 import Image from "next/image";
@@ -7,6 +10,7 @@ type Props = {
 };
 
 const ListTable: React.FC<Props> = ({ illustrations }) => {
+  const router = useRouter();
   const maxTextLength = 15;
   return (
     <div className="my-12 w-full bg-white overflow-x-auto rounded-lg border-2 border-gray-200 scrollbar-hide">
@@ -25,7 +29,13 @@ const ListTable: React.FC<Props> = ({ illustrations }) => {
         </thead>
         <tbody>
           {illustrations.illustrations.map((illustration, index) => (
-            <tr key={index} className="border-2 border-gray-100 cursor-pointer duration-200 hover:bg-gray-50">
+            <tr
+              key={index}
+              className="border-2 border-gray-100 cursor-pointer duration-200 hover:bg-gray-50"
+              onClick={() =>
+                router.push(`illustrations/edit/${illustration.Image.id}`)
+              }
+            >
               <td className="px-6 py-4">{illustration.Image.id}</td>
               <td className="px-6 py-4">{illustration.Image.title}</td>
               <td className="px-6 py-4">

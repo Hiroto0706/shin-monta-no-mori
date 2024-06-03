@@ -30,3 +30,7 @@ export interface FetchIllustrationsResponse {
   total_pages: number;
   total_count: number;
 }
+
+export interface GetIllustrationResponse {
+  illustration: Illustration | null;
+}

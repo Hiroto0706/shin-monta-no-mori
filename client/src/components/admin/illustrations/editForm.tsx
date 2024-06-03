@@ -11,14 +11,17 @@ import { truncateText } from "@/utils/text";
 import { useEffect, useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { CreateIllustrationAPI } from "@/api/illustration";
+import { Illustration } from "@/types/illustration";
 
 type Props = {
+  illustration: Illustration;
   characters: Character[];
   categories: Category[];
   accessToken: string | undefined;
 };
 
-const CreateIllustration: React.FC<Props> = ({
+const EditIllustration: React.FC<Props> = ({
+  illustration,
   characters,
   categories,
   accessToken,
@@ -27,10 +30,13 @@ const CreateIllustration: React.FC<Props> = ({
   const displayLimit = 5;
   const displayTextLimit = 50;
 
-  const [title, setTitle] = useState("");
-  const [filename, setFilename] = useState("");
+  const [title, setTitle] = useState(illustration.Image.title);
+  const [filename, setFilename] = useState(
+    illustration.Image.original_filename
+  );
   const {
     checkedCharacters,
+    setCheckedCharacters,
     showCharacterModal,
     handleCharacterSelect,
     toggleCharactersModal,
@@ -38,6 +44,7 @@ const CreateIllustration: React.FC<Props> = ({
   const {
     childCategories,
     checkedChildCategories,
+    setCheckedChildCategories,
     showCategoryModal,
     handleCategoriesSelect,
     toggleCategoriesModal,
@@ -45,8 +52,12 @@ const CreateIllustration: React.FC<Props> = ({
 
   const [originalImageFile, setOriginalImageFile] = useState<File | null>(null);
   const [simpleImageFile, setSimpleImageFile] = useState<File | null>(null);
-  const [originalImageSrc, setOriginalImageSrc] = useState<string | null>(null);
-  const [simpleImageSrc, setSimpleImageSrc] = useState<string | null>(null);
+  const [originalImageSrc, setOriginalImageSrc] = useState<string | null>(
+    illustration.Image.original_src
+  );
+  const [simpleImageSrc, setSimpleImageSrc] = useState<string | null>(
+    illustration.Image.simple_src.String
+  );
 
   const onFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -67,30 +78,6 @@ const CreateIllustration: React.FC<Props> = ({
       setFile(null);
     }
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        (event.target as HTMLElement).closest(".character-modal") === null &&
-        (event.target as HTMLElement).closest(".character-modal-content") ===
-          null
-      ) {
-        toggleCharactersModal(false);
-      }
-      if (
-        (event.target as HTMLElement).closest(".category-modal") === null &&
-        (event.target as HTMLElement).closest(".category-modal-content") ===
-          null
-      ) {
-        toggleCategoriesModal(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -126,15 +113,46 @@ const CreateIllustration: React.FC<Props> = ({
         router.push("/admin/illustrations");
       }
     } catch (error) {
-      console.error("イラストの作成に失敗しました", error);
-      alert("イラストの作成に失敗しました");
+      console.error("イラストの編集に失敗しました", error);
+      alert("イラストの編集に失敗しました");
     }
   };
+
+  useEffect(() => {
+    setCheckedCharacters(illustration.Characters.map((c) => c.Character));
+    setCheckedChildCategories(
+      illustration.Categories.flatMap((category) => category.ChildCategory)
+    );
+  }, [illustration]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        (event.target as HTMLElement).closest(".character-modal") === null &&
+        (event.target as HTMLElement).closest(".character-modal-content") ===
+          null
+      ) {
+        toggleCharactersModal(false);
+      }
+      if (
+        (event.target as HTMLElement).closest(".category-modal") === null &&
+        (event.target as HTMLElement).closest(".category-modal-content") ===
+          null
+      ) {
+        toggleCategoriesModal(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
       <div className="max-w-7xl m-auto">
-        <h1 className="text-2xl font-bold mb-6">イラストの作成</h1>
+        <h1 className="text-2xl font-bold mb-6">イラストの編集</h1>
         <form
           className="border-2 border-gray-300 rounded-lg p-12 bg-white"
           onSubmit={handleSubmit}
@@ -375,7 +393,7 @@ const CreateIllustration: React.FC<Props> = ({
           </div>
 
           <button className="py-3 bg-green-600 text-white font-bold text-lg rounded-lg w-full hover:bg-white hover:text-green-600 border-2 border-green-600 duration-200">
-            イラスト作成
+            イラスト編集
           </button>
         </form>
       </div>
@@ -383,4 +401,4 @@ const CreateIllustration: React.FC<Props> = ({
   );
 };
 
-export default CreateIllustration;
+export default EditIllustration;
