@@ -1,18 +1,18 @@
 import axios from "axios";
 import { FetchIllustrationsResponse } from "@/types/illustration";
-import { GetAccessToken, SetBearerToken } from "@/utils/accessToken";
+import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { Character } from "@/types/character";
 import { Category } from "@/types/category";
 import Pagination from "@/components/common/pagenation";
 import SearchBox from "@/components/admin/illustrations/searcBox";
 import ListTable from "@/components/admin/illustrations/listTable";
 import { FetchIllustrationsAPI } from "@/api/illustration";
+import { getServerAccessToken } from "@/utils/accessToken/server";
 
 const fetchIllustrations = async (
-  page: number = 0
+  page: number = 0,
+  accessToken: string | undefined
 ): Promise<FetchIllustrationsResponse> => {
-  const accessToken = GetAccessToken();
-
   try {
     const response = await axios.get(FetchIllustrationsAPI(page), {
       headers: {
@@ -26,9 +26,9 @@ const fetchIllustrations = async (
   }
 };
 
-export const fetchCharacters = async (): Promise<Character[]> => {
-  const accessToken = GetAccessToken();
-
+export const fetchCharacters = async (
+  accessToken: string | undefined
+): Promise<Character[]> => {
   try {
     const response = await axios.get(
       process.env.NEXT_PUBLIC_BASE_API + "admin/characters/list",
@@ -45,9 +45,9 @@ export const fetchCharacters = async (): Promise<Character[]> => {
   }
 };
 
-export const fetchCategories = async (): Promise<Category[]> => {
-  const accessToken = GetAccessToken();
-
+export const fetchCategories = async (
+  accessToken: string | undefined
+): Promise<Category[]> => {
   try {
     const response = await axios.get(
       process.env.NEXT_PUBLIC_BASE_API + "admin/categories/list",
@@ -69,14 +69,16 @@ export default async function IllustrationsListPage({
 }: {
   searchParams: { p: string };
 }) {
+  const accessToken = getServerAccessToken();
   const page = searchParams.p ? parseInt(searchParams.p, 10) : 0;
   const illustrations: FetchIllustrationsResponse = await fetchIllustrations(
-    page
+    page,
+    accessToken
   );
   const totalCount = illustrations.total_count;
   const totalPages = illustrations.total_pages;
-  const characters: Character[] = await fetchCharacters();
-  const categories: Category[] = await fetchCategories();
+  const characters: Character[] = await fetchCharacters(accessToken);
+  const categories: Category[] = await fetchCategories(accessToken);
 
   return (
     <>

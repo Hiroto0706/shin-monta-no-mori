@@ -60,14 +60,14 @@ const SearchBox: React.FC<Props> = ({ characters, categories }) => {
           <input
             type="text"
             placeholder="タイトル検索"
-            className="border-2 border-gray-200 py-3 px-4 rounded-md w-full"
+            className="border-2 border-gray-200 py-2.5 px-4 rounded-md w-full"
           />
         </div>
 
         <div className="pr-2 lg:pr-0 lg:mr-3 mb-6 lg:mb-3 relative w-1/2 lg:w-80">
           <div
             onClick={() => toggleCharactersModal(!showCharacterModal)}
-            className="border-2 border-gray-200 py-3 px-4 rounded bg-white flex justify-between cursor-pointer character-modal"
+            className="border-2 border-gray-200 py-2.5 px-4 rounded bg-white flex justify-between cursor-pointer character-modal"
           >
             <div>
               {checkedCharacters.length > 0 ? (
@@ -75,7 +75,7 @@ const SearchBox: React.FC<Props> = ({ characters, categories }) => {
                   {checkedCharacters.slice(0, displayLimit).map((char) => (
                     <span
                       key={char.id}
-                      className="bg-gray-200 py-2 px-2 mr-1 rounded-full border-gray-400 text-ellipsis overflow-hidden whitespace-nowrap"
+                      className="bg-gray-200 py-1 px-2 mr-1 rounded-full border-gray-400 text-ellipsis overflow-hidden whitespace-nowrap"
                     >
                       # {truncateText(char.name, 4)}
                     </span>
@@ -84,7 +84,7 @@ const SearchBox: React.FC<Props> = ({ characters, categories }) => {
                 </div>
               ) : (
                 <span className="text-gray opacity-50">
-                  キャラクターを選択してください
+                  キャラクター
                 </span>
               )}
             </div>
@@ -132,7 +132,7 @@ const SearchBox: React.FC<Props> = ({ characters, categories }) => {
         <div className="pl-2 lg:pl-0 lg:mr-3 mb-6 lg:mb-3 relative w-1/2 lg:w-80">
           <div
             onClick={() => toggleCategoriesModal(!showCategoryModal)}
-            className="border-2 border-gray-200 py-3 px-4 rounded bg-white flex justify-between cursor-pointer category-modal"
+            className="border-2 border-gray-200 py-2.5 px-4 rounded bg-white flex justify-between cursor-pointer category-modal"
           >
             <div>
               {checkedChildCategories.length > 0 ? (
@@ -140,7 +140,7 @@ const SearchBox: React.FC<Props> = ({ characters, categories }) => {
                   {checkedChildCategories.slice(0, displayLimit).map((cate) => (
                     <span
                       key={cate.id}
-                      className="bg-gray-200 py-2 px-2 mr-1 rounded-full border-gray-400 text-ellipsis overflow-hidden whitespace-nowrap"
+                      className="bg-gray-200 py-1 px-2 mr-1 rounded-full border-gray-400 text-ellipsis overflow-hidden whitespace-nowrap"
                     >
                       # {truncateText(cate.name, 4)}
                     </span>
@@ -151,7 +151,7 @@ const SearchBox: React.FC<Props> = ({ characters, categories }) => {
                 </div>
               ) : (
                 <span className="text-gray opacity-50">
-                  カテゴリを選択してください
+                  カテゴリ
                 </span>
               )}
             </div>{" "}

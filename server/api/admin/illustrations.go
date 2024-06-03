@@ -194,7 +194,7 @@ type createIllustrationRequest struct {
 func CreateIllustration(ctx *app.AppContext) {
 	var req createIllustrationRequest
 	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to ShouldBind form data : %w", err)))
 		return
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
@@ -248,9 +248,15 @@ func CreateIllustration(ctx *app.AppContext) {
 			}
 		}
 
-		// TODO: わんちゃん親カテゴリの保存はParamで受け取らなくてもいいかも。子カテゴリのIDを元に親カテゴリを保存する形で良さそう？？
 		// ImageParentCategoryRelationsの保存
+		// mapを使うことで、重複する値を取り除く
+		parentCategorySet := make(map[int64]struct{})
+
 		for _, pc_id := range req.ParentCategories {
+			parentCategorySet[pc_id] = struct{}{}
+		}
+
+		for pc_id := range parentCategorySet {
 			arg := db.CreateImageParentCategoryRelationsParams{
 				ImageID:          image.ID,
 				ParentCategoryID: pc_id,
@@ -285,11 +291,11 @@ func CreateIllustration(ctx *app.AppContext) {
 	image, err := ctx.Server.Store.GetImage(ctx, int64(image.ID))
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 			return
 		}
 
-		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 		return
 	}
 

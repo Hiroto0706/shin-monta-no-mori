@@ -5,13 +5,21 @@ import {
   fetchCharacters,
 } from "@/app/admin/illustrations/page";
 import CreateIllustration from "@/components/admin/illustrations/createForm";
+import {} from "@/utils/accessToken/accessToken";
+import { getServerAccessToken } from "@/utils/accessToken/server";
 
 const CreateIllustrationPage = async () => {
-  const characters: Character[] = await fetchCharacters();
-  const categories: Category[] = await fetchCategories();
+  const accessToken = getServerAccessToken();
+  const characters: Character[] = await fetchCharacters(accessToken);
+  const categories: Category[] = await fetchCategories(accessToken);
+
   return (
     <>
-      <CreateIllustration characters={characters} categories={categories} />
+      <CreateIllustration
+        characters={characters}
+        categories={categories}
+        accessToken={accessToken}
+      />
     </>
   );
 };

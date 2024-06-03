@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "axios";
 import useSelectCategories from "@/hooks/selectCategories";
 import useSelectCharacters from "@/hooks/selectCharacters";
 import { Category } from "@/types/category";
@@ -7,13 +8,20 @@ import { Character } from "@/types/character";
 import { truncateText } from "@/utils/text";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { SetBearerToken } from "@/utils/accessToken/accessToken";
+import { CreateIllustrationAPI } from "@/api/illustration";
 
 type Props = {
   characters: Character[];
   categories: Category[];
+  accessToken: string | undefined;
 };
 
-const CreateIllustration: React.FC<Props> = ({ characters, categories }) => {
+const CreateIllustration: React.FC<Props> = ({
+  characters,
+  categories,
+  accessToken,
+}) => {
   const displayLimit = 5;
   const displayTextLimit = 50;
 
@@ -33,13 +41,6 @@ const CreateIllustration: React.FC<Props> = ({ characters, categories }) => {
     toggleCategoriesModal,
   } = useSelectCategories(categories);
 
-  const [parentCategoryIDs, setParentCategoryIDs] = useState<number[]>(
-    categories.flatMap((c) => c.ParentCategory.id)
-  );
-
-  const [checkedParentCategoryIDs, setCheckedParentCategoryIDs] = useState<
-    number[]
-  >([]);
   const [originalImageFile, setOriginalImageFile] = useState<File | null>(null);
   const [simpleImageFile, setSimpleImageFile] = useState<File | null>(null);
   const [originalImageData, setOriginalImageData] = useState<string | null>(
@@ -91,11 +92,53 @@ const CreateIllustration: React.FC<Props> = ({ characters, categories }) => {
     };
   }, []);
 
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("filename", filename);
+    checkedCharacters.forEach((char) => {
+      formData.append("characters[]", char.id.toString());
+    });
+    checkedChildCategories.forEach((cate) => {
+      formData.append("parent_categories[]", cate.parent_id.toString());
+    });
+    checkedChildCategories.forEach((cate) => {
+      formData.append("child_categories[]", cate.id.toString());
+    });
+    if (originalImageFile) {
+      formData.append("original_image_file", originalImageFile);
+    }
+    if (simpleImageFile) {
+      formData.append("simple_image_file", simpleImageFile);
+    }
+
+    try {
+      const response = await axios.post(CreateIllustrationAPI(), formData, {
+        headers: {
+          Authorization: SetBearerToken(accessToken),
+        },
+      });
+
+      if (response.status === 200) {
+        alert(response.data.message);
+        window.location.href = "/admin/illustrations";
+      }
+    } catch (error) {
+      console.error("イラストの作成に失敗しました", error);
+      alert("イラストの作成に失敗しました");
+    }
+  };
+
   return (
     <>
       <div className="max-w-7xl m-auto">
         <h1 className="text-2xl font-bold mb-6">イラストの作成</h1>
-        <form className="border-2 border-gray-300 rounded-lg p-12 bg-white">
+        <form
+          className="border-2 border-gray-300 rounded-lg p-12 bg-white"
+          onSubmit={handleSubmit}
+        >
           <div className="mb-16">
             <label className="text-xl">タイトル</label>
             <input
@@ -147,7 +190,7 @@ const CreateIllustration: React.FC<Props> = ({ characters, categories }) => {
                 />
               </div>
               {showCharacterModal && (
-                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full z-50 shadow-md character-modal-content">
+                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full max-h-60 overflow-y-auto z-50 shadow-md character-modal-content">
                   {characters.map((char) => (
                     <div
                       key={char.id}
@@ -217,7 +260,7 @@ const CreateIllustration: React.FC<Props> = ({ characters, categories }) => {
                 />
               </div>
               {showCategoryModal && (
-                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full z-50 shadow-md category-modal-content">
+                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full z-50 max-h-60 overflow-y-auto shadow-md category-modal-content">
                   {childCategories.map((cate) => (
                     <div
                       key={cate.id}
@@ -323,10 +366,13 @@ const CreateIllustration: React.FC<Props> = ({ characters, categories }) => {
                   onFileChange(e, setSimpleImageData, setSimpleImageFile)
                 }
                 className="w-full mt-4"
-                required
               />
             </div>
           </div>
+
+          <button className="py-3 bg-green-600 text-white font-bold text-lg rounded-lg w-full hover:bg-white hover:text-green-600 border-2 border-green-600 duration-200">
+            イラスト作成
+          </button>
         </form>
       </div>
     </>
