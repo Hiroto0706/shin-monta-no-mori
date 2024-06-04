@@ -100,7 +100,7 @@ const SearchBox: React.FC<Props> = ({ characters, categories }) => {
           </div>
           {showCharacterModal && (
             <div className="relative w-full">
-              <div className="absolute bg-white border-2 border-gray-300 p-4 rounded w-full z-50 shadow-md character-modal-content">
+              <div className="absolute bg-white border-2 border-gray-300 p-4 rounded w-full z-10 shadow-md character-modal-content">
                 {characters.map((char) => (
                   <div
                     key={char.id}
@@ -167,7 +167,7 @@ const SearchBox: React.FC<Props> = ({ characters, categories }) => {
           </div>
           {showCategoryModal && (
             <div className="relative w-full">
-              <div className="absolute bg-white left-0 border-2 border-gray-300 p-4 w-full z-50 shadow-md  category-modal-content">
+              <div className="absolute bg-white left-0 border-2 border-gray-300 p-4 w-full z-10 shadow-md  category-modal-content">
                 {childCategories.map((cate) => (
                   <div
                     key={cate.id}

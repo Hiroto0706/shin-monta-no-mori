@@ -190,7 +190,7 @@ const CreateIllustration: React.FC<Props> = ({
                 />
               </div>
               {showCharacterModal && (
-                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full max-h-60 overflow-y-auto z-50 shadow-md character-modal-content">
+                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full max-h-60 overflow-y-auto z-10 shadow-md character-modal-content">
                   {characters.map((char) => (
                     <div
                       key={char.id}
@@ -262,7 +262,7 @@ const CreateIllustration: React.FC<Props> = ({
                 />
               </div>
               {showCategoryModal && (
-                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full z-50 max-h-60 overflow-y-auto shadow-md category-modal-content">
+                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full z-10 max-h-60 overflow-y-auto shadow-md category-modal-content">
                   {childCategories.map((cate) => (
                     <div
                       key={cate.id}

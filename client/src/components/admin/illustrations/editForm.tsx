@@ -58,6 +58,12 @@ const EditIllustration: React.FC<Props> = ({
   const [simpleImageSrc, setSimpleImageSrc] = useState<string | null>(
     illustration.Image.simple_src.String
   );
+  const [isDeleteSimpleSrc, setIsDeleteSimpleSrc] = useState<boolean>(false);
+
+  const deleteSimpleImage = () => {
+    setIsDeleteSimpleSrc(true);
+    setSimpleImageSrc(null);
+  };
 
   const onFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -100,9 +106,7 @@ const EditIllustration: React.FC<Props> = ({
     if (simpleImageFile) {
       formData.append("simple_image_file", simpleImageFile);
     }
-
-    console.log(formData.get("filename"));
-    console.log(formData.get("simple_image_file"));
+    formData.append("is_delete_simple_image", isDeleteSimpleSrc.toString());
 
     try {
       const response = await axios.put(EditIllustrationAPI(id), formData, {
@@ -210,7 +214,7 @@ const EditIllustration: React.FC<Props> = ({
                 />
               </div>
               {showCharacterModal && (
-                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full max-h-60 overflow-y-auto z-50 shadow-md character-modal-content">
+                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full max-h-60 overflow-y-auto z-10 shadow-md character-modal-content">
                   {characters.map((char) => (
                     <div
                       key={char.id}
@@ -282,7 +286,7 @@ const EditIllustration: React.FC<Props> = ({
                 />
               </div>
               {showCategoryModal && (
-                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full z-50 max-h-60 overflow-y-auto shadow-md category-modal-content">
+                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full z-10 max-h-60 overflow-y-auto shadow-md category-modal-content">
                   {childCategories.map((cate) => (
                     <div
                       key={cate.id}
@@ -369,7 +373,13 @@ const EditIllustration: React.FC<Props> = ({
               </label>
               <div className="border-2 p-4 mt-4 bg-gray-200 rounded-lg w-80 h-80 flex justify-center items-center">
                 {simpleImageSrc ? (
-                  <div className="relative w-full h-full">
+                  <div className="relative w-full h-full relative">
+                    <span
+                      onClick={() => deleteSimpleImage()}
+                      className="absolute -top-8 -right-8 rounded-full bg-white w-9 h-9 flex items-center justify-center z-10 cursor-pointer border-2 border-gray-200 shadow"
+                    >
+                      X
+                    </span>
                     <Image
                       src={simpleImageSrc}
                       alt="シンプル画像プレビュー"

@@ -314,13 +314,14 @@ func CreateIllustration(ctx *app.AppContext) {
 }
 
 type editIllustrationRequest struct {
-	Title             string               `form:"title"`
-	Filename          string               `form:"filename"`
-	Characters        []int64              `form:"characters[]"`
-	ParentCategories  []int64              `form:"parent_categories[]"`
-	ChildCategories   []int64              `form:"child_categories[]"`
-	OriginalImageFile multipart.FileHeader `form:"original_image_file"`
-	SimpleImageFile   multipart.FileHeader `form:"simple_image_file"`
+	Title               string               `form:"title"`
+	Filename            string               `form:"filename"`
+	Characters          []int64              `form:"characters[]"`
+	ParentCategories    []int64              `form:"parent_categories[]"`
+	ChildCategories     []int64              `form:"child_categories[]"`
+	OriginalImageFile   multipart.FileHeader `form:"original_image_file"`
+	SimpleImageFile     multipart.FileHeader `form:"simple_image_file"`
+	IsDeleteSimpleImage bool                 `form:"is_delete_simple_image"`
 }
 
 // EditIllustration godoc
@@ -379,11 +380,10 @@ func EditIllustration(ctx *app.AppContext) {
 
 		// Conditions for updating simpleSrc:
 		// 1. ファイル名のみ変更
-		// 2. ファイル名＆イメージが変更
-		// 3. イメージのみ変更
+		// 2. イメージのみ変更
+		// 3. ファイル名＆イメージが変更
 		// 4. イメージの削除
 		shouldUpdateSimpleSrc := image.OriginalFilename != req.Filename || req.SimpleImageFile.Filename != ""
-
 		simpleSrc := image.SimpleSrc.String
 		if shouldUpdateSimpleSrc {
 			if simpleSrc != "" {
@@ -399,6 +399,14 @@ func EditIllustration(ctx *app.AppContext) {
 					return err
 				}
 			}
+		}
+
+		if req.IsDeleteSimpleImage {
+			err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, simpleSrc)
+			if err != nil {
+				return err
+			}
+			simpleSrc = ""
 		}
 
 		// imageのUpdate処理
