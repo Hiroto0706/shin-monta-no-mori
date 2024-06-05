@@ -12,6 +12,8 @@ import (
 )
 
 type Querier interface {
+	CountImages(ctx context.Context) (int64, error)
+	CountSearchImages(ctx context.Context, query sql.NullString) (int64, error)
 	CreateCharacter(ctx context.Context, arg CreateCharacterParams) (Character, error)
 	CreateChildCategory(ctx context.Context, arg CreateChildCategoryParams) (ChildCategory, error)
 	CreateImage(ctx context.Context, arg CreateImageParams) (Image, error)
@@ -43,6 +45,7 @@ type Querier interface {
 	GetOperatorByEmail(ctx context.Context, email string) (Operator, error)
 	GetParentCategory(ctx context.Context, id int64) (ParentCategory, error)
 	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
+	ListAllCharacters(ctx context.Context) ([]Character, error)
 	ListCharacters(ctx context.Context, arg ListCharactersParams) ([]Character, error)
 	ListChildCategories(ctx context.Context, arg ListChildCategoriesParams) ([]ChildCategory, error)
 	ListImage(ctx context.Context, arg ListImageParams) ([]Image, error)

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Verify } from "@/api/auth";
+import { VerifyAPI } from "@/api/auth";
 
 export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get("access_token")?.value;
@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
   formData.append("access_token", accessToken);
 
   try {
-    const response = await fetch(Verify(), {
+    const response = await fetch(VerifyAPI(), {
       method: "POST",
       body: formData,
     });

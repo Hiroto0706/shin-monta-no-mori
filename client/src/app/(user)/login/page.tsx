@@ -3,7 +3,7 @@
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { AuthLogin } from "@/api/auth";
+import { AuthLoginAPI } from "@/api/auth";
 
 export default function TOP() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function TOP() {
       password: password,
     };
     try {
-      const response = await axios.post(AuthLogin(), formData, {
+      const response = await axios.post(AuthLoginAPI(), formData, {
         withCredentials: true,
       });
       router.push("/admin");

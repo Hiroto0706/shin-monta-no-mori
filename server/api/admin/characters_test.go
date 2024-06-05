@@ -35,7 +35,6 @@ func TestListCharacters(t *testing.T) {
 	accessToken := setAuthUser(t, ctx)
 
 	type args struct {
-		page         string
 		fetchLimit   int
 		compareLimit int
 	}
@@ -48,9 +47,8 @@ func TestListCharacters(t *testing.T) {
 		expectedCode int
 	}{
 		{
-			name: "正常系（p=0）",
+			name: "正常系",
 			arg: args{
-				page:         "0",
 				fetchLimit:   1,
 				compareLimit: 1,
 			},
@@ -65,39 +63,13 @@ func TestListCharacters(t *testing.T) {
 			wantErr:      false,
 			expectedCode: http.StatusOK,
 		},
-		{
-			name: "正常系（存在しないページを指定している場合）",
-			arg: args{
-				page:         "9999",
-				fetchLimit:   1,
-				compareLimit: 0,
-			},
-			want: []db.Character{
-				{},
-			},
-			wantErr:      false,
-			expectedCode: http.StatusOK,
-		},
-		{
-			name: "異常系（pageの値が負の場合）",
-			arg: args{
-				page:         "-1",
-				fetchLimit:   1,
-				compareLimit: 1,
-			},
-			want: []db.Character{
-				{},
-			},
-			wantErr:      true,
-			expectedCode: http.StatusInternalServerError,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// 取得するイメージの数を1にする
 			ctx.Server.Config.CharacterFetchLimit = tt.arg.fetchLimit
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/admin/characters/list?p="+tt.arg.page, nil)
+			req, _ := http.NewRequest("GET", "/api/v1/admin/characters/list", nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
 			ctx.Server.Router.ServeHTTP(w, req)

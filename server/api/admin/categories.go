@@ -25,6 +25,10 @@ type listCategoriesRequest struct {
 	Page int64 `form:"p"`
 }
 
+type listCategoriesResponse struct {
+	Categories []model.Category `json:"categories"`
+}
+
 // ListCategories godoc
 // @Summary List categories
 // @Description Retrieves a list of parent categories along with their child categories.
@@ -68,7 +72,9 @@ func ListCategories(ctx *app.AppContext) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, categories)
+	ctx.JSON(http.StatusOK, listCategoriesResponse{
+		Categories: categories,
+	})
 }
 
 // GetCategory godoc

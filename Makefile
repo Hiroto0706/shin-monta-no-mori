@@ -17,10 +17,6 @@ dropdb:
 new_migration:
 	migrate create -ext sql -dir server/internal/db/migration -seq $(name)
 
-.PHONY: new_seed
-new_seed:
-	migrate create -ext sql -dir server/internal/db/seed -seq $(name)
-
 .PHONY: migrateup
 migrateup:
 	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose up
@@ -41,10 +37,6 @@ migratedown1:
 	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose down 1
 	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose down 1
 
-.PHONY: seedup
-seedup:
-	migrate -path server/internal/db/seed -database "$(DB_URL)" -verbose up
-
 .PHONY: dc-up
 dc-up:
 	docker compose up --build
@@ -56,6 +48,10 @@ dc-down:
 .PHONY: serve
 serve:
 	cd ./server && air -c .air.toml
+
+.PHONY: front
+front:
+	cd ./client && npm run dev
 
 .PHONY: sqlc
 sqlc:

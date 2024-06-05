@@ -67,7 +67,7 @@ func TestListIllustrations(t *testing.T) {
 						},
 						OriginalFilename: "test_image_original_filename_999991",
 					},
-					Character: []*model.Character{
+					Characters: []*model.Character{
 						{
 							Character: db.Character{
 								ID:   21001,
@@ -76,7 +76,7 @@ func TestListIllustrations(t *testing.T) {
 							},
 						},
 					},
-					Category: []*model.Category{
+					Categories: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{
 								ID:   21001,
@@ -115,7 +115,7 @@ func TestListIllustrations(t *testing.T) {
 						},
 						OriginalFilename: "test_image_original_filename_999990",
 					},
-					Character: []*model.Character{
+					Characters: []*model.Character{
 						{
 							Character: db.Character{
 								ID:   21001,
@@ -124,7 +124,7 @@ func TestListIllustrations(t *testing.T) {
 							},
 						},
 					},
-					Category: []*model.Category{
+					Categories: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{
 								ID:   21001,
@@ -230,7 +230,7 @@ func TestGetIllustration(t *testing.T) {
 					},
 					OriginalFilename: "test_image_original_filename_21001",
 				},
-				Character: []*model.Character{
+				Characters: []*model.Character{
 					{
 						Character: db.Character{
 							ID:   21002,
@@ -239,7 +239,7 @@ func TestGetIllustration(t *testing.T) {
 						},
 					},
 				},
-				Category: []*model.Category{
+				Categories: []*model.Category{
 					{
 						ParentCategory: db.ParentCategory{
 							ID:   21002,
@@ -344,7 +344,7 @@ func TestSearchIllustrations(t *testing.T) {
 						},
 						OriginalFilename: "test_image_original_filename_22001",
 					},
-					Character: []*model.Character{
+					Characters: []*model.Character{
 						{
 							Character: db.Character{
 								ID:   22001,
@@ -353,7 +353,7 @@ func TestSearchIllustrations(t *testing.T) {
 							},
 						},
 					},
-					Category: []*model.Category{
+					Categories: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{
 								ID:   22001,
@@ -383,9 +383,9 @@ func TestSearchIllustrations(t *testing.T) {
 			},
 			want: []model.Illustration{
 				{
-					Image:     db.Image{},
-					Character: []*model.Character{},
-					Category: []*model.Category{
+					Image:      db.Image{},
+					Characters: []*model.Character{},
+					Categories: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{},
 							ChildCategory:  []db.ChildCategory{},
@@ -405,9 +405,9 @@ func TestSearchIllustrations(t *testing.T) {
 			},
 			want: []model.Illustration{
 				{
-					Image:     db.Image{},
-					Character: []*model.Character{},
-					Category: []*model.Category{
+					Image:      db.Image{},
+					Characters: []*model.Character{},
+					Categories: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{},
 							ChildCategory:  []db.ChildCategory{},
@@ -489,7 +489,7 @@ func TestListIllustrationsByParentCategoryID(t *testing.T) {
 						},
 						OriginalFilename: "test_image_original_filename_23001",
 					},
-					Character: []*model.Character{
+					Characters: []*model.Character{
 						{
 							Character: db.Character{
 								ID:   23001,
@@ -498,7 +498,7 @@ func TestListIllustrationsByParentCategoryID(t *testing.T) {
 							},
 						},
 					},
-					Category: []*model.Category{
+					Categories: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{
 								ID:   23001,
@@ -622,7 +622,7 @@ func TestListIllustrationsByCharacterID(t *testing.T) {
 						},
 						OriginalFilename: "test_image_original_filename_24001",
 					},
-					Character: []*model.Character{
+					Characters: []*model.Character{
 						{
 							Character: db.Character{
 								ID:   24001,
@@ -631,7 +631,7 @@ func TestListIllustrationsByCharacterID(t *testing.T) {
 							},
 						},
 					},
-					Category: []*model.Category{
+					Categories: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{
 								ID:   24001,
@@ -755,7 +755,7 @@ func TestListIllustrationsByChildCategoryID(t *testing.T) {
 						},
 						OriginalFilename: "test_image_original_filename_25001",
 					},
-					Character: []*model.Character{
+					Characters: []*model.Character{
 						{
 							Character: db.Character{
 								ID:   25001,
@@ -764,7 +764,7 @@ func TestListIllustrationsByChildCategoryID(t *testing.T) {
 							},
 						},
 					},
-					Category: []*model.Category{
+					Categories: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{
 								ID:   25001,
@@ -855,22 +855,22 @@ func compareIllustrationsObjects(t *testing.T, got model.Illustration, want mode
 	}
 
 	// キャラクター比較
-	for i, gch := range got.Character {
-		if d := cmp.Diff(gch.Character, want.Character[i].Character, cmpopts.IgnoreFields(gch.Character, ignoreFieldsMap["Other"]...)); len(d) != 0 {
+	for i, gch := range got.Characters {
+		if d := cmp.Diff(gch.Character, want.Characters[i].Character, cmpopts.IgnoreFields(gch.Character, ignoreFieldsMap["Other"]...)); len(d) != 0 {
 			t.Errorf("differs: (-got +want)\n%s", d)
 		}
 	}
 
 	// カテゴリー比較
-	for j, gca := range got.Category {
+	for j, gca := range got.Categories {
 		// 親カテゴリー比較
-		if d := cmp.Diff(gca.ParentCategory, want.Category[j].ParentCategory, cmpopts.IgnoreFields(gca.ParentCategory, ignoreFieldsMap["Other"]...)); len(d) != 0 {
+		if d := cmp.Diff(gca.ParentCategory, want.Categories[j].ParentCategory, cmpopts.IgnoreFields(gca.ParentCategory, ignoreFieldsMap["Other"]...)); len(d) != 0 {
 			t.Errorf("differs: (-got +want)\n%s", d)
 		}
 
 		// 子カテゴリー比較
 		for k, gcca := range gca.ChildCategory {
-			if d := cmp.Diff(gcca, want.Category[j].ChildCategory[k], cmpopts.IgnoreFields(gcca, ignoreFieldsMap["Other"]...)); len(d) != 0 {
+			if d := cmp.Diff(gcca, want.Categories[j].ChildCategory[k], cmpopts.IgnoreFields(gcca, ignoreFieldsMap["Other"]...)); len(d) != 0 {
 				t.Errorf("differs: (-got +want)\n%s", d)
 			}
 		}

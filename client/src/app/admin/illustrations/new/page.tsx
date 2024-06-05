@@ -1,11 +1,27 @@
-"use client";
+import { Category } from "@/types/category";
+import { Character } from "@/types/character";
+import {
+  fetchCategories,
+  fetchCharacters,
+} from "@/app/admin/illustrations/page";
+import CreateIllustration from "@/components/admin/illustrations/createForm";
+import {} from "@/utils/accessToken/accessToken";
+import { getServerAccessToken } from "@/utils/accessToken/server";
 
-export default function Characters() {
+const CreateIllustrationPage = async () => {
+  const accessToken = getServerAccessToken();
+  const characters: Character[] = await fetchCharacters(accessToken);
+  const categories: Category[] = await fetchCategories(accessToken);
+
   return (
-    <main>
-      <h1 className="m-10 text-4xl text-red-700">
-        this is a new illustration page
-      </h1>
-    </main>
+    <>
+      <CreateIllustration
+        characters={characters}
+        categories={categories}
+        accessToken={accessToken}
+      />
+    </>
   );
-}
+};
+
+export default CreateIllustrationPage;

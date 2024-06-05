@@ -1,41 +1,102 @@
 "use client";
 
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 const links = [
-  { href: "/admin", icon: "/icon/home.png", text: "TOP" },
+  {
+    href: "/admin",
+    icon: "/icon/home.png",
+    icon_active: "/icon/home-active.png",
+    text: "TOP",
+    sublinks: [],
+  },
   {
     href: "/admin/illustrations",
     icon: "/icon/illustration.png",
+    icon_active: "/icon/illustration-active.png",
     text: "イラスト",
+    sublinks: [
+      {
+        href: "/admin/illustrations/new",
+      },
+      {
+        href: "/admin/illustrations/",
+      },
+    ],
   },
-  { href: "/admin/characters", icon: "/icon/character.png", text: "キャラ" },
-  { href: "/admin/categories", icon: "/icon/category.png", text: "カテゴリ" },
+  {
+    href: "/admin/characters",
+    icon: "/icon/character.png",
+    icon_active: "/icon/character-active.png",
+    text: "キャラ",
+    sublinks: [],
+  },
+  {
+    href: "/admin/categories",
+    icon: "/icon/category.png",
+    icon_active: "/icon/category-active.png",
+    text: "カテゴリ",
+    sublinks: [],
+  },
 ];
 
 function AdminSidebar() {
+  const pathname = usePathname();
+
   return (
-    // <div className="w-20 h-full fixed inset-0 z-30 border-r-2 border-gray-200 bg-gray-50">
-    //   <div className="pt-16">
-    //     <ul className="flex flex-col items-center">
     <>
-      {links.map((link, index) => (
-        <li className="my-4" key={index}>
-          <a href={link.href} className="flex flex-col items-center">
-            <Image
-              src={link.icon}
-              alt={`${link.text}アイコン`}
-              height={36}
-              width={36}
-            />
-            <span className="text-gray-600 text-xs">{link.text}</span>
-          </a>
-        </li>
-      ))}
+      {links.map((link, index) => {
+        const isActive =
+          pathname === link.href ||
+          link.sublinks.some((sublink) => pathname.startsWith(sublink.href));
+
+        return (
+          <li
+            className={`mt-4 p-1 w-16 duration-200 rounded-lg ${
+              isActive ? "" : "hover:bg-gray-200"
+            }`}
+            key={index}
+          >
+            <a href={link.href} className="flex flex-col items-center">
+              <Image
+                src={isActive ? link.icon_active : link.icon}
+                alt={`${link.text}アイコン`}
+                height={36}
+                width={36}
+              />
+              <span
+                className={`text-xs mt-1
+                  ${isActive ? `text-green-600 font-bold` : `text-gray-600`}
+                `}
+              >
+                {link.text}
+              </span>
+              {/* {isActive && link.sublinks.length > 0 && (
+                <ul className="mt-4 pt-4 bg-gray-200 w-20 flex flex-col items-center">
+                  {link.sublinks.map((sublink, subIndex) => (
+                    <li key={subIndex} className="hover:opacity-50 mb-4">
+                      <a
+                        href={sublink.href}
+                        className="text-gray-600 text-xs flex flex-col items-center"
+                      >
+                        <Image
+                          src={sublink.icon}
+                          alt={`${sublink.text}アイコン`}
+                          height={32}
+                          width={32}
+                        />
+                        <span className="mt-1">{sublink.text}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )} */}
+            </a>
+          </li>
+        );
+      })}
     </>
-    //     </ul>
-    //   </div>
-    // </div>
   );
 }
 

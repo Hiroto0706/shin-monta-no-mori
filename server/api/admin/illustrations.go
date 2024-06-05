@@ -24,6 +24,12 @@ type listIllustrationsRequest struct {
 	Page int64 `form:"p"`
 }
 
+type listIllustrationsResponse struct {
+	Illustrations []*model.Illustration `json:"illustrations"`
+	TotalPages    int64                 `json:"total_pages"`
+	TotalCount    int64                 `json:"total_count"`
+}
+
 // ListIllustrations godoc
 // @Summary List illustrations
 // @Description Retrieves a paginated list of illustrations based on the provided page number.
@@ -60,7 +66,22 @@ func ListIllustrations(ctx *app.AppContext) {
 		illustrations = append(illustrations, il)
 	}
 
-	ctx.JSON(http.StatusOK, illustrations)
+	totalCount, err := ctx.Server.Store.CountImages(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CountImages : %w", err)))
+		return
+	}
+	totalPages := (totalCount + int64(ctx.Server.Config.ImageFetchLimit-1)) / int64(ctx.Server.Config.ImageFetchLimit)
+
+	ctx.JSON(http.StatusOK, listIllustrationsResponse{
+		Illustrations: illustrations,
+		TotalPages:    totalPages,
+		TotalCount:    totalCount,
+	})
+}
+
+type getIllustrationResponse struct {
+	Illustration *model.Illustration `json:"illustration"`
 }
 
 // GetIllustration godoc
@@ -95,7 +116,9 @@ func GetIllustration(ctx *app.AppContext) {
 	illustration := &model.Illustration{}
 	illustration = service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, image)
 
-	ctx.JSON(http.StatusOK, illustration)
+	ctx.JSON(http.StatusOK, getIllustrationResponse{
+		Illustration: illustration,
+	})
 }
 
 type searchIllustrationsRequest struct {
@@ -144,7 +167,21 @@ func SearchIllustrations(ctx *app.AppContext) {
 		illustrations = append(illustrations, il)
 	}
 
-	ctx.JSON(http.StatusOK, illustrations)
+	totalCount, err := ctx.Server.Store.CountSearchImages(ctx, sql.NullString{
+		String: req.Query,
+		Valid:  true,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CountSearchImages : %w", err)))
+		return
+	}
+	totalPages := (totalCount + int64(ctx.Server.Config.ImageFetchLimit-1)) / int64(ctx.Server.Config.ImageFetchLimit)
+
+	ctx.JSON(http.StatusOK, listIllustrationsResponse{
+		Illustrations: illustrations,
+		TotalPages:    totalPages,
+		TotalCount:    totalCount,
+	})
 }
 
 type createIllustrationRequest struct {
@@ -177,7 +214,7 @@ type createIllustrationRequest struct {
 func CreateIllustration(ctx *app.AppContext) {
 	var req createIllustrationRequest
 	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to ShouldBind form data : %w", err)))
 		return
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
@@ -231,9 +268,15 @@ func CreateIllustration(ctx *app.AppContext) {
 			}
 		}
 
-		// TODO: わんちゃん親カテゴリの保存はParamで受け取らなくてもいいかも。子カテゴリのIDを元に親カテゴリを保存する形で良さそう？？
 		// ImageParentCategoryRelationsの保存
+		// mapを使うことで、重複する値を取り除く
+		parentCategorySet := make(map[int64]struct{})
+
 		for _, pc_id := range req.ParentCategories {
+			parentCategorySet[pc_id] = struct{}{}
+		}
+
+		for pc_id := range parentCategorySet {
 			arg := db.CreateImageParentCategoryRelationsParams{
 				ImageID:          image.ID,
 				ParentCategoryID: pc_id,
@@ -268,11 +311,11 @@ func CreateIllustration(ctx *app.AppContext) {
 	image, err := ctx.Server.Store.GetImage(ctx, int64(image.ID))
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 			return
 		}
 
-		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage() : %w", err)))
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 		return
 	}
 
@@ -285,13 +328,14 @@ func CreateIllustration(ctx *app.AppContext) {
 }
 
 type editIllustrationRequest struct {
-	Title             string               `form:"title"`
-	Filename          string               `form:"filename"`
-	Characters        []int64              `form:"characters[]"`
-	ParentCategories  []int64              `form:"parent_categories[]"`
-	ChildCategories   []int64              `form:"child_categories[]"`
-	OriginalImageFile multipart.FileHeader `form:"original_image_file"`
-	SimpleImageFile   multipart.FileHeader `form:"simple_image_file"`
+	Title               string               `form:"title"`
+	Filename            string               `form:"filename"`
+	Characters          []int64              `form:"characters[]"`
+	ParentCategories    []int64              `form:"parent_categories[]"`
+	ChildCategories     []int64              `form:"child_categories[]"`
+	OriginalImageFile   multipart.FileHeader `form:"original_image_file"`
+	SimpleImageFile     multipart.FileHeader `form:"simple_image_file"`
+	IsDeleteSimpleImage bool                 `form:"is_delete_simple_image"`
 }
 
 // EditIllustration godoc
@@ -348,17 +392,35 @@ func EditIllustration(ctx *app.AppContext) {
 			}
 		}
 
+		// Conditions for updating simpleSrc:
+		// 1. ファイル名のみ変更
+		// 2. イメージのみ変更
+		// 3. ファイル名＆イメージが変更
+		// 4. イメージの削除
+		shouldUpdateSimpleSrc := image.OriginalFilename != req.Filename || req.SimpleImageFile.Filename != ""
 		simpleSrc := image.SimpleSrc.String
-		if image.OriginalFilename != req.Filename && image.SimpleFilename.String != "" {
-			err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, image.SimpleSrc.String)
-			if err != nil {
-				return err
+		if shouldUpdateSimpleSrc {
+			if simpleSrc != "" {
+				err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, simpleSrc)
+				if err != nil {
+					return err
+				}
 			}
 
-			simpleSrc, err = service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
+			if req.SimpleImageFile.Filename != "" {
+				simpleSrc, err = service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		if req.IsDeleteSimpleImage {
+			err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, simpleSrc)
 			if err != nil {
 				return err
 			}
+			simpleSrc = ""
 		}
 
 		// imageのUpdate処理

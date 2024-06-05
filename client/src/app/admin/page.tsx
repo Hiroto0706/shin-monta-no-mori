@@ -27,7 +27,7 @@ export default function TOP() {
             <li
               key={index}
               className="
-              p-2 border-2 border-gray-200 rounded-xl min-w-[220px] bg-white
+              p-2 border-2 border-gray-200 rounded-xl min-w-[220px] bg-white hover:scale-105 duration-200 cursor-pointer
               "
             >
               <a href={link.href} className="flex items-center">

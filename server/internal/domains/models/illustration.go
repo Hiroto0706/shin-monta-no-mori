@@ -6,17 +6,17 @@ import (
 
 type (
 	Illustration struct {
-		Image     db.Image
-		Character []*Character
-		Category  []*Category
+		Image      db.Image
+		Characters []*Character
+		Categories []*Category
 	}
 )
 
 func NewIllustration() *Illustration {
 	return &Illustration{
-		Image:     db.Image{},
-		Character: []*Character{},
-		Category: []*Category{
+		Image:      db.Image{},
+		Characters: []*Character{},
+		Categories: []*Category{
 			{
 				ParentCategory: db.ParentCategory{},
 				ChildCategory:  []db.ChildCategory{},

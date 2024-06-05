@@ -72,7 +72,7 @@ func TestListIllustrations(t *testing.T) {
 						},
 						OriginalFilename: "test_image_original_filename_999991",
 					},
-					Character: []*model.Character{
+					Characters: []*model.Character{
 						{
 							Character: db.Character{
 								ID:   11001,
@@ -81,7 +81,7 @@ func TestListIllustrations(t *testing.T) {
 							},
 						},
 					},
-					Category: []*model.Category{
+					Categories: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{
 								ID:   11001,
@@ -120,7 +120,7 @@ func TestListIllustrations(t *testing.T) {
 						},
 						OriginalFilename: "test_image_original_filename_999990",
 					},
-					Character: []*model.Character{
+					Characters: []*model.Character{
 						{
 							Character: db.Character{
 								ID:   11001,
@@ -129,7 +129,7 @@ func TestListIllustrations(t *testing.T) {
 							},
 						},
 					},
-					Category: []*model.Category{
+					Categories: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{
 								ID:   11001,
@@ -186,14 +186,19 @@ func TestListIllustrations(t *testing.T) {
 			if tt.wantErr {
 				require.NotEmpty(t, w.Body.String())
 			} else {
-				var got []model.Illustration
+				type wantType struct {
+					Illustration []model.Illustration `json:"illustrations"`
+					TotalPages   int64                `json:"total_pages"`
+					TotalCount   int64                `json:"total_count"`
+				}
+				var got wantType
 				err := json.Unmarshal(w.Body.Bytes(), &got)
 				require.NoError(t, err)
 				ignoreFields := map[string][]string{
 					"Image": {"CreatedAt", "UpdatedAt"},
 					"Other": {"CreatedAt", "UpdatedAt"},
 				}
-				for i, g := range got {
+				for i, g := range got.Illustration {
 					compareIllustrationsObjects(t, g, tt.want[i], ignoreFields)
 				}
 			}
@@ -239,7 +244,7 @@ func TestGetIllustration(t *testing.T) {
 					},
 					OriginalFilename: "test_image_original_filename_11001",
 				},
-				Character: []*model.Character{
+				Characters: []*model.Character{
 					{
 						Character: db.Character{
 							ID:   11002,
@@ -248,7 +253,7 @@ func TestGetIllustration(t *testing.T) {
 						},
 					},
 				},
-				Category: []*model.Category{
+				Categories: []*model.Category{
 					{
 						ParentCategory: db.ParentCategory{
 							ID:   11002,
@@ -300,14 +305,17 @@ func TestGetIllustration(t *testing.T) {
 			if tt.wantErr {
 				require.NotEmpty(t, w.Body.String())
 			} else {
-				var got model.Illustration
+				type wantType struct {
+					Illustration model.Illustration `json:"illustration"`
+				}
+				var got wantType
 				err := json.Unmarshal(w.Body.Bytes(), &got)
 				require.NoError(t, err)
 				ignoreFields := map[string][]string{
 					"Image": {"CreatedAt", "UpdatedAt"},
 					"Other": {"CreatedAt", "UpdatedAt"},
 				}
-				compareIllustrationsObjects(t, got, tt.want, ignoreFields)
+				compareIllustrationsObjects(t, got.Illustration, tt.want, ignoreFields)
 			}
 		})
 	}
@@ -357,7 +365,7 @@ func TestSearchIllustrations(t *testing.T) {
 						},
 						OriginalFilename: "test_image_original_filename_12001",
 					},
-					Character: []*model.Character{
+					Characters: []*model.Character{
 						{
 							Character: db.Character{
 								ID:   12001,
@@ -366,7 +374,7 @@ func TestSearchIllustrations(t *testing.T) {
 							},
 						},
 					},
-					Category: []*model.Category{
+					Categories: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{
 								ID:   12001,
@@ -396,9 +404,9 @@ func TestSearchIllustrations(t *testing.T) {
 			},
 			want: []model.Illustration{
 				{
-					Image:     db.Image{},
-					Character: []*model.Character{},
-					Category: []*model.Category{
+					Image:      db.Image{},
+					Characters: []*model.Character{},
+					Categories: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{},
 							ChildCategory:  []db.ChildCategory{},
@@ -418,9 +426,9 @@ func TestSearchIllustrations(t *testing.T) {
 			},
 			want: []model.Illustration{
 				{
-					Image:     db.Image{},
-					Character: []*model.Character{},
-					Category: []*model.Category{
+					Image:      db.Image{},
+					Characters: []*model.Character{},
+					Categories: []*model.Category{
 						{
 							ParentCategory: db.ParentCategory{},
 							ChildCategory:  []db.ChildCategory{},
@@ -447,14 +455,19 @@ func TestSearchIllustrations(t *testing.T) {
 			if tt.wantErr {
 				require.NotEmpty(t, w.Body.String())
 			} else {
-				var got []model.Illustration
+				type wantType struct {
+					Illustration []model.Illustration `json:"illustrations"`
+					TotalPages   int64                `json:"total_pages"`
+					TotalCount   int64                `json:"total_count"`
+				}
+				var got wantType
 				err := json.Unmarshal(w.Body.Bytes(), &got)
 				require.NoError(t, err)
 				ignoreFields := map[string][]string{
 					"Image": {"CreatedAt", "UpdatedAt"},
 					"Other": {"CreatedAt", "UpdatedAt"},
 				}
-				for i, g := range got {
+				for i, g := range got.Illustration {
 					compareIllustrationsObjects(t, g, tt.want[i], ignoreFields)
 				}
 			}
@@ -537,7 +550,7 @@ func TestSearchIllustrations(t *testing.T) {
 // 						Src:  "test_character_src_13001.com",
 // 					},
 // 				},
-// 				Category: []*model.Category{
+// 				Categories: []*model.Category{
 // 					{
 // 						ParentCategory: db.ParentCategory{
 // 							ID:   13001,
@@ -654,7 +667,7 @@ func TestEditIllustration(t *testing.T) {
 					Title:            "test_image_title_14001_edited",
 					OriginalFilename: "test_image_original_filename_14001",
 				},
-				Character: []*model.Character{
+				Characters: []*model.Character{
 					{
 						Character: db.Character{
 							ID:   14001,
@@ -670,7 +683,7 @@ func TestEditIllustration(t *testing.T) {
 						},
 					},
 				},
-				Category: []*model.Category{
+				Categories: []*model.Category{
 					{
 						ParentCategory: db.ParentCategory{
 							ID:   14001,
@@ -827,22 +840,22 @@ func compareIllustrationsObjects(t *testing.T, got model.Illustration, want mode
 	}
 
 	// キャラクター比較
-	for i, gch := range got.Character {
-		if d := cmp.Diff(gch.Character, want.Character[i].Character, cmpopts.IgnoreFields(gch.Character, ignoreFieldsMap["Other"]...)); len(d) != 0 {
+	for i, gch := range got.Characters {
+		if d := cmp.Diff(gch.Character, want.Characters[i].Character, cmpopts.IgnoreFields(gch.Character, ignoreFieldsMap["Other"]...)); len(d) != 0 {
 			t.Errorf("differs: (-got +want)\n%s", d)
 		}
 	}
 
 	// カテゴリー比較
-	for j, gca := range got.Category {
+	for j, gca := range got.Categories {
 		// 親カテゴリー比較
-		if d := cmp.Diff(gca.ParentCategory, want.Category[j].ParentCategory, cmpopts.IgnoreFields(gca.ParentCategory, ignoreFieldsMap["Other"]...)); len(d) != 0 {
+		if d := cmp.Diff(gca.ParentCategory, want.Categories[j].ParentCategory, cmpopts.IgnoreFields(gca.ParentCategory, ignoreFieldsMap["Other"]...)); len(d) != 0 {
 			t.Errorf("differs: (-got +want)\n%s", d)
 		}
 
 		// 子カテゴリー比較
 		for k, gcca := range gca.ChildCategory {
-			if d := cmp.Diff(gcca, want.Category[j].ChildCategory[k], cmpopts.IgnoreFields(gcca, ignoreFieldsMap["Other"]...)); len(d) != 0 {
+			if d := cmp.Diff(gcca, want.Categories[j].ChildCategory[k], cmpopts.IgnoreFields(gcca, ignoreFieldsMap["Other"]...)); len(d) != 0 {
 				t.Errorf("differs: (-got +want)\n%s", d)
 			}
 		}
