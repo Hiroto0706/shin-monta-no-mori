@@ -35,3 +35,7 @@ export const CreateIllustrationAPI = (): string => {
 export const EditIllustrationAPI = (id: number): string => {
   return process.env.NEXT_PUBLIC_BASE_API + "admin/illustrations/" + id;
 };
+
+export const DeleteIllustrationAPI = (id: number): string => {
+  return process.env.NEXT_PUBLIC_BASE_API + "admin/illustrations/" + id;
+};

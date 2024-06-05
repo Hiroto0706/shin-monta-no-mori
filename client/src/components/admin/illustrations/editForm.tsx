@@ -1,7 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import axios from "axios";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import useSelectCategories from "@/hooks/selectCategories";
 import useSelectCharacters from "@/hooks/selectCharacters";
 import { Category } from "@/types/category";
@@ -9,7 +10,7 @@ import { Character } from "@/types/character";
 import { truncateText } from "@/utils/text";
 import { useEffect, useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
-import { EditIllustrationAPI } from "@/api/illustration";
+import { DeleteIllustrationAPI, EditIllustrationAPI } from "@/api/illustration";
 import { Illustration } from "@/types/illustration";
 
 type Props = {
@@ -27,6 +28,7 @@ const EditIllustration: React.FC<Props> = ({
   categories,
   accessToken,
 }) => {
+  const router = useRouter();
   const displayLimit = 5;
   const displayTextLimit = 50;
 
@@ -124,6 +126,28 @@ const EditIllustration: React.FC<Props> = ({
     }
   };
 
+  const deleteIllustration = async (id: number) => {
+    if (!confirm(`本当に「${title}」を削除してもよろしいですか？`)) {
+      return;
+    }
+
+    try {
+      const response = await axios.delete(DeleteIllustrationAPI(id), {
+        headers: {
+          Authorization: SetBearerToken(accessToken),
+        },
+      });
+
+      if (response.status === 200) {
+        alert(response.data.message);
+        router.push("/admin/illustrations");
+      }
+    } catch (error) {
+      console.error("イラストの削除に失敗しました", error);
+      alert("イラストの削除に失敗しました");
+    }
+  };
+
   useEffect(() => {
     setCheckedCharacters(illustration.Characters.map((c) => c.Character));
     setCheckedChildCategories(
@@ -158,7 +182,21 @@ const EditIllustration: React.FC<Props> = ({
   return (
     <>
       <div className="max-w-7xl m-auto">
-        <h1 className="text-2xl font-bold mb-6">イラストの編集</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold">イラストの編集</h1>
+          <button
+            onClick={() => deleteIllustration(id)}
+            className="bg-red-500 text-white py-2 px-4 rounded-lg flex items-center"
+          >
+            <Image
+              src="/icon/trash.png"
+              alt="trashアイコン"
+              width={20}
+              height={20}
+            />
+            <span className="ml-1">削除</span>
+          </button>
+        </div>
         <form
           className="border-2 border-gray-300 rounded-lg p-12 bg-white"
           onSubmit={editIllustration}

@@ -235,7 +235,7 @@ func CreateIllustration(ctx *app.AppContext) {
 		if req.Filename != "" && req.SimpleImageFile.Size != 0 {
 			simpleSrc, err = service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
 			if err != nil {
-				return fmt.Errorf("failed to UploadImage: %w", err)
+				return fmt.Errorf("failed to UploadImage for simpl image : %w", err)
 			}
 		}
 
@@ -379,16 +379,20 @@ func EditIllustration(ctx *app.AppContext) {
 	}
 
 	txErr := ctx.Server.Store.ExecTx(ctx.Request.Context(), func(q *db.Queries) error {
+		// Conditions for updating simpleSrc:
+		// 1. ファイル名のみ変更
+		// 2. イメージのみ変更
+		// 3. ファイル名＆イメージが変更
 		originalSrc := image.OriginalSrc
-		if image.OriginalFilename != req.Filename {
+		if image.OriginalFilename != req.Filename || req.OriginalImageFile.Filename != "" {
 			err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, image.OriginalSrc)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to DeleteImageSrc : %w", err)
 			}
 
 			originalSrc, err = service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to UploadImage : %w", err)
 			}
 		}
 
@@ -403,14 +407,14 @@ func EditIllustration(ctx *app.AppContext) {
 			if simpleSrc != "" {
 				err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, simpleSrc)
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to DeleteImageSrc fro simple : %w", err)
 				}
 			}
 
 			if req.SimpleImageFile.Filename != "" {
 				simpleSrc, err = service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to UploadImage for simple image : %w", err)
 				}
 			}
 		}
@@ -418,7 +422,7 @@ func EditIllustration(ctx *app.AppContext) {
 		if req.IsDeleteSimpleImage {
 			err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, simpleSrc)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to DeleteImageSrc for simple image : %w", err)
 			}
 			simpleSrc = ""
 		}
@@ -512,12 +516,14 @@ func DeleteIllustration(ctx *app.AppContext) {
 	txErr := ctx.Server.Store.ExecTx(ctx.Request.Context(), func(q *db.Queries) error {
 		err = service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, image.OriginalSrc)
 		if err != nil {
-			return fmt.Errorf("failed to DeleteImageSrc: %w", err)
+			return fmt.Errorf("failed to DeleteImageSrc : %w", err)
 		}
 
-		err = service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, image.SimpleSrc.String)
-		if err != nil {
-			return fmt.Errorf("failed to DeleteImageSrc: %w", err)
+		if image.SimpleSrc.String != "" {
+			err = service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, image.SimpleSrc.String)
+			if err != nil {
+				return fmt.Errorf("failed to DeleteImageSrc for simple image : %w", err)
+			}
 		}
 
 		// TODO: illustrationとして取得できれば、このrelation取得の処理削除できる
