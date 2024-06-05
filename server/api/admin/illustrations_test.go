@@ -455,14 +455,19 @@ func TestSearchIllustrations(t *testing.T) {
 			if tt.wantErr {
 				require.NotEmpty(t, w.Body.String())
 			} else {
-				var got []model.Illustration
+				type wantType struct {
+					Illustration []model.Illustration `json:"illustrations"`
+					TotalPages   int64                `json:"total_pages"`
+					TotalCount   int64                `json:"total_count"`
+				}
+				var got wantType
 				err := json.Unmarshal(w.Body.Bytes(), &got)
 				require.NoError(t, err)
 				ignoreFields := map[string][]string{
 					"Image": {"CreatedAt", "UpdatedAt"},
 					"Other": {"CreatedAt", "UpdatedAt"},
 				}
-				for i, g := range got {
+				for i, g := range got.Illustration {
 					compareIllustrationsObjects(t, g, tt.want[i], ignoreFields)
 				}
 			}
