@@ -22,8 +22,6 @@ const fetchIllustrations = async (
   categories: string | null
 ): Promise<FetchIllustrationsResponse> => {
   const isSearch = query || characters || categories;
-  console.log("ここ通ってる???？");
-
   try {
     const response = isSearch
       ? await axios.get(
