@@ -167,7 +167,21 @@ func SearchIllustrations(ctx *app.AppContext) {
 		illustrations = append(illustrations, il)
 	}
 
-	ctx.JSON(http.StatusOK, illustrations)
+	totalCount, err := ctx.Server.Store.CountSearchImages(ctx, sql.NullString{
+		String: req.Query,
+		Valid:  true,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CountSearchImages : %w", err)))
+		return
+	}
+	totalPages := (totalCount + int64(ctx.Server.Config.ImageFetchLimit-1)) / int64(ctx.Server.Config.ImageFetchLimit)
+
+	ctx.JSON(http.StatusOK, listIllustrationsResponse{
+		Illustrations: illustrations,
+		TotalPages:    totalPages,
+		TotalCount:    totalCount,
+	})
 }
 
 type createIllustrationRequest struct {

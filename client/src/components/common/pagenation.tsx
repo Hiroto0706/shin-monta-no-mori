@@ -5,9 +5,20 @@ type Props = {
   totalPages: number;
   count: number;
   path: string;
+  query?: string;
+  charactersParams?: string;
+  categoriesParams?: string;
 };
 
-const Pagination = ({ currentPage, totalPages, count, path }: Props) => {
+const Pagination = ({
+  currentPage,
+  totalPages,
+  count,
+  path,
+  query,
+  charactersParams,
+  categoriesParams,
+}: Props) => {
   const limit =
     process.env.NEXT_PUBLIC_IMAGE_FETCH_LIMIT != undefined
       ? Number(process.env.NEXT_PUBLIC_IMAGE_FETCH_LIMIT)
@@ -26,9 +37,17 @@ const Pagination = ({ currentPage, totalPages, count, path }: Props) => {
     pageNumbers.push(i);
   }
 
+  const buildUrl = (page: number) => {
+    const params = new URLSearchParams({ p: page.toString() });
+    if (query) params.append("q", query);
+    if (charactersParams) params.append("characters", charactersParams);
+    if (categoriesParams) params.append("categories", categoriesParams);
+    return `${path}?${params.toString()}`;
+  };
+
   return (
     <div className="flex items-center space-x-2">
-      <a href={`${path}?p=${currentPage - 1}`} aria-label="Previous Page">
+      <a href={buildUrl(currentPage - 1)} aria-label="Previous Page">
         <button
           className={`px-3 py-1 border rounded ${
             currentPage === 0 || count < limit
@@ -41,7 +60,7 @@ const Pagination = ({ currentPage, totalPages, count, path }: Props) => {
         </button>
       </a>
       {pageNumbers.map((number) => (
-        <a key={number} href={`${path}?p=${number}`}>
+        <a key={number} href={buildUrl(number)}>
           <button
             className={`px-3 py-1 border rounded ${
               currentPage === number
@@ -53,7 +72,7 @@ const Pagination = ({ currentPage, totalPages, count, path }: Props) => {
           </button>
         </a>
       ))}
-      <a href={`${path}?p=${currentPage + 1}`} aria-label="Next Page">
+      <a href={buildUrl(currentPage + 1)} aria-label="Next Page">
         <button
           className={`px-3 py-1 border rounded ${
             currentPage === totalPages - 1 || count < limit

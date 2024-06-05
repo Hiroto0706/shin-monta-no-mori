@@ -4,6 +4,26 @@ export const FetchIllustrationsAPI = (page: number): string => {
   );
 };
 
+export const SearchIllustrationsAPI = (
+  page: number,
+  query: string | null,
+  characters: string | null,
+  categories: string | null
+): string => {
+  let url =
+    process.env.NEXT_PUBLIC_BASE_API + "admin/illustrations/search?p=" + page;
+  if (query) {
+    url += `&q=${encodeURIComponent(query)}`;
+  }
+  if (characters) {
+    url += `&characters=${encodeURIComponent(characters)}`;
+  }
+  if (categories) {
+    url += `&categories=${encodeURIComponent(categories)}`;
+  }
+  return url;
+};
+
 export const GetIllustrationAPI = (id: number): string => {
   return process.env.NEXT_PUBLIC_BASE_API + "admin/illustrations/" + id;
 };

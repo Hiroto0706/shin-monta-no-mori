@@ -1,12 +1,13 @@
 "use client";
 
+import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Character } from "@/types/character";
-import { truncateText } from "@/utils/text";
 import { Category } from "@/types/category";
 import useSelectCharacters from "@/hooks/selectCharacters";
 import useSelectCategories from "@/hooks/selectCategories";
+import { truncateText } from "@/utils/text";
 
 type Props = {
   characters: Character[];
@@ -14,7 +15,9 @@ type Props = {
 };
 
 const SearchBox: React.FC<Props> = ({ characters, categories }) => {
+  const router = useRouter();
   const displayLimit = 3;
+  const [title, setTitle] = useState("");
   const {
     checkedCharacters,
     showCharacterModal,
@@ -53,13 +56,38 @@ const SearchBox: React.FC<Props> = ({ characters, categories }) => {
     };
   }, []);
 
+  const searchIllustrations = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const queryParams: { [key: string]: string } = {};
+
+    if (title) {
+      queryParams.q = title;
+    }
+    if (checkedCharacters.length > 0) {
+      queryParams.characters = checkedCharacters
+        .map((char) => char.id)
+        .join(",");
+    }
+    if (checkedChildCategories.length > 0) {
+      queryParams.categories = checkedChildCategories
+        .map((cate) => cate.id)
+        .join(",");
+    }
+
+    const queryString = new URLSearchParams(queryParams).toString();
+    router.push(`/admin/illustrations?${queryString}`);
+    router.refresh();
+  };
+
   return (
     <div className="flex flex-col flex-col-reverse lg:flex-row justify-between">
-      <form className="flex flex-wrap">
+      <form className="flex flex-wrap" onSubmit={(e) => searchIllustrations(e)}>
         <div className="lg:mr-3 mb-6 lg:mb-3 w-full lg:w-80">
           <input
             type="text"
             placeholder="タイトル検索"
+            onChange={(e) => setTitle(e.target.value)}
             className="border-2 border-gray-200 py-2.5 px-4 rounded-md w-full"
           />
         </div>
@@ -83,9 +111,7 @@ const SearchBox: React.FC<Props> = ({ characters, categories }) => {
                   {checkedCharacters.length > displayLimit && <span>...</span>}
                 </div>
               ) : (
-                <span className="text-gray opacity-50">
-                  キャラクター
-                </span>
+                <span className="text-gray opacity-50">キャラクター</span>
               )}
             </div>
             <Image
@@ -150,9 +176,7 @@ const SearchBox: React.FC<Props> = ({ characters, categories }) => {
                   )}
                 </div>
               ) : (
-                <span className="text-gray opacity-50">
-                  カテゴリ
-                </span>
+                <span className="text-gray opacity-50">カテゴリ</span>
               )}
             </div>{" "}
             <Image
@@ -196,7 +220,7 @@ const SearchBox: React.FC<Props> = ({ characters, categories }) => {
           )}
         </div>
 
-        <button className="flex justify-center items-center lg:justify-start bg-green-600 text-white rounded-md font-bold py-3 pl-4 pr-3 lg:mb-6 w-full lg:w-auto hover:opacity-70 duration-200">
+        <button className="flex justify-center items-center lg:justify-start bg-green-600 text-white rounded-md font-bold py-2.5 border-2 border-green-600 pl-4 pr-3 lg:mb-6 w-full lg:w-auto hover:opacity-70 duration-200">
           <span className="mr-1">検索</span>
           <Image
             src="/icon/search.png"

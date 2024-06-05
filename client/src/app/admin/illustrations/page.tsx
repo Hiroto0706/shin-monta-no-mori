@@ -1,26 +1,44 @@
 import axios from "axios";
 import { FetchIllustrationsResponse } from "@/types/illustration";
-import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { Character } from "@/types/character";
 import { Category } from "@/types/category";
 import Pagination from "@/components/common/pagenation";
 import SearchBox from "@/components/admin/illustrations/searcBox";
 import ListTable from "@/components/admin/illustrations/listTable";
-import { FetchIllustrationsAPI } from "@/api/illustration";
-import { getServerAccessToken } from "@/utils/accessToken/server";
+import {
+  FetchIllustrationsAPI,
+  SearchIllustrationsAPI,
+} from "@/api/illustration";
 import { FetchCharactersAPI } from "@/api/character";
 import { FetchCategoriesAPI } from "@/api/category";
+import { SetBearerToken } from "@/utils/accessToken/accessToken";
+import { getServerAccessToken } from "@/utils/accessToken/server";
 
 const fetchIllustrations = async (
   page: number = 0,
-  accessToken: string | undefined
+  accessToken: string | undefined,
+  query: string | null,
+  characters: string | null,
+  categories: string | null
 ): Promise<FetchIllustrationsResponse> => {
+  const isSearch = query || characters || categories;
+  console.log("ここ通ってる???？");
+
   try {
-    const response = await axios.get(FetchIllustrationsAPI(page), {
-      headers: {
-        Authorization: SetBearerToken(accessToken),
-      },
-    });
+    const response = isSearch
+      ? await axios.get(
+          SearchIllustrationsAPI(page, query, characters, categories),
+          {
+            headers: {
+              Authorization: SetBearerToken(accessToken),
+            },
+          }
+        )
+      : await axios.get(FetchIllustrationsAPI(page), {
+          headers: {
+            Authorization: SetBearerToken(accessToken),
+          },
+        });
     return response.data;
   } catch (error) {
     console.error(error);
@@ -63,13 +81,28 @@ export const fetchCategories = async (
 export default async function IllustrationsListPage({
   searchParams,
 }: {
-  searchParams: { p: string };
+  searchParams: {
+    p: string;
+    q: string;
+    characters: string;
+    categories: string;
+  };
 }) {
   const accessToken = getServerAccessToken();
   const page = searchParams.p ? parseInt(searchParams.p, 10) : 0;
+  const query = searchParams.q ? searchParams.q : "";
+  const charactersParams = searchParams.characters
+    ? searchParams.characters
+    : "";
+  const categoriesParams = searchParams.categories
+    ? searchParams.categories
+    : "";
   const illustrations: FetchIllustrationsResponse = await fetchIllustrations(
     page,
-    accessToken
+    accessToken,
+    query,
+    charactersParams,
+    categoriesParams
   );
   const totalCount = illustrations.total_count;
   const totalPages = illustrations.total_pages;
@@ -94,6 +127,9 @@ export default async function IllustrationsListPage({
         count={totalCount}
         totalPages={totalPages}
         path="/admin/illustrations"
+        query={query}
+        charactersParams={charactersParams}
+        categoriesParams={categoriesParams}
       />
     </>
   );

@@ -50,3 +50,8 @@ WHERE id IN (
 -- name: CountImages :one
 SELECT count(*)
 FROM images;
+-- name: CountSearchImages :one
+SELECT DISTINCT count(*)
+FROM images
+WHERE title LIKE '%' || COALESCE(sqlc.arg(query)) || '%'
+  OR original_filename LIKE '%' || COALESCE(sqlc.arg(query)) || '%';

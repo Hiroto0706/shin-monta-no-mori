@@ -23,6 +23,20 @@ func (q *Queries) CountImages(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const countSearchImages = `-- name: CountSearchImages :one
+SELECT DISTINCT count(*)
+FROM images
+WHERE title LIKE '%' || COALESCE($1) || '%'
+  OR original_filename LIKE '%' || COALESCE($1) || '%'
+`
+
+func (q *Queries) CountSearchImages(ctx context.Context, query sql.NullString) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countSearchImages, query)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createImage = `-- name: CreateImage :one
 INSERT INTO images (
     title,
