@@ -26,6 +26,8 @@ type listCharactersRequest struct {
 
 type listCharactersResponse struct {
 	Characters []db.Character `json:"characters"`
+	TotalPages int64          `json:"total_pages"`
+	TotalCount int64          `json:"total_count"`
 }
 
 // ListCharacters godoc
@@ -40,11 +42,11 @@ type listCharactersResponse struct {
 // @Router /api/v1/admin/characters/list [get]
 func ListCharacters(ctx *app.AppContext) {
 	// TODO: bind 周りの処理は関数化して共通化したほうがいい
-	// var req listCharactersRequest
-	// if err := ctx.ShouldBindQuery(&req); err != nil {
-	// 	ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
-	// 	return
-	// }
+	var req listCharactersRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
+		return
+	}
 
 	characters, err := ctx.Server.Store.ListAllCharacters(ctx)
 	if err != nil {
@@ -52,7 +54,42 @@ func ListCharacters(ctx *app.AppContext) {
 		return
 	}
 
+	totalCount, err := ctx.Server.Store.CountCharacters(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CountCharacters : %w", err)))
+		return
+	}
+	totalPages := (totalCount + int64(ctx.Server.Config.CharacterFetchLimit-1)) / int64(ctx.Server.Config.CharacterFetchLimit)
+
 	ctx.JSON(http.StatusOK, listCharactersResponse{
+		Characters: characters,
+		TotalPages: totalPages,
+		TotalCount: totalCount,
+	})
+}
+
+type listAllCharactersResponse struct {
+	Characters []db.Character `json:"characters"`
+}
+
+// ListAllCharacters godoc
+// @Summary List characters
+// @Description Retrieves a paginated list of characters based on the provided page number.
+// @Accept  json
+// @Produce  json
+// @Param   p     query   int64  true  "Page number for pagination"
+// @Success 200   {object} gin/H  "Returns a list of characters"
+// @Failure 400   {object} request/JSONResponse{data=string} "Bad Request: Error in data binding or validation"
+// @Failure 500   {object} request/JSONResponse{data=string} "Internal Server Error: Failed to list the characters"
+// @Router /api/v1/admin/characters/list/all [get]
+func ListAllCharacters(ctx *app.AppContext) {
+	characters, err := ctx.Server.Store.ListAllCharacters(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListAllCharacters : %w", err)))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, listAllCharactersResponse{
 		Characters: characters,
 	})
 }

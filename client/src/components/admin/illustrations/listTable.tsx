@@ -9,7 +9,7 @@ type Props = {
   illustrations: FetchIllustrationsResponse;
 };
 
-const ListTable: React.FC<Props> = ({ illustrations }) => {
+const ListIllustrationsTable: React.FC<Props> = ({ illustrations }) => {
   const router = useRouter();
   const maxTextLength = 15;
   return (
@@ -115,4 +115,4 @@ const ListTable: React.FC<Props> = ({ illustrations }) => {
   );
 };
 
-export default ListTable;
+export default ListIllustrationsTable;

@@ -3,8 +3,8 @@ import { GetIllustrationResponse } from "@/types/illustration";
 import { Category } from "@/types/category";
 import { Character } from "@/types/character";
 import {
+  fetchAllCharacters,
   fetchCategories,
-  fetchCharacters,
 } from "@/app/admin/illustrations/page";
 import { GetIllustrationAPI } from "@/api/illustration";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
@@ -34,7 +34,7 @@ const EditIllustrationPage = async ({ params }: { params: { id: number } }) => {
     params.id,
     accessToken
   );
-  const characters: Character[] = await fetchCharacters(accessToken);
+  const characters: Character[] = await fetchAllCharacters(accessToken);
   const categories: Category[] = await fetchCategories(accessToken);
 
   return (

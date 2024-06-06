@@ -12,6 +12,7 @@ import (
 )
 
 type Querier interface {
+	CountCharacters(ctx context.Context) (int64, error)
 	CountImages(ctx context.Context) (int64, error)
 	CountSearchImages(ctx context.Context, query sql.NullString) (int64, error)
 	CreateCharacter(ctx context.Context, arg CreateCharacterParams) (Character, error)

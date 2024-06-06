@@ -3,13 +3,13 @@ import { FetchIllustrationsResponse } from "@/types/illustration";
 import { Character } from "@/types/character";
 import { Category } from "@/types/category";
 import Pagination from "@/components/common/pagenation";
-import SearchBox from "@/components/admin/illustrations/searcBox";
+import SearchForm from "@/components/admin/illustrations/searchForm";
 import ListTable from "@/components/admin/illustrations/listTable";
 import {
   FetchIllustrationsAPI,
   SearchIllustrationsAPI,
 } from "@/api/illustration";
-import { FetchCharactersAPI } from "@/api/character";
+import { FetchAllCharactersAPI } from "@/api/character";
 import { FetchCategoriesAPI } from "@/api/category";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { getServerAccessToken } from "@/utils/accessToken/server";
@@ -44,11 +44,11 @@ const fetchIllustrations = async (
   }
 };
 
-export const fetchCharacters = async (
+export const fetchAllCharacters = async (
   accessToken: string | undefined
 ): Promise<Character[]> => {
   try {
-    const response = await axios.get(FetchCharactersAPI(), {
+    const response = await axios.get(FetchAllCharactersAPI(), {
       headers: {
         Authorization: SetBearerToken(accessToken),
       },
@@ -104,7 +104,7 @@ export default async function IllustrationsListPage({
   );
   const totalCount = illustrations.total_count;
   const totalPages = illustrations.total_pages;
-  const characters: Character[] = await fetchCharacters(accessToken);
+  const characters: Character[] = await fetchAllCharacters(accessToken);
   const categories: Category[] = await fetchCategories(accessToken);
 
   return (
@@ -116,7 +116,7 @@ export default async function IllustrationsListPage({
         + イラスト追加
       </a>
 
-      <SearchBox characters={characters} categories={categories} />
+      <SearchForm characters={characters} categories={categories} />
 
       <ListTable illustrations={illustrations} />
 
