@@ -19,11 +19,11 @@ const ListCategoriesTable: React.FC<Props> = ({ categories }) => {
             <div className="flex justify-between items-center">
               <div className="flex items-center">
                 <Image
-                  className="mr-6"
+                  className="mr-4"
                   src={category.ParentCategory.src}
                   alt={category.ParentCategory.name}
-                  width={50}
-                  height={50}
+                  width={40}
+                  height={40}
                 />
                 <span className="text-2xl font-bold">
                   {category.ParentCategory.name}

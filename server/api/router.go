@@ -70,6 +70,7 @@ func SetAdminRouters(s *app.Server) {
 			categories.GET("/:id", app.HandlerFuncWrapper(s, admin.GetCategory))
 			parent_categories := categories.Group("/parent")
 			{
+				parent_categories.GET("/:id", app.HandlerFuncWrapper(s, admin.GetParentCategory))
 				parent_categories.POST("/create", app.HandlerFuncWrapper(s, admin.CreateParentCategory))
 				parent_categories.PUT("/:id", app.HandlerFuncWrapper(s, admin.EditParentCategory))
 				parent_categories.DELETE("/:id", app.HandlerFuncWrapper(s, admin.DeleteParentCategory))

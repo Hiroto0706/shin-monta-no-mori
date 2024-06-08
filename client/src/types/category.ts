@@ -2,7 +2,10 @@ export interface ParentCategory {
   id: number;
   name: string;
   src: string;
-  filename: string;
+  filename: {
+    String: string;
+    Valid: boolean;
+  };
   created_at: string;
   updated_at: string;
 }
@@ -22,4 +25,8 @@ export interface Category {
 
 export interface FetchCategoriesResponse {
   categories: Category[];
+}
+
+export interface GetParentCategoryResponse {
+  parent_category: ParentCategory | null;
 }

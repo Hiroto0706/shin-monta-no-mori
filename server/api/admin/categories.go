@@ -170,10 +170,54 @@ func SearchCategories(ctx *app.AppContext) {
 	ctx.JSON(http.StatusOK, categories)
 }
 
+type getParentCategoryRequest struct {
+	ParentCategory db.ParentCategory `json:"parent_category"`
+}
+
+// GetParentCategory godoc
+// @Summary Get a parent category by ID
+// @Description Retrieve a specific parent category by its ID
+// @Tags ParentCategory
+// @Accept json
+// @Produce json
+// @Param id path int true "Parent Category ID"
+// @Success 200 {object} getParentCategoryRequest
+// @Failure 400 {object} app.ErrorResponse "Bad Request"
+// @Failure 404 {object} app.ErrorResponse "Not Found"
+// @Failure 500 {object} app.ErrorResponse "Internal Server Error"
+// @Router /api/v1/admin/categories/parent/{id} [get]
+func GetParentCategory(ctx *app.AppContext) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
+		return
+	}
+
+	pcate, err := ctx.Server.Store.GetParentCategory(ctx, int64(id))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetParentCategory: %w", err)))
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetParentCategory : %w", err)))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, getParentCategoryRequest{
+		ParentCategory: pcate,
+	})
+}
+
 type createParentCategoryRequest struct {
 	Name      string               `form:"name" binding:"required"`
 	Filename  string               `form:"filename" binding:"required"`
 	ImageFile multipart.FileHeader `form:"image_file" binding:"required"`
+}
+
+type createParentCategoryResponse struct {
+	ParentCategory db.ParentCategory `json:"parent_category"`
+	Message        string            `json:"message"`
 }
 
 // CreateParentCategory godoc
@@ -225,9 +269,9 @@ func CreateParentCategory(ctx *app.AppContext) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"parent_category": parentCategory,
-		"message":         "parent_categoryの作成に成功しました",
+	ctx.JSON(http.StatusOK, createParentCategoryResponse{
+		ParentCategory: parentCategory,
+		Message:        "parent_categoryの作成に成功しました",
 	})
 }
 
@@ -235,6 +279,11 @@ type editParentCategoryRequest struct {
 	Name      string               `form:"name"`
 	Filename  string               `form:"filename"`
 	ImageFile multipart.FileHeader `form:"image_file"`
+}
+
+type editParentCategoryResponse struct {
+	ParentCategory db.ParentCategory `json:"parent_category"`
+	Message        string            `json:"message"`
 }
 
 // EditParentCategory godoc
@@ -312,9 +361,9 @@ func EditParentCategory(ctx *app.AppContext) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"parent_category": pcate,
-		"message":         "parent_categoryの編集に成功しました",
+	ctx.JSON(http.StatusOK, editParentCategoryResponse{
+		ParentCategory: pcate,
+		Message:        "parent_categoryの編集に成功しました",
 	})
 }
 

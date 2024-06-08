@@ -44,7 +44,14 @@ const links = [
     icon: "/icon/category.png",
     icon_active: "/icon/category-active.png",
     text: "カテゴリ",
-    sublinks: [],
+    sublinks: [
+      {
+        href: "/admin/categories/parent/",
+      },
+      {
+        href: "/admin/categories/child/",
+      },
+    ],
   },
 ];
 
