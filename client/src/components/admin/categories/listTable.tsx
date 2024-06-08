@@ -45,25 +45,23 @@ const ListCategoriesTable: React.FC<Props> = ({ categories }) => {
             </div>
           </div>
 
-          {category.ChildCategory.length > 0 && (
-            <div className="pt-6 pb-4 px-4 flex flex-wrap">
-              {category.ChildCategory.map((cc) => (
-                <a
-                  key={cc.id}
-                  href={`categories/child/${cc.id}`}
-                  className="text-xl mr-4 cursor-pointer py-2 px-4 mb-2 rounded-full hover:bg-gray-200 duration-200"
-                >
-                  # {cc.name}
-                </a>
-              ))}
+          <div className="pt-6 pb-4 px-4 flex flex-wrap">
+            {category.ChildCategory.map((cc) => (
               <a
-                href="categories/child/new"
-                className="flex items-center text-xl border-2 mb-2 px-4 cursor-pointer rounded-full hover:bg-gray-200 duration-200"
+                key={cc.id}
+                href={`categories/child/${cc.id}?parent_id=${category.ParentCategory.id}`}
+                className="flex items-center text-xl mr-4 cursor-pointer py-2 px-4 mb-2 rounded-full hover:bg-gray-200 duration-200"
               >
-                + 子カテゴリ追加
+                # {cc.name}
               </a>
-            </div>
-          )}
+            ))}
+            <a
+              href={`categories/child/new?parent_id=${category.ParentCategory.id}`}
+              className="flex items-center text-xl border-2 mb-2 py-2 px-4 cursor-pointer rounded-full hover:bg-gray-200 duration-200"
+            >
+              + 子カテゴリ追加
+            </a>
+          </div>
         </div>
       ))}
     </div>

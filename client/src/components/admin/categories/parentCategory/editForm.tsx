@@ -7,7 +7,7 @@ import { useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { DeleteCharacterAPI, EditCharacterAPI } from "@/api/character";
 import { ParentCategory } from "@/types/category";
-import { EditParentCategoryAPI } from "@/api/category";
+import { DeleteParentCategoryAPI, EditParentCategoryAPI } from "@/api/category";
 
 type Props = {
   id: number;
@@ -85,7 +85,7 @@ const EditParentCategory: React.FC<Props> = ({
     }
 
     try {
-      const response = await axios.delete(DeleteCharacterAPI(id), {
+      const response = await axios.delete(DeleteParentCategoryAPI(id), {
         headers: {
           Authorization: SetBearerToken(accessToken),
         },
@@ -93,7 +93,7 @@ const EditParentCategory: React.FC<Props> = ({
 
       if (response.status === 200) {
         alert(response.data.message);
-        router.push("/admin/characters");
+        router.push("/admin/categories");
       }
     } catch (error) {
       console.error("親カテゴリの削除に失敗しました", error);

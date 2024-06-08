@@ -367,6 +367,10 @@ func EditParentCategory(ctx *app.AppContext) {
 	})
 }
 
+type deleteParentCategoryResponse struct {
+	Message string `json:"message"`
+}
+
 // DeleteParentCategory godoc
 // @Summary Delete a parent category
 // @Description Deletes an existing parent category identified by its ID along with all its associated child categories and related image relations.
@@ -437,9 +441,19 @@ func DeleteParentCategory(ctx *app.AppContext) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "parent_categoryの削除に成功しました",
+	ctx.JSON(http.StatusOK, deleteParentCategoryResponse{
+		Message: "parent_categoryの削除に成功しました",
 	})
+}
+
+type createChildCategoryRequest struct {
+	Name     string `form:"name" binding:"required"`
+	ParentID int    `form:"parent_id" binding:"required"`
+}
+
+type createChildCategoryResponse struct {
+	ChildCategory db.ChildCategory `json:"child_category"`
+	Message       string           `json:"message"`
 }
 
 // CreateChildCategory godoc
@@ -453,11 +467,6 @@ func DeleteParentCategory(ctx *app.AppContext) {
 // @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Error in data binding or missing required fields"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to create the child category due to server-side error"
 // @Router /api/v1/admin/categories/child/create [post]
-type createChildCategoryRequest struct {
-	Name     string `form:"name" binding:"required"`
-	ParentID int    `form:"parent_id" binding:"required"`
-}
-
 func CreateChildCategory(ctx *app.AppContext) {
 	var req createChildCategoryRequest
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -475,9 +484,9 @@ func CreateChildCategory(ctx *app.AppContext) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"child_category": childCategory,
-		"message":        "child_categoryの作成に成功しました",
+	ctx.JSON(http.StatusOK, createChildCategoryResponse{
+		ChildCategory: childCategory,
+		Message:       "child_categoryの作成に成功しました",
 	})
 }
 
