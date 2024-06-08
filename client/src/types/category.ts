@@ -19,3 +19,7 @@ export interface Category {
   ParentCategory: ParentCategory;
   ChildCategory: ChildCategory[];
 }
+
+export interface FetchCategoriesResponse {
+  categories: Category[];
+}
