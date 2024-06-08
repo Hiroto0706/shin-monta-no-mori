@@ -1,9 +1,4 @@
-import { Category } from "@/types/category";
-import { Character } from "@/types/character";
-import {
-  fetchCategories,
-} from "@/app/admin/illustrations/page";
-import CreateIllustration from "@/components/admin/illustrations/createForm";
+import CreateCharacter from "@/components/admin/characters/createForm";
 import {} from "@/utils/accessToken/accessToken";
 import { getServerAccessToken } from "@/utils/accessToken/server";
 
@@ -12,11 +7,9 @@ const CreateIllustrationPage = async () => {
 
   return (
     <>
-      {/* <CreateIllustration
-        characters={characters}
-        categories={categories}
+      <CreateCharacter
         accessToken={accessToken}
-      /> */}
+      />
     </>
   );
 };

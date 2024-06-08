@@ -30,7 +30,7 @@ const ListCharactersTable: React.FC<Props> = ({ characters }) => {
               key={index}
               className="border-2 border-gray-100 cursor-pointer duration-200 hover:bg-gray-50"
               onClick={() =>
-                router.push(`illustrations/edit/${character.id}`)
+                router.push(`characters/edit/${character.id}`)
               }
             >
               <td className="px-6 py-4">{character.id}</td>

@@ -190,7 +190,6 @@ type createCharacterRequest struct {
 func CreateCharacter(ctx *app.AppContext) {
 	var req createCharacterRequest
 	if err := ctx.ShouldBind(&req); err != nil {
-		log.Println(err)
 		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
 		return
 	}
@@ -224,7 +223,7 @@ func CreateCharacter(ctx *app.AppContext) {
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"character": character,
-		"message":   "characterの作成に成功しました",
+		"message":   "キャラクターの作成に成功しました",
 	})
 }
 
@@ -261,6 +260,8 @@ func EditCharacter(ctx *app.AppContext) {
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
+	log.Println(req)
+
 	character, err := ctx.Server.Store.GetCharacter(ctx, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -273,15 +274,15 @@ func EditCharacter(ctx *app.AppContext) {
 
 	txErr := ctx.Server.Store.ExecTx(ctx.Request.Context(), func(q *db.Queries) error {
 		src := character.Src
-		if character.Filename.String != req.Filename {
+		if character.Filename.String != req.Filename || req.ImageFile.Filename != "" {
 			err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, character.Src)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to DeleteImageSrc : %w", err)
 			}
 
 			src, err = service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "image_file", req.Filename, IMAGE_TYPE_CHARACTER, false)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to UploadImage : %w", err)
 			}
 		}
 

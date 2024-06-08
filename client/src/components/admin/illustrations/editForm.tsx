@@ -90,6 +90,14 @@ const EditIllustration: React.FC<Props> = ({
   const editIllustration = async (event: React.FormEvent) => {
     event.preventDefault();
 
+    if (
+      filename != illustration.Image.original_filename &&
+      originalImageFile == null
+    ) {
+      alert("新しい画像を設定してください");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("title", title);
     formData.append("filename", filename);
