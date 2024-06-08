@@ -34,3 +34,6 @@ WHERE name LIKE '%' || COALESCE(sqlc.arg(query)) || '%'
   OR filename LIKE '%' || COALESCE(sqlc.arg(query)) || '%'
 ORDER BY id DESC
 LIMIT $1 OFFSET $2;
+-- name: CountCharacters :one
+SELECT count(*)
+FROM characters;

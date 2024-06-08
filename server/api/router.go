@@ -56,6 +56,7 @@ func SetAdminRouters(s *app.Server) {
 		characters := adminGroup.Group("/characters")
 		{
 			characters.GET("/list", app.HandlerFuncWrapper(s, admin.ListCharacters))
+			characters.GET("/list/all", app.HandlerFuncWrapper(s, admin.ListAllCharacters))
 			characters.GET("/search", app.HandlerFuncWrapper(s, admin.SearchCharacters))
 			characters.GET("/:id", app.HandlerFuncWrapper(s, admin.GetCharacter))
 			characters.POST("/create", app.HandlerFuncWrapper(s, admin.CreateCharacter))

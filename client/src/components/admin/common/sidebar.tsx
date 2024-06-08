@@ -21,7 +21,7 @@ const links = [
         href: "/admin/illustrations/new",
       },
       {
-        href: "/admin/illustrations/",
+        href: "/admin/illustrations/edit",
       },
     ],
   },
@@ -30,7 +30,14 @@ const links = [
     icon: "/icon/character.png",
     icon_active: "/icon/character-active.png",
     text: "キャラ",
-    sublinks: [],
+    sublinks: [
+      {
+        href: "/admin/characters/new",
+      },
+      {
+        href: "/admin/characters/edit",
+      },
+    ],
   },
   {
     href: "/admin/categories",

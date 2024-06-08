@@ -14,7 +14,7 @@ type Props = {
   categories: Category[];
 };
 
-const SearchBox: React.FC<Props> = ({ characters, categories }) => {
+const IllustrationsSearchForm: React.FC<Props> = ({ characters, categories }) => {
   const router = useRouter();
   const displayLimit = 3;
   const [title, setTitle] = useState("");
@@ -234,4 +234,4 @@ const SearchBox: React.FC<Props> = ({ characters, categories }) => {
   );
 };
 
-export default SearchBox;
+export default IllustrationsSearchForm;
