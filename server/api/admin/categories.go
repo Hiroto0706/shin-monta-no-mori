@@ -159,7 +159,7 @@ func SearchCategories(ctx *app.AppContext) {
 		return
 	}
 
-	categories := make([]*model.Category, len(pcates))
+	categories := make([]model.Category, len(pcates))
 	for i, pcate := range pcates {
 		ccates, err := ctx.Server.Store.GetChildCategoriesByParentID(ctx, pcate.ID)
 		if err != nil {
@@ -167,13 +167,15 @@ func SearchCategories(ctx *app.AppContext) {
 			return
 		}
 
-		categories[i] = &model.Category{
+		categories[i] = model.Category{
 			ParentCategory: pcate,
 			ChildCategory:  ccates,
 		}
 	}
 
-	ctx.JSON(http.StatusOK, categories)
+	ctx.JSON(http.StatusOK, listCategoriesResponse{
+		Categories: categories,
+	})
 }
 
 type createParentCategoryRequest struct {

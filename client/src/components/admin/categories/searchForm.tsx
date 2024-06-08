@@ -18,7 +18,7 @@ const CategoriesSearchForm: React.FC = () => {
     }
 
     const queryString = new URLSearchParams(queryParams).toString();
-    router.push(`/admin/characters?${queryString}`);
+    router.push(`/admin/categories?${queryString}`);
     router.refresh();
   };
 
