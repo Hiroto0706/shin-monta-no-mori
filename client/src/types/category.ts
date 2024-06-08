@@ -27,6 +27,10 @@ export interface FetchCategoriesResponse {
   categories: Category[];
 }
 
-export interface GetParentCategoryResponse {
-  parent_category: ParentCategory | null;
+export interface GetCategoryResponse {
+  category: Category | null;
+}
+
+export interface GetChildCategoryResponse {
+  child_category: ChildCategory | null;
 }

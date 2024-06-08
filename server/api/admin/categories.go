@@ -77,6 +77,10 @@ func ListCategories(ctx *app.AppContext) {
 	})
 }
 
+type getCategoryResponse struct {
+	Category *model.Category `json:"category"`
+}
+
 // GetCategory godoc
 // @Summary Retrieve a category
 // @Description Retrieves a parent category along with its child categories by the parent category's ID
@@ -116,7 +120,9 @@ func GetCategory(ctx *app.AppContext) {
 	category.ParentCategory = pcate
 	category.ChildCategory = ccates
 
-	ctx.JSON(http.StatusOK, category)
+	ctx.JSON(http.StatusOK, getCategoryResponse{
+		Category: category,
+	})
 }
 
 type searchCategoriesRequest struct {

@@ -12,8 +12,8 @@ export const CreateParentCategoryAPI = (): string => {
   return process.env.NEXT_PUBLIC_BASE_API + "admin/categories/parent/create";
 };
 
-export const GetParentCategoryAPI = (id: number): string => {
-  return process.env.NEXT_PUBLIC_BASE_API + "admin/categories/parent/" + id;
+export const GetCategoryAPI = (id: number): string => {
+  return process.env.NEXT_PUBLIC_BASE_API + "admin/categories/" + id;
 };
 
 export const EditParentCategoryAPI = (id: number): string => {
@@ -26,4 +26,8 @@ export const DeleteParentCategoryAPI = (id: number): string => {
 
 export const CreateChildCategoryAPI = (): string => {
   return process.env.NEXT_PUBLIC_BASE_API + "admin/categories/child/create";
+};
+
+export const GetChildCategoryAPI = (id: number): string => {
+  return process.env.NEXT_PUBLIC_BASE_API + "admin/categories/child/" + id;
 };

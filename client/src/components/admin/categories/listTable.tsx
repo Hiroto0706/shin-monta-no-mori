@@ -49,7 +49,7 @@ const ListCategoriesTable: React.FC<Props> = ({ categories }) => {
             {category.ChildCategory.map((cc) => (
               <a
                 key={cc.id}
-                href={`categories/child/${cc.id}?parent_id=${category.ParentCategory.id}`}
+                href={`categories/child/${cc.id}`}
                 className="flex items-center text-xl mr-4 cursor-pointer py-2 px-4 mb-2 rounded-full hover:bg-gray-200 duration-200"
               >
                 # {cc.name}
