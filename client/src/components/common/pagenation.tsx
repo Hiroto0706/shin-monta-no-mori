@@ -68,7 +68,7 @@ const Pagination = ({
                 : "hover:bg-gray-200"
             }`}
           >
-            {number}
+            {number + 1}
           </button>
         </a>
       ))}

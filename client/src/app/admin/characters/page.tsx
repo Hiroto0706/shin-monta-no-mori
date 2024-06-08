@@ -1,23 +1,31 @@
 import axios from "axios";
-import { Character, FetchCharactersResponse } from "@/types/character";
+import { FetchCharactersResponse } from "@/types/character";
 import SearchForm from "@/components/admin/characters/searchForm";
-import { FetchCharactersAPI } from "@/api/character";
+import { FetchCharactersAPI, SearchCharactersAPI } from "@/api/character";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { getServerAccessToken } from "@/utils/accessToken/server";
 import ListCharactersTable from "@/components/admin/characters/listTable";
 import Pagination from "@/components/common/pagenation";
 
 export const fetchCharacters = async (
-  page: number,
+  page: number = 0,
+  query: string,
   accessToken: string | undefined
 ): Promise<FetchCharactersResponse> => {
+  const isSearch = query != "";
+
   try {
-    const response = await axios.get(FetchCharactersAPI(page), {
-      headers: {
-        Authorization: SetBearerToken(accessToken),
-      },
-    });
-    console.log(response.data);
+    const response = !isSearch
+      ? await axios.get(FetchCharactersAPI(page), {
+          headers: {
+            Authorization: SetBearerToken(accessToken),
+          },
+        })
+      : await axios.get(SearchCharactersAPI(page, query), {
+          headers: {
+            Authorization: SetBearerToken(accessToken),
+          },
+        });
     return response.data;
   } catch (error) {
     console.error(error);
@@ -36,7 +44,7 @@ export default async function IllustrationsListPage({
   const accessToken = getServerAccessToken();
   const page = searchParams.p ? parseInt(searchParams.p, 10) : 0;
   const query = searchParams.q ? searchParams.q : "";
-  const characters = await fetchCharacters(page, accessToken);
+  const characters = await fetchCharacters(page, query, accessToken);
   const totalCount = characters.total_count;
   const totalPages = characters.total_pages;
 

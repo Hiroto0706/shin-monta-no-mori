@@ -23,20 +23,20 @@ const fetchIllustrations = async (
 ): Promise<FetchIllustrationsResponse> => {
   const isSearch = query || characters || categories;
   try {
-    const response = isSearch
-      ? await axios.get(
+    const response = !isSearch
+      ? await axios.get(FetchIllustrationsAPI(page), {
+          headers: {
+            Authorization: SetBearerToken(accessToken),
+          },
+        })
+      : await axios.get(
           SearchIllustrationsAPI(page, query, characters, categories),
           {
             headers: {
               Authorization: SetBearerToken(accessToken),
             },
           }
-        )
-      : await axios.get(FetchIllustrationsAPI(page), {
-          headers: {
-            Authorization: SetBearerToken(accessToken),
-          },
-        });
+        );
     return response.data;
   } catch (error) {
     console.error(error);
