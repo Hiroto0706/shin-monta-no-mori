@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { Character } from "@/types/character";
 import { useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
-import { DeleteIllustrationAPI } from "@/api/illustration";
 import { DeleteCharacterAPI, EditCharacterAPI } from "@/api/character";
 
 type Props = {
@@ -44,7 +43,7 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
     }
   };
 
-  const editIllustration = async (event: React.FormEvent) => {
+  const editCharacter = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (filename != character.filename.String && imageFile == null) {
@@ -75,7 +74,7 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
     }
   };
 
-  const deleteIllustration = async (id: number) => {
+  const deleteCharacter = async (id: number) => {
     if (!confirm(`本当に「${name}」を削除してもよろしいですか？`)) {
       return;
     }
@@ -103,7 +102,7 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">キャラクターの編集</h1>
           <button
-            onClick={() => deleteIllustration(id)}
+            onClick={() => deleteCharacter(id)}
             className="bg-red-500 text-white py-2 px-4 rounded-lg flex items-center"
           >
             <Image
@@ -117,7 +116,7 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
         </div>
         <form
           className="border-2 border-gray-300 rounded-lg p-12 bg-white"
-          onSubmit={editIllustration}
+          onSubmit={editCharacter}
         >
           <div className="mb-16">
             <label className="text-xl">名前</label>

@@ -31,3 +31,11 @@ export const CreateChildCategoryAPI = (): string => {
 export const GetChildCategoryAPI = (id: number): string => {
   return process.env.NEXT_PUBLIC_BASE_API + "admin/categories/child/" + id;
 };
+
+export const EditChildCategoryAPI = (id: number): string => {
+  return process.env.NEXT_PUBLIC_BASE_API + "admin/categories/child/" + id;
+};
+
+export const DeleteChildCategoryAPI = (id: number): string => {
+  return process.env.NEXT_PUBLIC_BASE_API + "admin/categories/child/" + id;
+};

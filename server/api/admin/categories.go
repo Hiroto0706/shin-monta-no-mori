@@ -176,45 +176,6 @@ func SearchCategories(ctx *app.AppContext) {
 	ctx.JSON(http.StatusOK, categories)
 }
 
-type getParentCategoryRequest struct {
-	ParentCategory db.ParentCategory `json:"parent_category"`
-}
-
-// GetParentCategory godoc
-// @Summary Get a parent category by ID
-// @Description Retrieve a specific parent category by its ID
-// @Tags ParentCategory
-// @Accept json
-// @Produce json
-// @Param id path int true "Parent Category ID"
-// @Success 200 {object} getParentCategoryRequest
-// @Failure 400 {object} app.ErrorResponse "Bad Request"
-// @Failure 404 {object} app.ErrorResponse "Not Found"
-// @Failure 500 {object} app.ErrorResponse "Internal Server Error"
-// @Router /api/v1/admin/categories/parent/{id} [get]
-func GetParentCategory(ctx *app.AppContext) {
-	id, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
-		return
-	}
-
-	pcate, err := ctx.Server.Store.GetParentCategory(ctx, int64(id))
-	if err != nil {
-		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetParentCategory: %w", err)))
-			return
-		}
-
-		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetParentCategory : %w", err)))
-		return
-	}
-
-	ctx.JSON(http.StatusOK, getParentCategoryRequest{
-		ParentCategory: pcate,
-	})
-}
-
 type createParentCategoryRequest struct {
 	Name      string               `form:"name" binding:"required"`
 	Filename  string               `form:"filename" binding:"required"`
@@ -449,6 +410,39 @@ func DeleteParentCategory(ctx *app.AppContext) {
 
 	ctx.JSON(http.StatusOK, deleteParentCategoryResponse{
 		Message: "parent_categoryの削除に成功しました",
+	})
+}
+
+type getChildCategoryResponse struct {
+	ChildCategory db.ChildCategory `json:"child_category"`
+}
+
+// GetChildCategory godoc
+// @Summary Get a child category by ID
+// @Description Retrieves a specific child category based on the provided ID.
+// @Tags ChildCategories
+// @Accept json
+// @Produce json
+// @Param id path int true "Child Category ID"
+// @Success 200 {object} getChildCategoryResponse "A child category object"
+// @Failure 400 {object} app.JSONResponse{data=string} "Bad Request: The request is malformed or missing required fields."
+// @Failure 500 {object} app.JSONResponse{data=string} "Internal Server Error: An error occurred on the server which prevented the completion of the request."
+// @Router /api/v1/admin/categories/child/{id} [get]
+func GetChildCategory(ctx *app.AppContext) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
+		return
+	}
+
+	child_category, err := ctx.Server.Store.GetChildCategory(ctx, int64(id))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategory : %w", err)))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, getChildCategoryResponse{
+		ChildCategory: child_category,
 	})
 }
 

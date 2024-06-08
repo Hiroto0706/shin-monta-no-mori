@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
-import { CreateChildCategoryAPI } from "@/api/category";
+import {
+  CreateChildCategoryAPI,
+  DeleteChildCategoryAPI,
+  EditChildCategoryAPI,
+} from "@/api/category";
 import { Category, ChildCategory } from "@/types/category";
 import Image from "next/image";
 import { truncateText } from "@/utils/text";
@@ -30,7 +34,7 @@ const EditChildCategory: React.FC<Props> = ({
     setShowCategoryModal(status);
   };
 
-  const createIllustration = async (event: React.FormEvent) => {
+  const editChildCategory = async (event: React.FormEvent) => {
     event.preventDefault();
 
     const formData = new FormData();
@@ -38,7 +42,32 @@ const EditChildCategory: React.FC<Props> = ({
     formData.append("parent_id", checkedParentCategoryID.toString());
 
     try {
-      const response = await axios.post(CreateChildCategoryAPI(), formData, {
+      const response = await axios.put(
+        EditChildCategoryAPI(childCategory.id),
+        formData,
+        {
+          headers: {
+            Authorization: SetBearerToken(accessToken),
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      console.error("子カテゴリの編集に失敗しました", error);
+      alert("子カテゴリの編集に失敗しました");
+    }
+  };
+
+  const deleteChildCategory = async (id: number) => {
+    if (!confirm(`本当に「${name}」を削除してもよろしいですか？`)) {
+      return;
+    }
+
+    try {
+      const response = await axios.delete(DeleteChildCategoryAPI(id), {
         headers: {
           Authorization: SetBearerToken(accessToken),
         },
@@ -49,8 +78,8 @@ const EditChildCategory: React.FC<Props> = ({
         router.push("/admin/categories");
       }
     } catch (error) {
-      console.error("子カテゴリの編集に失敗しました", error);
-      alert("子カテゴリの編集に失敗しました");
+      console.error("子カテゴリの削除に失敗しました", error);
+      alert("子カテゴリの削除に失敗しました");
     }
   };
 
@@ -74,10 +103,25 @@ const EditChildCategory: React.FC<Props> = ({
   return (
     <>
       <div className="max-w-7xl m-auto">
-        <h1 className="text-2xl font-bold mb-6">子カテゴリの編集</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold">子カテゴリの編集</h1>
+          <button
+            onClick={() => deleteChildCategory(childCategory.id)}
+            className="bg-red-500 text-white py-2 px-4 rounded-lg flex items-center"
+          >
+            <Image
+              src="/icon/trash.png"
+              alt="trashアイコン"
+              width={20}
+              height={20}
+            />
+            <span className="ml-1">削除</span>
+          </button>
+        </div>
+
         <form
           className="border-2 border-gray-300 rounded-lg p-12 bg-white"
-          onSubmit={createIllustration}
+          onSubmit={editChildCategory}
         >
           <div className="mb-16">
             <label className="text-xl">名前</label>

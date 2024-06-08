@@ -48,7 +48,7 @@ const EditParentCategory: React.FC<Props> = ({
     }
   };
 
-  const editIllustration = async (event: React.FormEvent) => {
+  const editParentCategory = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (filename != parentCategory.filename.String && imageFile == null) {
@@ -79,7 +79,7 @@ const EditParentCategory: React.FC<Props> = ({
     }
   };
 
-  const deleteIllustration = async (id: number) => {
+  const deleteParentCategory = async (id: number) => {
     if (!confirm(`本当に「${name}」を削除してもよろしいですか？`)) {
       return;
     }
@@ -107,7 +107,7 @@ const EditParentCategory: React.FC<Props> = ({
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">親カテゴリの編集</h1>
           <button
-            onClick={() => deleteIllustration(id)}
+            onClick={() => deleteParentCategory(id)}
             className="bg-red-500 text-white py-2 px-4 rounded-lg flex items-center"
           >
             <Image
@@ -119,9 +119,10 @@ const EditParentCategory: React.FC<Props> = ({
             <span className="ml-1">削除</span>
           </button>
         </div>
+
         <form
           className="border-2 border-gray-300 rounded-lg p-12 bg-white"
-          onSubmit={editIllustration}
+          onSubmit={editParentCategory}
         >
           <div className="mb-16">
             <label className="text-xl">名前</label>
