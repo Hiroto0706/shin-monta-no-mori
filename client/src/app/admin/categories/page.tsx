@@ -45,7 +45,7 @@ export default async function CategoriesListPage({
   return (
     <>
       <a
-        href="categories/new"
+        href="categories/parent/new"
         className="flex items-center bg-white hover:bg-green-600 border-2 border-green-600 text-green-600 hover:text-white rounded-lg py-2 font-bold mb-6 ml-auto w-full lg:w-44 justify-center duration-200"
       >
         + 親カテゴリ追加

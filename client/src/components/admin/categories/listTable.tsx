@@ -30,7 +30,10 @@ const ListCategoriesTable: React.FC<Props> = ({ categories }) => {
                 </span>
               </div>
 
-              <a className="flex items-center justify-center cursor-pointer hover:bg-gray-300 duration-200 py-2 px-4 rounded-lg">
+              <a
+                href={`categories/parent/${category.ParentCategory.id}`}
+                className="flex items-center justify-center cursor-pointer hover:bg-gray-300 duration-200 py-2 px-4 rounded-lg"
+              >
                 <Image
                   src="/icon/edit.png"
                   alt="editアイコン"
@@ -47,12 +50,16 @@ const ListCategoriesTable: React.FC<Props> = ({ categories }) => {
               {category.ChildCategory.map((cc) => (
                 <a
                   key={cc.id}
+                  href={`categories/child/${cc.id}`}
                   className="text-xl mr-4 cursor-pointer py-2 px-4 mb-2 rounded-full hover:bg-gray-200 duration-200"
                 >
                   # {cc.name}
                 </a>
               ))}
-              <a className="flex items-center text-xl border-2 mb-2 px-4 cursor-pointer rounded-full hover:bg-gray-200 duration-200">
+              <a
+                href="categories/child/new"
+                className="flex items-center text-xl border-2 mb-2 px-4 cursor-pointer rounded-full hover:bg-gray-200 duration-200"
+              >
                 + 子カテゴリ追加
               </a>
             </div>
