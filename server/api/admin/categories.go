@@ -77,6 +77,10 @@ func ListCategories(ctx *app.AppContext) {
 	})
 }
 
+type getCategoryResponse struct {
+	Category *model.Category `json:"category"`
+}
+
 // GetCategory godoc
 // @Summary Retrieve a category
 // @Description Retrieves a parent category along with its child categories by the parent category's ID
@@ -116,7 +120,9 @@ func GetCategory(ctx *app.AppContext) {
 	category.ParentCategory = pcate
 	category.ChildCategory = ccates
 
-	ctx.JSON(http.StatusOK, category)
+	ctx.JSON(http.StatusOK, getCategoryResponse{
+		Category: category,
+	})
 }
 
 type searchCategoriesRequest struct {
@@ -153,7 +159,7 @@ func SearchCategories(ctx *app.AppContext) {
 		return
 	}
 
-	categories := make([]*model.Category, len(pcates))
+	categories := make([]model.Category, len(pcates))
 	for i, pcate := range pcates {
 		ccates, err := ctx.Server.Store.GetChildCategoriesByParentID(ctx, pcate.ID)
 		if err != nil {
@@ -161,19 +167,26 @@ func SearchCategories(ctx *app.AppContext) {
 			return
 		}
 
-		categories[i] = &model.Category{
+		categories[i] = model.Category{
 			ParentCategory: pcate,
 			ChildCategory:  ccates,
 		}
 	}
 
-	ctx.JSON(http.StatusOK, categories)
+	ctx.JSON(http.StatusOK, listCategoriesResponse{
+		Categories: categories,
+	})
 }
 
 type createParentCategoryRequest struct {
 	Name      string               `form:"name" binding:"required"`
 	Filename  string               `form:"filename" binding:"required"`
 	ImageFile multipart.FileHeader `form:"image_file" binding:"required"`
+}
+
+type createParentCategoryResponse struct {
+	ParentCategory db.ParentCategory `json:"parent_category"`
+	Message        string            `json:"message"`
 }
 
 // CreateParentCategory godoc
@@ -225,9 +238,9 @@ func CreateParentCategory(ctx *app.AppContext) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"parent_category": parentCategory,
-		"message":         "parent_categoryの作成に成功しました",
+	ctx.JSON(http.StatusOK, createParentCategoryResponse{
+		ParentCategory: parentCategory,
+		Message:        "parent_categoryの作成に成功しました",
 	})
 }
 
@@ -235,6 +248,11 @@ type editParentCategoryRequest struct {
 	Name      string               `form:"name"`
 	Filename  string               `form:"filename"`
 	ImageFile multipart.FileHeader `form:"image_file"`
+}
+
+type editParentCategoryResponse struct {
+	ParentCategory db.ParentCategory `json:"parent_category"`
+	Message        string            `json:"message"`
 }
 
 // EditParentCategory godoc
@@ -312,10 +330,14 @@ func EditParentCategory(ctx *app.AppContext) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"parent_category": pcate,
-		"message":         "parent_categoryの編集に成功しました",
+	ctx.JSON(http.StatusOK, editParentCategoryResponse{
+		ParentCategory: pcate,
+		Message:        "parent_categoryの編集に成功しました",
 	})
+}
+
+type deleteParentCategoryResponse struct {
+	Message string `json:"message"`
 }
 
 // DeleteParentCategory godoc
@@ -388,9 +410,52 @@ func DeleteParentCategory(ctx *app.AppContext) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "parent_categoryの削除に成功しました",
+	ctx.JSON(http.StatusOK, deleteParentCategoryResponse{
+		Message: "parent_categoryの削除に成功しました",
 	})
+}
+
+type getChildCategoryResponse struct {
+	ChildCategory db.ChildCategory `json:"child_category"`
+}
+
+// GetChildCategory godoc
+// @Summary Get a child category by ID
+// @Description Retrieves a specific child category based on the provided ID.
+// @Tags ChildCategories
+// @Accept json
+// @Produce json
+// @Param id path int true "Child Category ID"
+// @Success 200 {object} getChildCategoryResponse "A child category object"
+// @Failure 400 {object} app.JSONResponse{data=string} "Bad Request: The request is malformed or missing required fields."
+// @Failure 500 {object} app.JSONResponse{data=string} "Internal Server Error: An error occurred on the server which prevented the completion of the request."
+// @Router /api/v1/admin/categories/child/{id} [get]
+func GetChildCategory(ctx *app.AppContext) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
+		return
+	}
+
+	child_category, err := ctx.Server.Store.GetChildCategory(ctx, int64(id))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategory : %w", err)))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, getChildCategoryResponse{
+		ChildCategory: child_category,
+	})
+}
+
+type createChildCategoryRequest struct {
+	Name     string `form:"name" binding:"required"`
+	ParentID int    `form:"parent_id" binding:"required"`
+}
+
+type createChildCategoryResponse struct {
+	ChildCategory db.ChildCategory `json:"child_category"`
+	Message       string           `json:"message"`
 }
 
 // CreateChildCategory godoc
@@ -404,11 +469,6 @@ func DeleteParentCategory(ctx *app.AppContext) {
 // @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Error in data binding or missing required fields"
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to create the child category due to server-side error"
 // @Router /api/v1/admin/categories/child/create [post]
-type createChildCategoryRequest struct {
-	Name     string `form:"name" binding:"required"`
-	ParentID int    `form:"parent_id" binding:"required"`
-}
-
 func CreateChildCategory(ctx *app.AppContext) {
 	var req createChildCategoryRequest
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -426,9 +486,9 @@ func CreateChildCategory(ctx *app.AppContext) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"child_category": childCategory,
-		"message":        "child_categoryの作成に成功しました",
+	ctx.JSON(http.StatusOK, createChildCategoryResponse{
+		ChildCategory: childCategory,
+		Message:       "child_categoryの作成に成功しました",
 	})
 }
 

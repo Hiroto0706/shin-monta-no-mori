@@ -3,25 +3,30 @@
 import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Character } from "@/types/character";
 import { useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { DeleteCharacterAPI, EditCharacterAPI } from "@/api/character";
+import { ParentCategory } from "@/types/category";
+import { DeleteParentCategoryAPI, EditParentCategoryAPI } from "@/api/category";
 
 type Props = {
   id: number;
-  character: Character;
+  parentCategory: ParentCategory;
   accessToken: string | undefined;
 };
 
-const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
+const EditParentCategory: React.FC<Props> = ({
+  id,
+  parentCategory,
+  accessToken,
+}) => {
   const router = useRouter();
 
-  const [name, setName] = useState(character.name);
-  const [filename, setFilename] = useState(character.filename.String);
+  const [name, setName] = useState(parentCategory.name);
+  const [filename, setFilename] = useState(parentCategory.filename.String);
 
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imageSrc, setImageSrc] = useState<string | null>(character.src);
+  const [imageSrc, setImageSrc] = useState<string | null>(parentCategory.src);
 
   const onFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -43,10 +48,10 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
     }
   };
 
-  const editCharacter = async (event: React.FormEvent) => {
+  const editParentCategory = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (filename != character.filename.String && imageFile == null) {
+    if (filename != parentCategory.filename.String && imageFile == null) {
       alert("新しい画像を設定してください");
       return;
     }
@@ -59,7 +64,7 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
     }
 
     try {
-      const response = await axios.put(EditCharacterAPI(id), formData, {
+      const response = await axios.put(EditParentCategoryAPI(id), formData, {
         headers: {
           Authorization: SetBearerToken(accessToken),
         },
@@ -69,18 +74,18 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
         alert(response.data.message);
       }
     } catch (error) {
-      console.error("キャラクターの編集に失敗しました", error);
-      alert("キャラクターの編集に失敗しました");
+      console.error("親カテゴリの編集に失敗しました", error);
+      alert("親カテゴリの編集に失敗しました");
     }
   };
 
-  const deleteCharacter = async (id: number) => {
+  const deleteParentCategory = async (id: number) => {
     if (!confirm(`本当に「${name}」を削除してもよろしいですか？`)) {
       return;
     }
 
     try {
-      const response = await axios.delete(DeleteCharacterAPI(id), {
+      const response = await axios.delete(DeleteParentCategoryAPI(id), {
         headers: {
           Authorization: SetBearerToken(accessToken),
         },
@@ -88,11 +93,11 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
 
       if (response.status === 200) {
         alert(response.data.message);
-        router.push("/admin/characters");
+        router.push("/admin/categories");
       }
     } catch (error) {
-      console.error("キャラクターの削除に失敗しました", error);
-      alert("キャラクターの削除に失敗しました");
+      console.error("親カテゴリの削除に失敗しました", error);
+      alert("親カテゴリの削除に失敗しました");
     }
   };
 
@@ -100,9 +105,9 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
     <>
       <div className="max-w-7xl m-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">キャラクターの編集</h1>
+          <h1 className="text-2xl font-bold">親カテゴリの編集</h1>
           <button
-            onClick={() => deleteCharacter(id)}
+            onClick={() => deleteParentCategory(id)}
             className="bg-red-500 text-white py-2 px-4 rounded-lg flex items-center"
           >
             <Image
@@ -114,16 +119,17 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
             <span className="ml-1">削除</span>
           </button>
         </div>
+
         <form
           className="border-2 border-gray-300 rounded-lg p-12 bg-white"
-          onSubmit={editCharacter}
+          onSubmit={editParentCategory}
         >
           <div className="mb-16">
             <label className="text-xl">名前</label>
             <input
               className="w-full p-4 border border-gray-200 rounded mt-2"
               type="text"
-              placeholder="キャラクターの名前を入力してください"
+              placeholder="親カテゴリの名前を入力してください"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -171,7 +177,7 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
           </div>
 
           <button className="py-3 bg-green-600 text-white font-bold text-lg rounded-lg w-full hover:bg-white hover:text-green-600 border-2 border-green-600 duration-200">
-            キャラクター編集
+            親カテゴリ編集
           </button>
         </form>
       </div>
@@ -179,4 +185,4 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
   );
 };
 
-export default EditCharacter;
+export default EditParentCategory;

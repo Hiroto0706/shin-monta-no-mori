@@ -1,11 +1,11 @@
 import axios from "axios";
 import { FetchCharactersResponse } from "@/types/character";
-import SearchForm from "@/components/admin/characters/searchForm";
 import { FetchCharactersAPI, SearchCharactersAPI } from "@/api/character";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { getServerAccessToken } from "@/utils/accessToken/server";
 import ListCharactersTable from "@/components/admin/characters/listTable";
 import Pagination from "@/components/common/pagenation";
+import CharactersSearchForm from "@/components/admin/characters/searchForm";
 
 export const fetchCharacters = async (
   page: number = 0,
@@ -57,9 +57,13 @@ export default async function IllustrationsListPage({
         + キャラクター追加
       </a>
 
-      <SearchForm />
+      <CharactersSearchForm />
 
-      <ListCharactersTable characters={characters} />
+      {characters.characters.length > 0 ? (
+        <ListCharactersTable characters={characters} />
+      ) : (
+        <p className="mb-6">キャラクターは見つかりませんでした</p>
+      )}
 
       <Pagination
         currentPage={page}
