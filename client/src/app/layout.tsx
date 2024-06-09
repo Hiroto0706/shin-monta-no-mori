@@ -19,7 +19,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Header />
         <Sidebar />
-        <div className="pt-16">{children}</div>
+        <div>{children}</div>
         <div className="background-image"></div>
       </body>
     </html>
