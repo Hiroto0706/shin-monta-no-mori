@@ -3,10 +3,10 @@
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/utils/text";
 import Image from "next/image";
-import { FetchCharactersResponse } from "@/types/character";
+import { FetchCharactersResponse } from "@/types/admin/character";
 
 type Props = {
-  characters: FetchCharactersResponse
+  characters: FetchCharactersResponse;
 };
 
 const ListCharactersTable: React.FC<Props> = ({ characters }) => {
@@ -29,9 +29,7 @@ const ListCharactersTable: React.FC<Props> = ({ characters }) => {
             <tr
               key={index}
               className="border-2 border-gray-100 cursor-pointer duration-200 hover:bg-gray-50"
-              onClick={() =>
-                router.push(`characters/edit/${character.id}`)
-              }
+              onClick={() => router.push(`characters/edit/${character.id}`)}
             >
               <td className="px-6 py-4">{character.id}</td>
               <td className="px-6 py-4">{character.name}</td>
@@ -46,15 +44,9 @@ const ListCharactersTable: React.FC<Props> = ({ characters }) => {
                   />
                 </div>
               </td>
-              <td className="px-6 py-4">
-                {character.filename.String}
-              </td>
-              <td className="px-6 py-4">
-                {formatDate(character.updated_at)}
-              </td>
-              <td className="px-6 py-4">
-                {formatDate(character.created_at)}
-              </td>
+              <td className="px-6 py-4">{character.filename.String}</td>
+              <td className="px-6 py-4">{formatDate(character.updated_at)}</td>
+              <td className="px-6 py-4">{formatDate(character.created_at)}</td>
             </tr>
           ))}
         </tbody>

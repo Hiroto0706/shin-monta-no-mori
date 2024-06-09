@@ -10,7 +10,7 @@ import { Character } from "@/types/character";
 import { truncateText } from "@/utils/text";
 import { useEffect, useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
-import { DeleteIllustrationAPI, EditIllustrationAPI } from "@/api/illustration";
+import { DeleteIllustrationAPI, EditIllustrationAPI } from "@/api/admin/illustration";
 import { Illustration } from "@/types/illustration";
 
 type Props = {
