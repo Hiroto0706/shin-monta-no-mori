@@ -2,8 +2,8 @@ import { Inter } from "next/font/google";
 import { metadata } from "@/components/common/metaData";
 export { metadata };
 
-import Header from "@/components/common/header";
-import Sidebar from "@/components/common/sidebar";
+import Header from "@/components/common/handleHeader";
+import Sidebar from "@/components/common/handleSidebar";
 
 import "@/styles/globals.css";
 
@@ -17,9 +17,9 @@ export default function RootLayout({
   return (
     <html lang="jp" className="text-gray-600">
       <body className={inter.className}>
-        <Header></Header>
-        <Sidebar></Sidebar>
-        <div className="pl-20 pt-16">{children}</div>
+        <Header />
+        <Sidebar />
+        <div className="pt-16">{children}</div>
         <div className="background-image"></div>
       </body>
     </html>
