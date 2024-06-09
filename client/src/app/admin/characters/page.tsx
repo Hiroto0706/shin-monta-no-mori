@@ -59,7 +59,11 @@ export default async function IllustrationsListPage({
 
       <CharactersSearchForm />
 
-      <ListCharactersTable characters={characters} />
+      {characters.characters.length > 0 ? (
+        <ListCharactersTable characters={characters} />
+      ) : (
+        <p className="mb-6">キャラクターは見つかりませんでした</p>
+      )}
 
       <Pagination
         currentPage={page}

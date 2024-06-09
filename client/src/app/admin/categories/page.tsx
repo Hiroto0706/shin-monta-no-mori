@@ -53,8 +53,10 @@ export default async function CategoriesListPage({
 
       <CategoriesSearchForm />
 
-      {categoriesRes.categories && (
+      {categoriesRes.categories.length > 0 ? (
         <ListCategoriesTable categories={categoriesRes.categories} />
+      ) : (
+        <>カテゴリは見つかりませんでした</>
       )}
     </>
   );
