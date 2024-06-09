@@ -1,5 +1,5 @@
 import axios from "axios";
-import { FetchIllustrationsResponse } from "@/types/illustration";
+import { FetchIllustrationsResponse } from "@/types/admin/illustration";
 import { Character } from "@/types/character";
 import { Category } from "@/types/category";
 import Pagination from "@/components/common/pagenation";
@@ -8,9 +8,9 @@ import ListTable from "@/components/admin/illustrations/listTable";
 import {
   FetchIllustrationsAPI,
   SearchIllustrationsAPI,
-} from "@/api/illustration";
-import { FetchAllCharactersAPI } from "@/api/character";
-import { FetchCategoriesAPI } from "@/api/category";
+} from "@/api/admin/illustration";
+import { FetchAllCharactersAPI } from "@/api/admin/character";
+import { FetchCategoriesAPI } from "@/api/admin/category";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { getServerAccessToken } from "@/utils/accessToken/server";
 

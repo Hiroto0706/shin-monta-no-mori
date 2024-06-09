@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Character } from "@/types/character";
 import { useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
-import { DeleteCharacterAPI, EditCharacterAPI } from "@/api/character";
+import { DeleteCharacterAPI, EditCharacterAPI } from "@/api/admin/character";
 
 type Props = {
   id: number;

@@ -1,6 +1,6 @@
 import axios from "axios";
-import { FetchCharactersResponse } from "@/types/character";
-import { FetchCharactersAPI, SearchCharactersAPI } from "@/api/character";
+import { FetchCharactersResponse } from "@/types/admin/character";
+import { FetchCharactersAPI, SearchCharactersAPI } from "@/api/admin/character";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { getServerAccessToken } from "@/utils/accessToken/server";
 import ListCharactersTable from "@/components/admin/characters/listTable";

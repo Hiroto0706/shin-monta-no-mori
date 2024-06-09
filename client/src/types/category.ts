@@ -22,15 +22,3 @@ export interface Category {
   ParentCategory: ParentCategory;
   ChildCategory: ChildCategory[];
 }
-
-export interface FetchCategoriesResponse {
-  categories: Category[];
-}
-
-export interface GetCategoryResponse {
-  category: Category | null;
-}
-
-export interface GetChildCategoryResponse {
-  child_category: ChildCategory | null;
-}

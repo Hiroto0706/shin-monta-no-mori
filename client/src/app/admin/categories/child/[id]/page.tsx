@@ -1,11 +1,11 @@
 import axios from "axios";
 import { getServerAccessToken } from "@/utils/accessToken/server";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
-import { FetchCategoriesAPI, GetChildCategoryAPI } from "@/api/category";
+import { FetchCategoriesAPI, GetChildCategoryAPI } from "@/api/admin/category";
 import {
   FetchCategoriesResponse,
   GetChildCategoryResponse,
-} from "@/types/category";
+} from "@/types/admin/category";
 import EditChildCategory from "@/components/admin/categories/childCategory/editForm";
 
 export const fetchCategories = async (

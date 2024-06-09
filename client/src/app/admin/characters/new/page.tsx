@@ -1,5 +1,4 @@
 import CreateCharacter from "@/components/admin/characters/createForm";
-import {} from "@/utils/accessToken/accessToken";
 import { getServerAccessToken } from "@/utils/accessToken/server";
 
 const CreateIllustrationPage = async () => {

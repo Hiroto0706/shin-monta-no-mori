@@ -9,13 +9,3 @@ export interface Character {
   created_at: string;
   updated_at: string;
 }
-
-export interface FetchCharactersResponse {
-  characters: Character[];
-  total_pages: number;
-  total_count: number;
-}
-
-export interface GetCharacterResponse {
-  character: Character | null;
-}
