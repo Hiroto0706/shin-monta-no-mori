@@ -7,21 +7,27 @@
     position: fixed;
     bottom: 0;
     right: 0;
-    width: 60vw;
-    max-width: 700px;
+    width: 70vw;
+    max-width: 800px;
     min-width: 400px;
-    height: 60vw;
-    max-width: 700px;
+    height: 70vw;
+    max-height: 800px;
     min-height: 400px;
     background-image: url("/forest-image.svg");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: bottom right;
-    opacity: 0.2;
+    opacity: 0.1;
     z-index: -1;
   }
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  .image {
+    object-fit: contain;
+    position: relative !important;
+    width: auto !important;
   }
 }

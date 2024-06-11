@@ -1,4 +1,4 @@
-export const FetchIllustrationsAPI = (page: number): string => {
+export const FetchIllustrationsAPI = (page: number = 0): string => {
   return (
     process.env.NEXT_PUBLIC_BASE_API + "admin/illustrations/list?p=" + page
   );

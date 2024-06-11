@@ -4,6 +4,7 @@ export { metadata };
 
 import Header from "@/components/common/handleHeader";
 import Sidebar from "@/components/common/handleSidebar";
+import BackgroundImage from "@/components/common/backgroundImage";
 
 import "@/styles/globals.css";
 
@@ -20,7 +21,7 @@ export default function RootLayout({
         <Header />
         <Sidebar />
         <div>{children}</div>
-        <div className="background-image"></div>
+        <BackgroundImage />
       </body>
     </html>
   );
