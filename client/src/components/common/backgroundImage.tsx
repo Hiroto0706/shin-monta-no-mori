@@ -6,9 +6,7 @@ function BackgroundImage() {
   const pathname = usePathname();
 
   return (
-    <>
-      <div className={pathname != "/" ? "background-image" : ""}></div>
-    </>
+    <>{pathname != "/" ? <div className="background-image"></div> : <></>}</>
   );
 }
 
