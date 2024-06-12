@@ -83,7 +83,7 @@ const Home = async () => {
 
   return (
     <>
-      <div className="max-w-[1100px] m-auto mt-40 px-12">
+      <div className="max-w-[1100px] m-auto mt-40 px-4 md:px-12">
         <section className="mb-40">
           <h2 className="text-2xl font-bold mb-6 text-black">新着イラスト</h2>
 
@@ -123,9 +123,14 @@ const Home = async () => {
         </section>
 
         <section className="mb-40">
-          <h2 className="text-2xl font-bold mb-6 text-black">
-            もんたのもりとは
-          </h2>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-black mb-2">
+              もんたのもりとは
+            </h2>
+            <p>
+              もんたの森は無料で画像を保存・コピーして使うことのできるフリー画像サイトです
+            </p>
+          </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-20">
             {images.map((image, index) => (
@@ -189,12 +194,12 @@ const Home = async () => {
         <section className="mb-40">
           <h2 className="text-2xl font-bold mb-6 text-black">そのほか</h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
             {others.map((other, i) => (
               <a
                 key={i}
                 href={other.link}
-                className="pointer-cursor px-2 pt-2 pb-4 hover:bg-gray-100 duration-200 rounded-lg mb-4"
+                className="pointer-cursor px-2 pt-2 pb-4 hover:bg-gray-100 duration-200 rounded-lg"
               >
                 <div
                   className={`flex justify-center border rounded-lg border-gray-200 ${other.color}`}
@@ -215,6 +220,20 @@ const Home = async () => {
                 </div>
               </a>
             ))}
+          </div>
+
+          <div className="w-full md:w-1/2">
+            <a
+              href="https://store.line.me/stickershop/author/2887587/ja"
+              className="cursor-pointer hover:opacity-70 duration-200"
+            >
+              <Image
+                className="image"
+                src="/montanomori-line-widget.svg"
+                alt="もんたの森のLINEはこちら"
+                fill
+              />
+            </a>
           </div>
         </section>
       </div>
@@ -240,7 +259,7 @@ const Home = async () => {
               </a>
             ))}
           </div>
-          <div className="py-12 border-t border-gray-200">
+          <div className="py-12 border-t border-gray-200 flex justify-center">
             &copy;もんたの森 2024
           </div>
         </div>
