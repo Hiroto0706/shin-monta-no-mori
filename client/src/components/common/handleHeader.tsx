@@ -9,7 +9,11 @@ export default function Header() {
   const isAdminPage = pathname.startsWith("/admin");
   return (
     <header>
-      {isAdminPage ? <AdminHeader /> : <UserHeader pathname={pathname} />}
+      {isAdminPage ? (
+        <AdminHeader />
+      ) : (
+        <>{pathname != "/" ? <UserHeader /> : <></>}</>
+      )}
     </header>
   );
 }

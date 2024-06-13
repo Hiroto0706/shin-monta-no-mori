@@ -3,6 +3,9 @@ import { FetchIllustrationsAPI } from "@/api/user/illustration";
 import { FetchIllustrationsResponse } from "@/types/user/illustration";
 import Image from "next/image";
 import React from "react";
+import { FetchCategoriesResponse } from "@/types/user/categories";
+import { FetchCategoriesAPI } from "@/api/user/category";
+import TopHeader from "@/components/user/top/topHeader";
 
 const fetchIllustrations = async (): Promise<FetchIllustrationsResponse> => {
   try {
@@ -14,8 +17,21 @@ const fetchIllustrations = async (): Promise<FetchIllustrationsResponse> => {
   }
 };
 
+const fetchCategories = async (): Promise<FetchCategoriesResponse> => {
+  try {
+    const page = 0;
+    const response = await axios.get(FetchCategoriesAPI(page));
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return { categories: [] };
+  }
+};
+
 const Home = async () => {
   const fetchIllustrationsRes = await fetchIllustrations();
+  const fetchCategoriesRes = await fetchCategories();
+  console.log(fetchCategoriesRes.categories);
 
   const images = [
     {
@@ -83,6 +99,7 @@ const Home = async () => {
 
   return (
     <>
+      <TopHeader categories={fetchCategoriesRes.categories} />
       <div className="max-w-[1100px] m-auto mt-40 px-4 md:px-12">
         <section className="mb-40">
           <h2 className="text-2xl font-bold mb-6 text-black">新着イラスト</h2>
@@ -97,13 +114,18 @@ const Home = async () => {
                       key={illustration.Image.id}
                       className="group cursor-pointer"
                     >
-                      <div className="mb-2 p-4 border-2 border-gray-200 rounded-xl bg-white">
-                        <Image
-                          className="group-hover:scale-110 duration-200 image"
-                          src={illustration.Image.original_src}
-                          alt={illustration.Image.title}
-                          fill
-                        />
+                      <div
+                        className="mb-2 border-2 border-gray-200 rounded-xl bg-white relative w-full overflow-hidden"
+                        style={{ paddingTop: "100%" }}
+                      >
+                        <div className="absolute inset-0 m-4">
+                          <Image
+                            className="group-hover:scale-110 duration-200 absolute top-0 left-0 w-full h-full object-cover"
+                            src={illustration.Image.original_src}
+                            alt={illustration.Image.title}
+                            fill
+                          />
+                        </div>
                       </div>
                       <span className="group-hover:text-green-600 group-hover:font-bold duration-200">
                         {illustration.Image.title}
@@ -132,16 +154,21 @@ const Home = async () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-20">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 md:gap-x-16">
             {images.map((image, index) => (
               <div key={index} className="mb-8">
-                <div className="border-2 border-gray-200 mb-4 rounded-lg">
-                  <Image
-                    className="bg-white rounded-lg p-4 image"
-                    src={image.src}
-                    alt={image.alt}
-                    fill
-                  />
+                <div
+                  className="border-2 border-gray-200 mb-4 rounded-lg relative w-full"
+                  style={{ paddingTop: "100%" }}
+                >
+                  <div className="absolute inset-0 m-4">
+                    <Image
+                      className="bg-white rounded-lg absolute top-0 left-0 w-full h-full object-cover"
+                      src={image.src}
+                      alt={image.alt}
+                      fill
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -160,41 +187,52 @@ const Home = async () => {
         </section>
 
         <section className="mb-40">
-          <h2 className="text-2xl font-bold mb-6 text-black">しようれい</h2>
-          <p>もんたの森のイラストを様々な場面で使おう！</p>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-2 text-black">しようれい</h2>
+            <p>もんたの森のイラストは様々な場面で使うことができます</p>
+          </div>
 
-          <div className="flex flex-wrap justify-between">
-            <Image
-              className="my-8 image"
-              src="/example-line.svg"
-              alt="lineでの使用例"
-              fill
-            />
-            <Image
-              className="my-8 image"
-              src="/example-slack.svg"
-              alt="slackでの使用例"
-              fill
-            />
-            <Image
-              className="my-8 image"
-              src="/example-slide.svg"
-              alt="slideでの使用例"
-              fill
-            />
-            <Image
-              className="my-8 image"
-              src="/example-icons.svg"
-              alt="iconでの使用例"
-              fill
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div className="relative w-full" style={{ paddingTop: "100%" }}>
+              <Image
+                className="absolute w-full h-full object-contain"
+                src="/example-line.svg"
+                alt="lineでの使用例"
+                fill
+              />
+            </div>
+
+            <div className="relative w-full" style={{ paddingTop: "100%" }}>
+              <Image
+                className="absolute w-full h-full object-contain"
+                src="/example-slack.svg"
+                alt="slackでの使用例"
+                fill
+              />
+            </div>
+            <div className="relative w-full" style={{ paddingTop: "100%" }}>
+              <Image
+                className="absolute w-full h-full object-contain"
+                src="/example-slide.svg"
+                alt="slideでの使用例"
+                fill
+              />
+            </div>
+            <div className="relative w-full" style={{ paddingTop: "100%" }}>
+              <Image
+                className="absolute w-full h-full object-contain"
+                src="/example-icons.svg"
+                alt="iconでの使用例"
+                fill
+              />
+            </div>
           </div>
         </section>
 
         <section className="mb-40">
           <h2 className="text-2xl font-bold mb-6 text-black">そのほか</h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             {others.map((other, i) => (
               <a
                 key={i}
@@ -227,12 +265,14 @@ const Home = async () => {
               href="https://store.line.me/stickershop/author/2887587/ja"
               className="cursor-pointer hover:opacity-70 duration-200"
             >
-              <Image
-                className="image"
-                src="/montanomori-line-widget.svg"
-                alt="もんたの森のLINEはこちら"
-                fill
-              />
+              <div className="relative w-full" style={{ height: "180px" }}>
+                <Image
+                  className="absolute w-full h-full object-contain"
+                  src="/montanomori-line-widget.svg"
+                  alt="もんたの森のLINEはこちら"
+                  fill
+                />
+              </div>
             </a>
           </div>
         </section>
@@ -247,13 +287,15 @@ const Home = async () => {
                 href={s.link}
                 className="flex items-center my-2 cursor-pointer block w-40 group"
               >
-                <Image
-                  className="image mx-1 group-hover:opacity-70"
-                  alt={s.name}
-                  src={s.src}
-                  fill
-                />
-                <span className="text-lg border-b border-gray-600 group-hover:opacity-70 duration-200">
+                <div className="w-8 h-8 relative">
+                  <Image
+                    className="absolute w-full h-full mx-1 group-hover:opacity-70"
+                    alt={s.name}
+                    src={s.src}
+                    fill
+                  />
+                </div>
+                <span className="text-lg border-b border-gray-600 group-hover:opacity-70 duration-200 ml-2">
                   {s.name}
                 </span>
               </a>
