@@ -229,7 +229,7 @@ const Home = async () => {
           </div>
         </section>
 
-        <section className="mb-40">
+        <section className="mb-20">
           <h2 className="text-2xl font-bold mb-6 text-black">そのほか</h2>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">

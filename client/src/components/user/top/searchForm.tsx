@@ -13,7 +13,7 @@ const SearchFormTop: React.FC<Props> = ({ categories }) => {
   const router = useRouter();
   const [name, setName] = useState("");
 
-  const searchCharacters = (e: FormEvent<HTMLFormElement>) => {
+  const searchIllustrations = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const queryParams: { [key: string]: string } = {};
@@ -23,45 +23,47 @@ const SearchFormTop: React.FC<Props> = ({ categories }) => {
     }
 
     const queryString = new URLSearchParams(queryParams).toString();
-    router.push(`/admin/categories?${queryString}`);
-    router.refresh();
+    router.push(`/illustrations?${queryString}`);
   };
 
   return (
     <>
-      <p className="text-lg mb-4 font-bold">
+      <p className="text-md md:text-xl mb-2 md:mb-4 font-bold px-4 mb:px-0">
         もんたの森はゆるーくてゆーもある無料イラストサイトです
       </p>
-      <form
-        className="flex justify-between w-full max-w-[550px] mx-auto border-gray-200 rounded-md bg-white mb-2"
-        onSubmit={(e) => searchCharacters(e)}
-      >
-        <div className="w-full">
-          <input
-            className="pl-2 w-full h-full rounded-l-md"
-            type="text"
-            placeholder="いらすとを検索する"
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <button className="p-2">
-          <Image
-            src="/icon/search_gray.png"
-            alt="searchアイコン"
-            width={24}
-            height={24}
-          />
-        </button>
-      </form>
-      <div className="flex flex-wrap items-center w-full max-w-[550px] mb-12">
+      <div className="w-full px-4">
+        <form
+          className="flex justify-between w-full md:max-w-[550px] mx-auto border-gray-200 rounded-md bg-white mb-2"
+          onSubmit={(e) => searchIllustrations(e)}
+        >
+          <div className="w-full">
+            <input
+              className="pl-2 w-full h-full rounded-l-md text-gray-600"
+              type="text"
+              placeholder="いらすとを検索する"
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <button className="p-2">
+            <Image
+              src="/icon/search_gray.png"
+              alt="searchアイコン"
+              width={24}
+              height={24}
+            />
+          </button>
+        </form>
+      </div>
+      <div className="flex flex-wrap items-center w-full md:max-w-[550px] px-4 md:px-0 mb-4 md:mb-12">
         <span className="text-sm my-1">おすすめかてごり : </span>
         {categories.slice(0, 5).map((category) => (
-          <div
+          <a
+            href=""
             key={category.ParentCategory.id}
-            className="text-gray-600 text-sm ml-2 my-1 py-1 px-2 rounded-lg bg-gray-200 hover:bg-gray-300 duration-200 cursor-pointer shadow"
+            className="text-gray-600 text-sm ml-2 my-1 py-1 px-2 rounded-lg border bg-white hover:bg-gray-200 duration-200 cursor-pointer shadow"
           >
             # {category.ParentCategory.name}
-          </div>
+          </a>
         ))}
       </div>
     </>

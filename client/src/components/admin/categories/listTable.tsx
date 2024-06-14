@@ -15,17 +15,17 @@ const ListCategoriesTable: React.FC<Props> = ({ categories }) => {
           key={category.ParentCategory.id}
           className="border-2 border-gray-200 rounded-lg p-1 mb-3 bg-white"
         >
-          <div className="bg-gray-200 rounded-lg p-4">
+          <div className="bg-gray-200 rounded-lg py-2 px-4">
             <div className="flex justify-between items-center">
               <div className="flex items-center">
                 <Image
                   className="mr-4"
                   src={category.ParentCategory.src}
                   alt={category.ParentCategory.name}
-                  width={40}
-                  height={40}
+                  width={32}
+                  height={32}
                 />
-                <span className="text-2xl font-bold">
+                <span className="text-xl font-bold">
                   {category.ParentCategory.name}
                 </span>
               </div>
@@ -45,19 +45,19 @@ const ListCategoriesTable: React.FC<Props> = ({ categories }) => {
             </div>
           </div>
 
-          <div className="pt-6 pb-4 px-4 flex flex-wrap">
+          <div className="pt-4 pb-2 px-4 flex flex-wrap">
             {category.ChildCategory.map((cc) => (
               <a
                 key={cc.id}
                 href={`categories/child/${cc.id}`}
-                className="flex items-center text-xl mr-4 cursor-pointer py-2 px-4 mb-2 rounded-full hover:bg-gray-200 duration-200"
+                className="flex items-center text-lg mr-4 cursor-pointer py-2 px-4 mb-2 rounded-full hover:bg-gray-100 duration-200"
               >
                 # {cc.name}
               </a>
             ))}
             <a
               href={`categories/child/new?parent_id=${category.ParentCategory.id}`}
-              className="flex items-center text-xl border-2 mb-2 py-2 px-4 cursor-pointer rounded-full hover:bg-gray-200 duration-200"
+              className="flex items-center text-xl border-2 mb-2 py-2 px-4 cursor-pointer rounded-full hover:bg-gray-100 duration-200"
             >
               + 子カテゴリ追加
             </a>
