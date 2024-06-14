@@ -11,7 +11,7 @@ function Sidebar() {
   return (
     <>
       {pathname !== "/" && (
-        <div className="w-20 h-full fixed inset-0 z-30 border-r-2 border-gray-200 bg-gray-50">
+        <div className="w-16 h-full fixed inset-0 z-30 bg-gray-100">
           <div className="pt-16">
             <ul className="flex flex-col items-center mt-2">
               {isAdminPage ? <AdminSidebar /> : <UserSidebar />}

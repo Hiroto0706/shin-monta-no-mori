@@ -67,7 +67,7 @@ function AdminSidebar() {
 
         return (
           <li
-            className={`mt-4 p-1 w-16 duration-200 rounded-lg ${
+            className={`mt-2 p-1 w-14 duration-200 rounded-lg ${
               isActive ? "" : "hover:bg-gray-200"
             }`}
             key={index}
@@ -80,7 +80,7 @@ function AdminSidebar() {
                 width={36}
               />
               <span
-                className={`text-xs mt-1
+                className={`text-xs
                   ${isActive ? `text-green-600 font-bold` : `text-gray-600`}
                 `}
               >

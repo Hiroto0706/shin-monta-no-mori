@@ -1,14 +1,14 @@
-export const FetchIllustrationsAPI = (page: number): string => {
+export const FetchIllustrationsAPI = (page: number = 0): string => {
   return (
     process.env.NEXT_PUBLIC_BASE_API + "admin/illustrations/list?p=" + page
   );
 };
 
 export const SearchIllustrationsAPI = (
-  page: number,
+  page: number = 0,
   query: string | null,
-  characters: string | null,
-  categories: string | null
+  characters?: string | null,
+  categories?: string | null
 ): string => {
   let url =
     process.env.NEXT_PUBLIC_BASE_API + "admin/illustrations/search?p=" + page;

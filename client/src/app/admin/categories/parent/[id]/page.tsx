@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getServerAccessToken } from "@/utils/accessToken/server";
-import { GetCategoryResponse } from "@/types/category";
-import { GetCategoryAPI } from "@/api/category";
+import { GetCategoryResponse } from "@/types/admin/category";
+import { GetCategoryAPI } from "@/api/admin/category";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import EditParentCategory from "@/components/admin/categories/parentCategory/editForm";
 

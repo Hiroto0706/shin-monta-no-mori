@@ -5,7 +5,7 @@ import Image from "next/image";
 import axios from "axios";
 import { useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
-import { CreateCharacterAPI } from "@/api/character";
+import { CreateCharacterAPI } from "@/api/admin/character";
 
 type Props = {
   accessToken: string | undefined;

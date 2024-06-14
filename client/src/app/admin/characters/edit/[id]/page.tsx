@@ -1,9 +1,9 @@
 import axios from "axios";
-import { GetCharacterResponse } from "@/types/character";
+import { GetCharacterResponse } from "@/types/admin/character";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { getServerAccessToken } from "@/utils/accessToken/server";
 import EditCharacter from "@/components/admin/characters/editForm";
-import { GetCharacterAPI } from "@/api/character";
+import { GetCharacterAPI } from "@/api/admin/character";
 
 const getCharacter = async (
   id: number,

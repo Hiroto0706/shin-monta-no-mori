@@ -16,6 +16,10 @@ type listCategoriesRequest struct {
 	Page int64 `form:"p"`
 }
 
+type listCategoriesResponse struct {
+	Categories []model.Category `json:"categories"`
+}
+
 // ListCategories godoc
 // @Summary List categories
 // @Description Retrieves a list of parent categories along with their child categories.
@@ -28,11 +32,11 @@ type listCategoriesRequest struct {
 // @Router /api/v1/categories/list [get]
 func ListCategories(ctx *app.AppContext) {
 	// // TODO: bind 周りの処理は関数化して共通化したほうがいい
-	// var req listCategoriesRequest
-	// if err := c.ShouldBindQuery(&req); err != nil {
-	// 	ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
-	// 	return
-	// }
+	var req listCategoriesRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
+		return
+	}
 
 	pcates, err := ctx.Server.Store.ListParentCategories(ctx)
 	if err != nil {
@@ -54,5 +58,5 @@ func ListCategories(ctx *app.AppContext) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, categories)
+	ctx.JSON(http.StatusOK, listCategoriesResponse{Categories: categories})
 }

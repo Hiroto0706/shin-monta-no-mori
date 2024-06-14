@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
-import { CreateChildCategoryAPI } from "@/api/category";
+import { CreateChildCategoryAPI } from "@/api/admin/category";
 import { Category } from "@/types/category";
 import Image from "next/image";
 import { truncateText } from "@/utils/text";

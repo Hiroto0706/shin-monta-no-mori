@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FetchIllustrationsResponse } from "@/types/illustration";
+import { FetchIllustrationsResponse } from "@/types/admin/illustration";
 import { formatDate, truncateText } from "@/utils/text";
 import Image from "next/image";
 

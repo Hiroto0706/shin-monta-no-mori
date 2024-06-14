@@ -5,9 +5,9 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
-import { DeleteCharacterAPI, EditCharacterAPI } from "@/api/character";
+import { DeleteCharacterAPI, EditCharacterAPI } from "@/api/admin/character";
 import { ParentCategory } from "@/types/category";
-import { DeleteParentCategoryAPI, EditParentCategoryAPI } from "@/api/category";
+import { DeleteParentCategoryAPI, EditParentCategoryAPI } from "@/api/admin/category";
 
 type Props = {
   id: number;

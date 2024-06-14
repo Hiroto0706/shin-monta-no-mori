@@ -19,6 +19,10 @@ type listIllustrationsRequest struct {
 	Page int64 `form:"p"`
 }
 
+type listIllustrationsResponse struct {
+	Illustrations []*model.Illustration `json:"illustrations"`
+}
+
 // ListIllustrations godoc
 // @Summary List illustrations
 // @Description Retrieves a paginated list of illustrations based on the provided page number.
@@ -55,7 +59,9 @@ func ListIllustrations(ctx *app.AppContext) {
 		illustrations = append(illustrations, il)
 	}
 
-	ctx.JSON(http.StatusOK, illustrations)
+	ctx.JSON(http.StatusOK, listIllustrationsResponse{
+		Illustrations: illustrations,
+	})
 }
 
 // GetIllustration godoc

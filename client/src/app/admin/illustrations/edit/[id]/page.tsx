@@ -1,12 +1,12 @@
 import axios from "axios";
-import { GetIllustrationResponse } from "@/types/illustration";
+import { GetIllustrationResponse } from "@/types/admin/illustration";
 import { Category } from "@/types/category";
 import { Character } from "@/types/character";
+import { GetIllustrationAPI } from "@/api/admin/illustration";
 import {
   fetchAllCharacters,
   fetchCategories,
 } from "@/app/admin/illustrations/page";
-import { GetIllustrationAPI } from "@/api/illustration";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { getServerAccessToken } from "@/utils/accessToken/server";
 import EditIllustration from "@/components/admin/illustrations/editForm";

@@ -1,8 +1,8 @@
 import axios from "axios";
 import CategoriesSearchForm from "@/components/admin/categories/searchForm";
-import { Category, FetchCategoriesResponse } from "@/types/category";
+import { FetchCategoriesResponse } from "@/types/admin/category";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
-import { FetchCategoriesAPI, SearchCategoriesAPI } from "@/api/category";
+import { FetchCategoriesAPI, SearchCategoriesAPI } from "@/api/admin/category";
 import { getServerAccessToken } from "@/utils/accessToken/server";
 import ListCategoriesTable from "@/components/admin/categories/listTable";
 

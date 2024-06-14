@@ -23,13 +23,3 @@ export interface Illustration {
   Characters: { Character: Character }[];
   Categories: Category[];
 }
-
-export interface FetchIllustrationsResponse {
-  illustrations: Illustration[];
-  total_pages: number;
-  total_count: number;
-}
-
-export interface GetIllustrationResponse {
-  illustration: Illustration | null;
-}

@@ -8,7 +8,7 @@ import {
   CreateChildCategoryAPI,
   DeleteChildCategoryAPI,
   EditChildCategoryAPI,
-} from "@/api/category";
+} from "@/api/admin/category";
 import { Category, ChildCategory } from "@/types/category";
 import Image from "next/image";
 import { truncateText } from "@/utils/text";

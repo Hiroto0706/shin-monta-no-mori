@@ -10,7 +10,7 @@ import { Character } from "@/types/character";
 import { truncateText } from "@/utils/text";
 import { useEffect, useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
-import { CreateIllustrationAPI } from "@/api/illustration";
+import { CreateIllustrationAPI } from "@/api/admin/illustration";
 
 type Props = {
   characters: Character[];
