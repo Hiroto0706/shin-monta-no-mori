@@ -8,7 +8,7 @@ type Props = {
 
 const TopHeader: React.FC<Props> = ({ categories }) => {
   console.log(categories);
-  console.log("ここ通ってる？")
+  console.log("ここ通ってる？");
   return (
     <div className="bg-green-600 text-white h-80 z-40">
       <nav className="w-full h-16 flex justify-between items-center py-2 px-4">
@@ -23,15 +23,15 @@ const TopHeader: React.FC<Props> = ({ categories }) => {
         </a>
 
         <div className="cursor-pointer w-12 h-12 rounded-full flex flex-col items-center justify-center hover:bg-white hover:bg-opacity-20 duration-200">
-          <span className="w-8 h-1 bg-white block rounded-full mb-2"></span>
-          <span className="w-8 h-1 bg-white block rounded-full mb-2"></span>
-          <span className="w-8 h-1 bg-white block rounded-full"></span>
+          <span className="w-7 h-1 bg-white block rounded-full mb-1.5"></span>
+          <span className="w-7 h-1 bg-white block rounded-full mb-1.5"></span>
+          <span className="w-7 h-1 bg-white block rounded-full"></span>
         </div>
       </nav>
 
       <div className="w-full h-64">
         <div className="h-full flex items-center justify-center flex-col">
-          <SearchFormTop categories={categories}/>
+          <SearchFormTop categories={categories} />
         </div>
       </div>
     </div>

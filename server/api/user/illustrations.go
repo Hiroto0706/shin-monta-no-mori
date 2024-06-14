@@ -145,7 +145,9 @@ func SearchIllustrations(ctx *app.AppContext) {
 		illustrations = append(illustrations, il)
 	}
 
-	ctx.JSON(http.StatusOK, illustrations)
+	ctx.JSON(http.StatusOK, listIllustrationsResponse{
+		Illustrations: illustrations,
+	})
 }
 
 type listFetchRandomIllustrationsRequest struct {

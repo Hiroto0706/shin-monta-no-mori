@@ -16,6 +16,7 @@ const fetchIllustrations = async (
     const response = !isSearch
       ? await axios.get(FetchIllustrationsAPI(page))
       : await axios.get(SearchIllustrationsAPI(page, query));
+
     return response.data;
   } catch (error) {
     console.error(error);
@@ -37,7 +38,9 @@ const AllIllustrationsPage = async ({
 
   return (
     <>
-      <h1 className="text-xl font-bold">すべてのイラスト</h1>
+      <h1 className="text-xl font-bold">
+        {query != "" ? "" : "すべてのイラスト"}
+      </h1>
 
       {fetchIllustrationsRes.illustrations.length > 0 && (
         <ListIllustrations
