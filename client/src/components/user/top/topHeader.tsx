@@ -1,14 +1,12 @@
 import Image from "next/image";
 import SearchFormTop from "./searchForm";
-import { Category } from "@/types/category";
+import { ChildCategory } from "@/types/category";
 
 type Props = {
-  categories: Category[];
+  child_categories: ChildCategory[];
 };
 
-const TopHeader: React.FC<Props> = ({ categories }) => {
-  console.log(categories);
-  console.log("ここ通ってる？");
+const TopHeader: React.FC<Props> = ({ child_categories }) => {
   return (
     <div className="bg-green-600 text-white h-80 z-40">
       <nav className="w-full h-16 flex justify-between items-center py-2 px-4">
@@ -31,7 +29,7 @@ const TopHeader: React.FC<Props> = ({ categories }) => {
 
       <div className="w-full h-64">
         <div className="h-full flex items-center justify-center flex-col">
-          <SearchFormTop categories={categories} />
+          <SearchFormTop child_categories={child_categories} />
         </div>
       </div>
     </div>

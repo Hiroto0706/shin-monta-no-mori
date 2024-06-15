@@ -38,15 +38,17 @@ const AllIllustrationsPage = async ({
 
   return (
     <>
-      <h1 className="text-xl font-bold">
-        {query != "" ? "" : "すべてのイラスト"}
-      </h1>
+      <div className="max-w-[1800px] m-auto">
+        <h1 className="text-xl font-bold">
+          {query != "" ? `『${query}』で検索` : "すべてのイラスト"}
+        </h1>
 
-      {fetchIllustrationsRes.illustrations.length > 0 && (
-        <ListIllustrations
-          illustrations={fetchIllustrationsRes.illustrations}
-        />
-      )}
+        {fetchIllustrationsRes.illustrations.length > 0 && (
+          <ListIllustrations
+            illustrations={fetchIllustrationsRes.illustrations}
+          />
+        )}
+      </div>
     </>
   );
 };

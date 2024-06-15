@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"shin-monta-no-mori/server/internal/app"
+	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
 )
 
@@ -59,4 +60,32 @@ func ListCategories(ctx *app.AppContext) {
 	}
 
 	ctx.JSON(http.StatusOK, listCategoriesResponse{Categories: categories})
+}
+
+type listChildCategoriesResponse struct {
+	ChildCategories []db.ChildCategory `json:"child_categories"`
+}
+
+// ListChildCategories は子カテゴリのリストを取得してクライアントに返します。
+// @Summary 子カテゴリのリストを取得
+// @Description 子カテゴリのリストを取得し、JSON形式でクライアントに返します。
+// @Tags categories
+// @Accept json
+// @Produce json
+// @Success 200 {object} listChildCategoriesResponse
+// @Failure 500 {object} app.ErrorResponse "内部サーバーエラー"
+// @Router /api/v1/categories/child/list [get]
+func ListChildCategories(ctx *app.AppContext) {
+	const FetchLimit = 5
+	arg := db.ListChildCategoriesParams{
+		Limit:  FetchLimit,
+		Offset: 0,
+	}
+	childCategories, err := ctx.Server.Store.ListChildCategories(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListChildCategories : %w", err)))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, listChildCategoriesResponse{ChildCategories: childCategories})
 }

@@ -79,26 +79,6 @@ function UserSidebar() {
               >
                 {link.text}
               </span>
-              {/* {isActive && link.sublinks.length > 0 && (
-                <ul className="mt-4 pt-4 bg-gray-200 w-20 flex flex-col items-center">
-                  {link.sublinks.map((sublink, subIndex) => (
-                    <li key={subIndex} className="hover:opacity-50 mb-4">
-                      <a
-                        href={sublink.href}
-                        className="text-gray-600 text-xs flex flex-col items-center"
-                      >
-                        <Image
-                          src={sublink.icon}
-                          alt={`${sublink.text}アイコン`}
-                          height={32}
-                          width={32}
-                        />
-                        <span className="mt-1">{sublink.text}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )} */}
             </a>
           </li>
         );

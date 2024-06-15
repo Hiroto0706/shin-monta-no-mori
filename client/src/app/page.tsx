@@ -3,8 +3,8 @@ import { FetchIllustrationsAPI } from "@/api/user/illustration";
 import { FetchIllustrationsResponse } from "@/types/user/illustration";
 import Image from "next/image";
 import React from "react";
-import { FetchCategoriesResponse } from "@/types/user/categories";
-import { FetchCategoriesAPI } from "@/api/user/category";
+import { FetchChildCategoriesResponse } from "@/types/user/categories";
+import { FetchChildCategoriesAPI } from "@/api/user/category";
 import TopHeader from "@/components/user/top/topHeader";
 
 const fetchIllustrations = async (): Promise<FetchIllustrationsResponse> => {
@@ -17,21 +17,21 @@ const fetchIllustrations = async (): Promise<FetchIllustrationsResponse> => {
   }
 };
 
-const fetchCategories = async (): Promise<FetchCategoriesResponse> => {
-  try {
-    const page = 0;
-    const response = await axios.get(FetchCategoriesAPI(page));
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    return { categories: [] };
-  }
-};
+const fetchChildCategories =
+  async (): Promise<FetchChildCategoriesResponse> => {
+    try {
+      const response = await axios.get(FetchChildCategoriesAPI());
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return { child_categories: [] };
+    }
+  };
 
 const Home = async () => {
   const fetchIllustrationsRes = await fetchIllustrations();
-  const fetchCategoriesRes = await fetchCategories();
-  console.log(fetchCategoriesRes.categories);
+  const fetchChildCategoriesRes = await fetchChildCategories();
+  console.log(fetchChildCategoriesRes.child_categories);
 
   const images = [
     {
@@ -99,7 +99,8 @@ const Home = async () => {
 
   return (
     <>
-      <TopHeader categories={fetchCategoriesRes.categories} />
+      <TopHeader child_categories={fetchChildCategoriesRes.child_categories} />
+
       <div className="max-w-[1100px] m-auto mt-40 px-4 md:px-12">
         <section className="mb-40">
           <h2 className="text-2xl font-bold mb-6 text-black">新着イラスト</h2>
