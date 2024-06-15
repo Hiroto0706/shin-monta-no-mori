@@ -34,12 +34,12 @@ const SearchBox: React.FC<Props> = ({
 
   return (
     <form
-      className={`flex justify-between w-full md:max-w-[${maxWidth}] mx-auto border-gray-200 rounded-xl bg-white ${addClass}`}
+      className={`flex justify-between w-full md:max-w-[${maxWidth}] mx-auto border-gray-200 rounded-full bg-white ${addClass}`}
       onSubmit={(e) => searchIllustrations(e)}
     >
       <div className="w-full">
         <input
-          className="pl-2 w-full h-full rounded-xl text-gray-600"
+          className="pl-2 w-full h-full rounded-full text-gray-600"
           type="text"
           placeholder={placeHolder}
           onChange={(e) => setName(e.target.value)}
