@@ -20,7 +20,7 @@ const SearchFormTop: React.FC<Props> = ({ child_categories }) => {
         <span className="text-sm my-1 mr-2">おすすめかてごり : </span>
         {child_categories.slice(0, 5).map((child_category) => (
           <a
-            href=""
+            href={`illustrations/category/${child_category.id}`}
             key={child_category.id}
             className="text-gray-600 text-sm mr-1 my-1 py-1 px-2 rounded-lg border bg-white hover:bg-gray-200 duration-200 cursor-pointer shadow"
           >

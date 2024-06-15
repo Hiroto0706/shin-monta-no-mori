@@ -6,6 +6,7 @@ import (
 	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
+	"strconv"
 )
 
 const (
@@ -88,4 +89,35 @@ func ListChildCategories(ctx *app.AppContext) {
 	}
 
 	ctx.JSON(http.StatusOK, listChildCategoriesResponse{ChildCategories: childCategories})
+}
+
+type getChildCategoryResponse struct {
+	ChildCategory db.ChildCategory `json:"child_category"`
+}
+
+// GetChildCategory は指定されたIDに基づいて子カテゴリを取得し、クライアントに返します。
+//
+// @Summary 特定の子カテゴリを取得
+// @Description 指定されたIDに基づいて子カテゴリを取得し、JSON形式でクライアントに返します。
+// @Tags categories
+// @Accept json
+// @Produce json
+// @Param id path int true "子カテゴリID"
+// @Success 200 {object} getChildCategoryResponse
+// @Failure 400 {object} app.ErrorResponse "無効なリクエストパラメータ"
+// @Failure 500 {object} app.ErrorResponse "内部サーバーエラー"
+// @Router /api/v1/categories/child/{id} [get]
+func GetChildCategory(ctx *app.AppContext) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
+		return
+	}
+	childCategory, err := ctx.Server.Store.GetChildCategory(ctx, int64(id))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListChildCategories : %w", err)))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, getChildCategoryResponse{ChildCategory: childCategory})
 }

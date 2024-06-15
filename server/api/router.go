@@ -29,6 +29,7 @@ func SetUserRouters(s *app.Server) {
 			categories.GET("/list", app.HandlerFuncWrapper(s, user.ListCategories))
 			child_categories := categories.Group("/child")
 			{
+				child_categories.GET("/:id", app.HandlerFuncWrapper(s, user.GetChildCategory))
 				child_categories.GET("/list", app.HandlerFuncWrapper(s, user.ListChildCategories))
 			}
 		}

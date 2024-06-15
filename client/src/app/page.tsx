@@ -230,7 +230,7 @@ const Home = async () => {
           </div>
         </section>
 
-        <section className="mb-20">
+        <section className="mb-32">
           <h2 className="text-2xl font-bold mb-6 text-black">そのほか</h2>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -276,6 +276,11 @@ const Home = async () => {
               </div>
             </a>
           </div>
+        </section>
+
+        {/* TODO: characterとかcategoryのリストを表示する */}
+        <section className="mb-32">
+          characterとかcategoryのリストを表示する
         </section>
       </div>
 

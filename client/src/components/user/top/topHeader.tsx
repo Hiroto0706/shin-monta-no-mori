@@ -21,9 +21,9 @@ const TopHeader: React.FC<Props> = ({ child_categories }) => {
         </a>
 
         <div className="cursor-pointer w-12 h-12 rounded-full flex flex-col items-center justify-center hover:bg-white hover:bg-opacity-20 duration-200">
-          <span className="w-7 h-1 bg-white block rounded-full mb-1.5"></span>
-          <span className="w-7 h-1 bg-white block rounded-full mb-1.5"></span>
-          <span className="w-7 h-1 bg-white block rounded-full"></span>
+          <span className="w-7 h-0.5 bg-white block rounded-full mb-2"></span>
+          <span className="w-7 h-0.5 bg-white block rounded-full mb-2"></span>
+          <span className="w-7 h-0.5 bg-white block rounded-full"></span>
         </div>
       </nav>
 
