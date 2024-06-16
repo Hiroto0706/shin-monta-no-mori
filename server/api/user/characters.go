@@ -50,3 +50,29 @@ func ListCharacters(ctx *app.AppContext) {
 		"characters": characters,
 	})
 }
+
+type listAllCharactersResponse struct {
+	Characters []db.Character `json:"characters"`
+}
+
+// ListAllCharacters godoc
+// @Summary List characters
+// @Description Retrieves a paginated list of characters based on the provided page number.
+// @Accept  json
+// @Produce  json
+// @Param   p     query   int64  true  "Page number for pagination"
+// @Success 200   {object} gin/H  "Returns a list of characters"
+// @Failure 400   {object} request/JSONResponse{data=string} "Bad Request: Error in data binding or validation"
+// @Failure 500   {object} request/JSONResponse{data=string} "Internal Server Error: Failed to list the characters"
+// @Router /api/v1/characters/list/all [get]
+func ListAllCharacters(ctx *app.AppContext) {
+	characters, err := ctx.Server.Store.ListAllCharacters(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListAllCharacters : %w", err)))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, listAllCharactersResponse{
+		Characters: characters,
+	})
+}

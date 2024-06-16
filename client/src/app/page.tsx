@@ -31,7 +31,6 @@ const fetchChildCategories =
 const Home = async () => {
   const fetchIllustrationsRes = await fetchIllustrations();
   const fetchChildCategoriesRes = await fetchChildCategories();
-  console.log(fetchChildCategoriesRes.child_categories);
 
   const images = [
     {

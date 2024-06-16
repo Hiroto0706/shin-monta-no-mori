@@ -63,6 +63,39 @@ func ListCategories(ctx *app.AppContext) {
 	ctx.JSON(http.StatusOK, listCategoriesResponse{Categories: categories})
 }
 
+// ListCategoriesAll handles the request to list all categories including their parent and child categories.
+// @Summary List all categories
+// @Description Get a list of all categories, including their parent and child categories.
+// @Tags categories
+// @Produce json
+// @Success 200 {object} listCategoriesResponse
+// @Failure 500 {object} app.ErrorResponse
+// @Router /categories/all [get]
+// @param ctx AppContext
+func ListCategoriesAll(ctx *app.AppContext) {
+	pcates, err := ctx.Server.Store.ListParentCategories(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ctx.Server.Store.ListParentCategories : %w", err)))
+		return
+	}
+
+	categories := make([]model.Category, len(pcates))
+	for i, pcate := range pcates {
+		ccates, err := ctx.Server.Store.GetChildCategoriesByParentID(ctx, pcate.ID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
+			return
+		}
+
+		categories[i] = model.Category{
+			ParentCategory: pcate,
+			ChildCategory:  ccates,
+		}
+	}
+
+	ctx.JSON(http.StatusOK, listCategoriesResponse{Categories: categories})
+}
+
 type listChildCategoriesResponse struct {
 	ChildCategories []db.ChildCategory `json:"child_categories"`
 }

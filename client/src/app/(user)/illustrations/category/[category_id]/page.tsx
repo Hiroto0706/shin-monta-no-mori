@@ -24,7 +24,6 @@ const getChildCategory = async (
 ): Promise<GetChildCategoryResponse> => {
   try {
     const response = await axios.get(GetChildCategoryAPI(category_id));
-    console.log(response);
     return response.data;
   } catch (error) {
     console.error(error);

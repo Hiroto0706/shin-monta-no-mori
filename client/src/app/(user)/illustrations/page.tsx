@@ -1,6 +1,5 @@
 import axios from "axios";
 import { FetchIllustrationsResponse } from "@/types/user/illustration";
-import Image from "next/image";
 import {
   FetchIllustrationsAPI,
   SearchIllustrationsAPI,
