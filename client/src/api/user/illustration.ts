@@ -13,6 +13,24 @@ export const SearchIllustrationsAPI = (
   return url;
 };
 
+export const FetchIllustrationsByCategoryAPI = (
+  category_id: number
+): string => {
+  return (
+    process.env.NEXT_PUBLIC_BASE_API +
+    "illustrations/category/child/" +
+    category_id
+  );
+};
+
+export const FetchIllustrationsByCharacterAPI = (
+  character_id: number
+): string => {
+  return (
+    process.env.NEXT_PUBLIC_BASE_API + "illustrations/character/" + character_id
+  );
+};
+
 export const GetIllustrationAPI = (id: number): string => {
   return process.env.NEXT_PUBLIC_BASE_API + "illustrations/" + id;
 };

@@ -3,6 +3,7 @@ package user
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
@@ -145,7 +146,9 @@ func SearchIllustrations(ctx *app.AppContext) {
 		illustrations = append(illustrations, il)
 	}
 
-	ctx.JSON(http.StatusOK, illustrations)
+	ctx.JSON(http.StatusOK, listIllustrationsResponse{
+		Illustrations: illustrations,
+	})
 }
 
 type listFetchRandomIllustrationsRequest struct {
@@ -204,6 +207,7 @@ type listIllustrationsByCharacterIDRequest struct {
 // @Failure 500 {object} app.ErrorResponse "Internal Server Error: An error occurred on the server which prevented the completion of the request."
 // @Router /api/v1/illustrations/character/{id} [get]
 func ListIllustrationsByCharacterID(ctx *app.AppContext) {
+	log.Println("ここきてる？")
 	charaID, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
@@ -253,7 +257,9 @@ func ListIllustrationsByCharacterID(ctx *app.AppContext) {
 		illustrations = append(illustrations, il)
 	}
 
-	ctx.JSON(http.StatusOK, illustrations)
+	ctx.JSON(http.StatusOK, listIllustrationsResponse{
+		Illustrations: illustrations,
+	})
 }
 
 type listIllustrationsByParentCategoryIDRequest struct {
@@ -340,7 +346,7 @@ type listIllustrationsByChildCategoryIDRequest struct {
 // @Failure 400 {object} app.ErrorResponse "Bad Request: The request is malformed or missing required fields."
 // @Failure 404 {object} app.ErrorResponse "Not Found: No illustrations found for the given parent category ID."
 // @Failure 500 {object} app.ErrorResponse "Internal Server Error: An error occurred on the server which prevented the completion of the request."
-// @Router /api/v1/illustrations/category/parent/{id} [get]
+// @Router /api/v1/illustrations/category/child/{id} [get]
 func ListIllustrationsByChildCategoryID(ctx *app.AppContext) {
 	cCateID, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -391,5 +397,7 @@ func ListIllustrationsByChildCategoryID(ctx *app.AppContext) {
 		illustrations = append(illustrations, il)
 	}
 
-	ctx.JSON(http.StatusOK, illustrations)
+	ctx.JSON(http.StatusOK, listIllustrationsResponse{
+		Illustrations: illustrations,
+	})
 }

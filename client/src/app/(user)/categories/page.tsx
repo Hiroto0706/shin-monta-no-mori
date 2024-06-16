@@ -14,12 +14,12 @@ const links = [
 
 export default function TOP() {
   return (
-    <div>
+    <>
       <h1 className="text-4xl font-bold">管理者ログインフォーム</h1>
 
       <div className="my-12">
         <input />
       </div>
-    </div>
+    </>
   );
 }

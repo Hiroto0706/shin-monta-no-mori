@@ -1,6 +1,5 @@
 import axios from "axios";
 import { FetchIllustrationsResponse } from "@/types/user/illustration";
-import Image from "next/image";
 import {
   FetchIllustrationsAPI,
   SearchIllustrationsAPI,
@@ -16,6 +15,7 @@ const fetchIllustrations = async (
     const response = !isSearch
       ? await axios.get(FetchIllustrationsAPI(page))
       : await axios.get(SearchIllustrationsAPI(page, query));
+
     return response.data;
   } catch (error) {
     console.error(error);
@@ -37,13 +37,28 @@ const AllIllustrationsPage = async ({
 
   return (
     <>
-      <h1 className="text-xl font-bold">すべてのイラスト</h1>
+      <div className="w-full max-w-[1100px]  2xl:max-w-[1600px] m-auto">
+        <h1 className="text-xl font-bold mb-6">
+          {query != "" ? `『${query}』で検索` : "すべてのイラスト"}
+        </h1>
 
-      {fetchIllustrationsRes.illustrations.length > 0 && (
-        <ListIllustrations
-          illustrations={fetchIllustrationsRes.illustrations}
-        />
-      )}
+        {fetchIllustrationsRes.illustrations.length > 0 ? (
+          <ListIllustrations
+            illustrations={fetchIllustrationsRes.illustrations}
+          />
+        ) : (
+          <div>
+            {" "}
+            イラストが見つかりませんでした{" "}
+            <a
+              href="/"
+              className="text-sm ml-4 underline border-blue-600 text-blue-600 cursor-pointer hover:opacity-70 duration-200"
+            >
+              ホームに戻る
+            </a>
+          </div>
+        )}
+      </div>
     </>
   );
 };

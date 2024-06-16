@@ -1,11 +1,16 @@
+import UserSidebar from "@/components/user/common/sidebar/sidebar";
+
 export default function UserLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <div className="pl-16 pt-16">
-      <div className="p-12">{children}</div>
-    </div>
+    <>
+      <UserSidebar />
+      <div className="pl-0 md:pl-[calc(4rem+11rem)] pt-16 duration-200">
+        <div className="p-12">{children}</div>
+      </div>
+    </>
   );
 }

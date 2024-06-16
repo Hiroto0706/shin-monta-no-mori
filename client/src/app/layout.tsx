@@ -3,7 +3,6 @@ import { metadata } from "@/components/common/metaData";
 export { metadata };
 
 import Header from "@/components/common/handleHeader";
-import Sidebar from "@/components/common/handleSidebar";
 import BackgroundImage from "@/components/common/backgroundImage";
 
 import "@/styles/globals.css";
@@ -19,7 +18,6 @@ export default function RootLayout({
     <html lang="jp" className="text-gray-600">
       <body className={inter.className}>
         <Header />
-        <Sidebar />
         <div>{children}</div>
         <BackgroundImage />
       </body>
