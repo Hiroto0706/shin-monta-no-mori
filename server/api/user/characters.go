@@ -1,10 +1,12 @@
 package user
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -74,5 +76,43 @@ func ListAllCharacters(ctx *app.AppContext) {
 
 	ctx.JSON(http.StatusOK, listAllCharactersResponse{
 		Characters: characters,
+	})
+}
+
+type getCharacterResponse struct {
+	Character db.Character `json:"character"`
+}
+
+// GetCharacter godoc
+// @Summary Retrieve a character
+// @Description Retrieves a single character by its ID.
+// @Accept  json
+// @Produce  json
+// @Param   id   path   int  true  "ID of the character to retrieve"
+// @Success 200 {object} gin/H "The requested character"
+// @Failure 400 {object} request/JSONResponse{data=string} "Bad Request: Failed to parse 'id' number from path parameter"
+// @Failure 404 {object} request/JSONResponse{data=string} "Not Found: No character found with the given ID"
+// @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: Failed to retrieve the character from the database"
+// @Router /api/v1/characters/{id} [get]
+func GetCharacter(ctx *app.AppContext) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
+		return
+	}
+
+	character, err := ctx.Server.Store.GetCharacter(ctx, int64(id))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetCharacter: %w", err)))
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetCharacter : %w", err)))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, getCharacterResponse{
+		Character: character,
 	})
 }

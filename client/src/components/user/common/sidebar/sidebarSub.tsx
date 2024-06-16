@@ -65,8 +65,9 @@ const SidebarSub: React.FC<Props> = ({
               {selectedLinkObj.text === "キャラ" && (
                 <>
                   {characters.map((character) => (
-                    <div
+                    <a
                       key={character.id}
+                      href={`/illustrations/character/${character.id}`}
                       className="flex items-center mb-2 hover:bg-gray-200 duration-200 p-1 rounded-lg cursor-pointer"
                     >
                       <Image
@@ -77,7 +78,7 @@ const SidebarSub: React.FC<Props> = ({
                         height={32}
                       />
                       <span className="ml-1">{character.name}</span>
-                    </div>
+                    </a>
                   ))}
                 </>
               )}

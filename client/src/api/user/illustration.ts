@@ -17,7 +17,17 @@ export const FetchIllustrationsByCategoryAPI = (
   category_id: number
 ): string => {
   return (
-    process.env.NEXT_PUBLIC_BASE_API + "illustrations/category/child/" + category_id
+    process.env.NEXT_PUBLIC_BASE_API +
+    "illustrations/category/child/" +
+    category_id
+  );
+};
+
+export const FetchIllustrationsByCharacterAPI = (
+  character_id: number
+): string => {
+  return (
+    process.env.NEXT_PUBLIC_BASE_API + "illustrations/character/" + character_id
   );
 };
 
