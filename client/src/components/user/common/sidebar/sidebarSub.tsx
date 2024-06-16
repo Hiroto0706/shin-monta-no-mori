@@ -40,10 +40,10 @@ const SidebarSub: React.FC<Props> = ({
                         <Image
                           src={category.ParentCategory.src}
                           alt={category.ParentCategory.filename.String}
-                          width={20}
-                          height={20}
+                          width={24}
+                          height={24}
                         />
-                        <span className="font-bold text-md ml-2">
+                        <span className="font-bold text-md text-black ml-2">
                           {category.ParentCategory.name}
                         </span>
                       </div>
@@ -51,9 +51,9 @@ const SidebarSub: React.FC<Props> = ({
                         <a
                           key={childCategory.id}
                           href={`/illustrations/category/${childCategory.id}`}
-                          className="text-sm py-1 px-2 bg-white hover:bg-gray-100 duration-200 rounded-full cursor-pointer block border border-gray-200 mb-1"
+                          className="text-md py-1 px-2 hover:bg-gray-200 duration-200 rounded-full cursor-pointer block mb-1"
                         >
-                          <span>{childCategory.name}</span>
+                          <span># {childCategory.name}</span>
                         </a>
                       ))}
                     </div>
@@ -68,16 +68,16 @@ const SidebarSub: React.FC<Props> = ({
                     <a
                       key={character.id}
                       href={`/illustrations/character/${character.id}`}
-                      className="flex items-center mb-2 hover:bg-gray-200 duration-200 p-1 rounded-lg cursor-pointer"
+                      className="flex items-center mb-2 hover:bg-gray-200 duration-200 p-1 rounded-full cursor-pointer"
                     >
                       <Image
-                        className="border-2 border-gray-200 rounded-full bg-white"
+                        className="border border-gray-200 rounded-full bg-white"
                         src={character.src}
                         alt={character.filename.String}
-                        width={32}
-                        height={32}
+                        width={36}
+                        height={36}
                       />
-                      <span className="ml-1">{character.name}</span>
+                      <span className="ml-2 text-sm">{character.name}</span>
                     </a>
                   ))}
                 </>
