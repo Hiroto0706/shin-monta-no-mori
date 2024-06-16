@@ -12,7 +12,11 @@ const ListIllustrations: React.FC<Props> = ({ illustrations }) => {
       <div className="mt-8">
         <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
           {illustrations.map((illustration) => (
-            <div key={illustration.Image.id} className="group cursor-pointer">
+            <a
+              key={illustration.Image.id}
+              href={`/illustrations/${illustration.Image.id}`}
+              className="group cursor-pointer"
+            >
               <div
                 className="mb-2 border-2 border-gray-200 rounded-xl bg-white relative w-full overflow-hidden"
                 style={{ paddingTop: "100%" }}
@@ -29,7 +33,7 @@ const ListIllustrations: React.FC<Props> = ({ illustrations }) => {
               <span className="group-hover:text-green-600 group-hover:font-bold duration-200">
                 {illustration.Image.title}
               </span>
-            </div>
+            </a>
           ))}
         </div>
       </div>

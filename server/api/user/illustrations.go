@@ -65,6 +65,10 @@ func ListIllustrations(ctx *app.AppContext) {
 	})
 }
 
+type getIllustrationsResponse struct {
+	Illustration *model.Illustration `json:"illustration"`
+}
+
 // GetIllustration godoc
 // @Summary Retrieve an illustration
 // @Description Retrieves a single illustration by its ID
@@ -97,7 +101,9 @@ func GetIllustration(ctx *app.AppContext) {
 	illustration := &model.Illustration{}
 	illustration = service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, image)
 
-	ctx.JSON(http.StatusOK, illustration)
+	ctx.JSON(http.StatusOK, getIllustrationsResponse{
+		Illustration: illustration,
+	})
 }
 
 type searchIllustrationsRequest struct {

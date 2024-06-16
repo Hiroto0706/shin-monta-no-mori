@@ -8,16 +8,19 @@ type Props = {
 };
 
 const SearchFormTop: React.FC<Props> = ({ child_categories }) => {
+  const maxWidth = "600px";
   return (
     <>
       <p className="text-md md:text-xl mb-2 md:mb-4 font-bold px-4 mb:px-0">
         もんたの森はゆるーくてゆーもある無料イラストサイトです
       </p>
       <div className="w-full px-4">
-        <SearchBox addClass="mb-2" />
+        <SearchBox maxWidth={maxWidth} addClass="mb-2" />
       </div>
-      <div className="flex flex-wrap items-center w-full md:max-w-[550px] px-4 md:px-0 mb-4 md:mb-12">
-        <span className="text-sm my-1 mr-2">おすすめかてごり : </span>
+      <div
+        className={`flex flex-wrap items-center w-full md:max-w-[${maxWidth}] px-4 md:px-0 mb-4 md:mb-12`}
+      >
+        <span className="text-sm my-1 mr-2">人気かてごり : </span>
         {child_categories.slice(0, 5).map((child_category) => (
           <a
             href={`illustrations/category/${child_category.id}`}

@@ -127,8 +127,9 @@ const Home = async () => {
                 {fetchIllustrationsRes.illustrations
                   .slice(0, 10)
                   .map((illustration) => (
-                    <div
+                    <a
                       key={illustration.Image.id}
+                      href={`/illustrations/${illustration.Image.id}`}
                       className="group cursor-pointer"
                     >
                       <div
@@ -147,7 +148,7 @@ const Home = async () => {
                       <span className="group-hover:text-green-600 group-hover:font-bold duration-200">
                         {illustration.Image.title}
                       </span>
-                    </div>
+                    </a>
                   ))}
               </div>
             )}
@@ -249,7 +250,7 @@ const Home = async () => {
         <section className="mb-40">
           <h2 className="text-2xl font-bold mb-6 text-black">そのほか</h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             {others.map((other, i) => (
               <a
                 key={i}
@@ -277,19 +278,17 @@ const Home = async () => {
             ))}
           </div>
 
-          <div className="w-full md:w-1/2">
+          <div className="w-full md:w-3/4 m-auto">
             <a
               href="https://store.line.me/stickershop/author/2887587/ja"
               className="cursor-pointer hover:opacity-70 duration-200"
             >
-              <div className="relative w-full" style={{ height: "180px" }}>
-                <Image
-                  className="absolute w-full h-full object-contain"
-                  src="/montanomori-line-widget.svg"
-                  alt="もんたの森のLINEはこちら"
-                  fill
-                />
-              </div>
+              <Image
+                className="image"
+                src="/montanomori-line-widget.svg"
+                alt="もんたの森のLINEはこちら"
+                fill
+              />
             </a>
           </div>
         </section>
@@ -313,7 +312,7 @@ const Home = async () => {
                       width={24}
                       height={24}
                     />
-                    <span className="ml-2 font-bold">
+                    <span className="ml-2 font-bold text-black">
                       {category.ParentCategory.name}
                     </span>
                   </div>

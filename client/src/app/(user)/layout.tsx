@@ -9,7 +9,7 @@ export default function UserLayout({
     <>
       <UserSidebar />
       <div className="pl-0 md:pl-[calc(4rem+14rem)] pt-16 duration-200">
-        <div className="p-12">{children}</div>
+        <div className="p-4 md:p-12">{children}</div>
       </div>
     </>
   );
