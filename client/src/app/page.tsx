@@ -3,8 +3,14 @@ import { FetchIllustrationsAPI } from "@/api/user/illustration";
 import { FetchIllustrationsResponse } from "@/types/user/illustration";
 import Image from "next/image";
 import React from "react";
-import { FetchChildCategoriesResponse } from "@/types/user/categories";
-import { FetchChildCategoriesAPI } from "@/api/user/category";
+import {
+  FetchCategoriesResponse,
+  FetchChildCategoriesResponse,
+} from "@/types/user/categories";
+import {
+  FetchCategoriesAllAPI,
+  FetchChildCategoriesAPI,
+} from "@/api/user/category";
 import TopHeader from "@/components/user/top/topHeader";
 
 const fetchIllustrations = async (): Promise<FetchIllustrationsResponse> => {
@@ -28,9 +34,20 @@ const fetchChildCategories =
     }
   };
 
+const fetchCategories = async (): Promise<FetchCategoriesResponse> => {
+  try {
+    const response = await axios.get(FetchCategoriesAllAPI());
+    return response.data;
+  } catch (error) {
+    console.error("カテゴリの取得に失敗しました", error);
+    return { categories: [] };
+  }
+};
+
 const Home = async () => {
   const fetchIllustrationsRes = await fetchIllustrations();
   const fetchChildCategoriesRes = await fetchChildCategories();
+  const fetchCategoriesRes = await fetchCategories();
 
   const images = [
     {
@@ -229,7 +246,7 @@ const Home = async () => {
           </div>
         </section>
 
-        <section className="mb-32">
+        <section className="mb-40">
           <h2 className="text-2xl font-bold mb-6 text-black">そのほか</h2>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -277,9 +294,43 @@ const Home = async () => {
           </div>
         </section>
 
-        {/* TODO: characterとかcategoryのリストを表示する */}
-        <section className="mb-32">
-          characterとかcategoryのリストを表示する
+        <section className="border-t border-gray-200 py-12">
+          {fetchCategoriesRes.categories.length > 0 && (
+            <>
+              {fetchCategoriesRes.categories.map((category, index) => (
+                <div
+                  key={category.ParentCategory.id}
+                  className={`${
+                    index == fetchCategoriesRes.categories.length - 1
+                      ? "mb-0"
+                      : "mb-6"
+                  }`}
+                >
+                  <div className="mb-4 flex items-center">
+                    <Image
+                      src={category.ParentCategory.src}
+                      alt={category.ParentCategory.filename.String}
+                      width={24}
+                      height={24}
+                    />
+                    <span className="ml-2 font-bold">
+                      {category.ParentCategory.name}
+                    </span>
+                  </div>
+
+                  {category.ChildCategory.map((cc) => (
+                    <a
+                      key={cc.id}
+                      href={`/illustrations/category/${cc.id}`}
+                      className="mr-4 hover:bg-gray-200 duration-200 py-2 px-4 cursor-pointer rounded-full"
+                    >
+                      # {cc.name}
+                    </a>
+                  ))}
+                </div>
+              ))}
+            </>
+          )}
         </section>
       </div>
 
