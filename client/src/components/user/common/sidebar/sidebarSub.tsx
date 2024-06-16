@@ -27,8 +27,8 @@ const SidebarSub: React.FC<Props> = ({
 
   return (
     <>
-      <div className="w-60 min-h-screen overflow-y-scroll bg-gray-50 border-r border-gray-200 fixed top-0 left-0 pl-16 pt-16">
-        <div className="pt-4 px-2">
+      <div className="w-72 h-full overflow-y-scroll bg-gray-50 border-r border-gray-200 fixed top-0 left-0 pl-16 pt-16">
+        <div className="p-4">
           {selectedLinkObj && (
             <>
               {/* カテゴリーサイドバー */}
@@ -36,7 +36,7 @@ const SidebarSub: React.FC<Props> = ({
                 <>
                   {categories.map((category) => (
                     <div key={category.ParentCategory.id} className="mb-4">
-                      <div className="flex items-center mb-1">
+                      <div className="flex items-center my-2">
                         <Image
                           src={category.ParentCategory.src}
                           alt={category.ParentCategory.filename.String}
@@ -51,7 +51,7 @@ const SidebarSub: React.FC<Props> = ({
                         <a
                           key={childCategory.id}
                           href={`/illustrations/category/${childCategory.id}`}
-                          className="text-sm py-1 px-2 hover:bg-gray-200 duration-200 rounded-lg cursor-pointer block"
+                          className="text-sm py-1 px-2 bg-white hover:bg-gray-100 duration-200 rounded-full cursor-pointer block border border-gray-200 mb-1"
                         >
                           <span>{childCategory.name}</span>
                         </a>

@@ -22,7 +22,7 @@ const SearchFormTop: React.FC<Props> = ({ child_categories }) => {
           <a
             href={`illustrations/category/${child_category.id}`}
             key={child_category.id}
-            className="text-gray-600 text-sm mr-1 my-1 py-1 px-2 rounded-lg border bg-white hover:bg-gray-200 duration-200 cursor-pointer shadow"
+            className="text-gray-600 text-sm mr-1 my-1 py-1 px-2 rounded-full border bg-white hover:bg-gray-200 duration-200 cursor-pointer shadow"
           >
             # {child_category.name}
           </a>
