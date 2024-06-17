@@ -3,7 +3,6 @@ package user
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"net/http"
 	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
@@ -213,7 +212,6 @@ type listIllustrationsByCharacterIDRequest struct {
 // @Failure 500 {object} app.ErrorResponse "Internal Server Error: An error occurred on the server which prevented the completion of the request."
 // @Router /api/v1/illustrations/character/{id} [get]
 func ListIllustrationsByCharacterID(ctx *app.AppContext) {
-	log.Println("ここきてる？")
 	charaID, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
