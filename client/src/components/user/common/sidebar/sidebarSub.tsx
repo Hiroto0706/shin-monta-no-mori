@@ -71,7 +71,7 @@ const SidebarSub: React.FC<Props> = ({
                       className="flex items-center mb-2 hover:bg-gray-200 duration-200 p-1 rounded-full cursor-pointer"
                     >
                       <Image
-                        className="border border-gray-200 rounded-full bg-white"
+                        className="border border-gray-200 rounded-full bg-white shadow"
                         src={character.src}
                         alt={character.filename.String}
                         width={36}

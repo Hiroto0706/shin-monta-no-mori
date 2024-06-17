@@ -48,8 +48,7 @@ const AllIllustrationsPage = async ({
           />
         ) : (
           <div>
-            {" "}
-            イラストが見つかりませんでした{" "}
+            イラストが見つかりませんでした
             <a
               href="/"
               className="text-sm ml-4 underline border-blue-600 text-blue-600 cursor-pointer hover:opacity-70 duration-200"
