@@ -248,7 +248,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
           </div>
         </div>
 
-        <div className="mt-8 flex justify-center sm:justify-end">
+        <div className="mt-8 flex justify-start sm:justify-end">
           <a
             href={`http://twitter.com/share?url=https://montanomori.com/illustrations/${illustration.Image.id}&text=${illustration.Image.title}の画像`}
             target="_blank"
