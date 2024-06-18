@@ -79,14 +79,14 @@ const Home = async () => {
   const others = [
     {
       name: "イラストの依頼",
-      description: "もんたにイラストを描いてほしい方はこちらへ",
+      description: "もんたがオリジナルイラストを描かせていただきます",
       src: "/top-request.png",
       link: "",
       color: "bg-blue-50",
     },
     {
       name: "お問い合わせ",
-      description: "もんたがオリジナルイラストを描かせていただきます",
+      description: "もんたの森に関する「ちょっとわかんない」ことはこちらへ",
       src: "/top-inquiry.png",
       link: "",
       color: "bg-yellow-50",
@@ -104,7 +104,7 @@ const Home = async () => {
     {
       name: "Instagram",
       src: "/sns/instagram.png",
-      link: "",
+      link: "https://www.instagram.com/yoshida_mandanda/",
     },
     {
       name: "X (Twitter)",
@@ -127,8 +127,9 @@ const Home = async () => {
                 {fetchIllustrationsRes.illustrations
                   .slice(0, 10)
                   .map((illustration) => (
-                    <div
+                    <a
                       key={illustration.Image.id}
+                      href={`/illustrations/${illustration.Image.id}`}
                       className="group cursor-pointer"
                     >
                       <div
@@ -147,7 +148,7 @@ const Home = async () => {
                       <span className="group-hover:text-green-600 group-hover:font-bold duration-200">
                         {illustration.Image.title}
                       </span>
-                    </div>
+                    </a>
                   ))}
               </div>
             )}
@@ -249,7 +250,7 @@ const Home = async () => {
         <section className="mb-40">
           <h2 className="text-2xl font-bold mb-6 text-black">そのほか</h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             {others.map((other, i) => (
               <a
                 key={i}
@@ -277,20 +278,35 @@ const Home = async () => {
             ))}
           </div>
 
-          <div className="w-full md:w-1/2">
-            <a
-              href="https://store.line.me/stickershop/author/2887587/ja"
-              className="cursor-pointer hover:opacity-70 duration-200"
-            >
-              <div className="relative w-full" style={{ height: "180px" }}>
+          <div className="w-full md:flex">
+            <div className="w-full md:w-1/2 py-4 md:py-0 md:pr-4">
+              <a
+                href="https://store.line.me/stickershop/author/2887587/ja"
+                target="_blank"
+                className="cursor-pointer hover:opacity-70 duration-200 w-full"
+              >
                 <Image
-                  className="absolute w-full h-full object-contain"
+                  className="image"
                   src="/montanomori-line-widget.svg"
                   alt="もんたの森のLINEはこちら"
                   fill
                 />
-              </div>
-            </a>
+              </a>
+            </div>
+            <div className="w-full md:w-1/2 py-4 md:pl-4">
+              <a
+                href="https://www.instagram.com/yoshida_mandanda/"
+                target="_blank"
+                className="cursor-pointer hover:opacity-70 duration-200 w-full"
+              >
+                <Image
+                  className="image"
+                  src="/montanomori-instagram-widget.svg"
+                  alt="もんたの森のInstagramはこちら"
+                  fill
+                />
+              </a>
+            </div>
           </div>
         </section>
 
@@ -313,20 +329,22 @@ const Home = async () => {
                       width={24}
                       height={24}
                     />
-                    <span className="ml-2 font-bold">
+                    <span className="ml-2 font-bold text-black">
                       {category.ParentCategory.name}
                     </span>
                   </div>
 
-                  {category.ChildCategory.map((cc) => (
-                    <a
-                      key={cc.id}
-                      href={`/illustrations/category/${cc.id}`}
-                      className="mr-4 hover:bg-gray-200 duration-200 py-2 px-4 cursor-pointer rounded-full"
-                    >
-                      # {cc.name}
-                    </a>
-                  ))}
+                  <div className="flex flex-wrap">
+                    {category.ChildCategory.map((cc) => (
+                      <a
+                        key={cc.id}
+                        href={`/illustrations/category/${cc.id}`}
+                        className="mr-4 hover:bg-gray-200 duration-200 py-2 px-4 cursor-pointer rounded-full"
+                      >
+                        # {cc.name}
+                      </a>
+                    ))}
+                  </div>
                 </div>
               ))}
             </>
@@ -335,12 +353,13 @@ const Home = async () => {
       </div>
 
       <footer>
-        <div className="max-w-[1100px] m-auto px-12">
+        <div className="max-w-[1100px] m-auto px-4 md:px-12">
           <div className="border-t border-gray-200 py-12 flex flex-wrap">
             {sns.map((s, index) => (
               <a
                 key={index}
                 href={s.link}
+                target="_blank"
                 className="flex items-center my-2 cursor-pointer block w-40 group"
               >
                 <div className="w-8 h-8 relative">

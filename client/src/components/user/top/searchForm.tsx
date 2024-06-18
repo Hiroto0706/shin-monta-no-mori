@@ -14,10 +14,12 @@ const SearchFormTop: React.FC<Props> = ({ child_categories }) => {
         もんたの森はゆるーくてゆーもある無料イラストサイトです
       </p>
       <div className="w-full px-4">
-        <SearchBox addClass="mb-2" />
+        <SearchBox maxWidth="600px" addClass="mb-2" />
       </div>
-      <div className="flex flex-wrap items-center w-full md:max-w-[550px] px-4 md:px-0 mb-4 md:mb-12">
-        <span className="text-sm my-1 mr-2">おすすめかてごり : </span>
+      <div
+        className={`flex flex-wrap items-center w-full md:max-w-[600px] px-4 md:px-0 mb-4 md:mb-12`}
+      >
+        <span className="text-sm my-1 mr-2">人気かてごり : </span>
         {child_categories.slice(0, 5).map((child_category) => (
           <a
             href={`illustrations/category/${child_category.id}`}

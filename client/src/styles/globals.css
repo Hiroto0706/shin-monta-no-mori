@@ -17,7 +17,7 @@
     background-size: contain;
     background-repeat: no-repeat;
     background-position: bottom right;
-    opacity: 0.1;
+    opacity: 0.05;
     z-index: -1;
   }
 
@@ -29,5 +29,12 @@
     object-fit: contain;
     position: relative !important;
     width: auto !important;
+  }
+
+  .repeat-bg-image {
+    background-image: url("/image-background.png");
+    background-repeat: repeat;
+    background-position: center;
+    background-size: 70px 70px;
   }
 }
