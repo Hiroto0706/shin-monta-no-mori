@@ -1,12 +1,25 @@
 "use client";
 
 import axios from "axios";
+import { saveAs } from "file-saver";
 import { Illustration } from "@/types/illustration";
 import Image from "next/image";
 import { useState } from "react";
 
 type Props = {
   illustration: Illustration;
+};
+
+export const downloadImage = async (src: string) => {
+  try {
+    const response = await axios.get(src, {
+      responseType: "blob",
+    });
+    const fileName = src.substring(src.lastIndexOf("/") + 1);
+    saveAs(response.data, fileName);
+  } catch (error) {
+    console.error("Image download failed", error);
+  }
 };
 
 export const copyImageToClipboard = async (
@@ -102,7 +115,16 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
 
             <div className="mb-8">
               <div className="flex flex-wrap mb-2">
-                <button className="bg-green-600 text-white duration-200 font-bold rounded-lg py-2 px-3 hover:bg-green-700 flex items-center">
+                <button
+                  className="bg-green-600 text-white duration-200 font-bold rounded-lg py-2 px-3 hover:bg-green-700 flex items-center"
+                  onClick={() =>
+                    downloadImage(
+                      isSimpleImg
+                        ? illustration.Image.simple_src.String
+                        : illustration.Image.original_src
+                    )
+                  }
+                >
                   <Image
                     src="/icon/download.png"
                     alt="ダウンロードアイコン"
