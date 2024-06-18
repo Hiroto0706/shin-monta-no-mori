@@ -1,28 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import React, { FormEvent, useState } from "react";
+import React from "react";
 import SearchBox from "./searchBox";
 
 const UserHeader: React.FC = () => {
-  const router = useRouter();
-  const [name, setName] = useState("");
-
-  const searchIllustrations = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const queryParams: { [key: string]: string } = {};
-
-    if (name) {
-      queryParams.q = name;
-    }
-
-    const queryString = new URLSearchParams(queryParams).toString();
-    router.push(`/illustrations?${queryString}`);
-    router.refresh();
-  };
-
   return (
     <>
       <div className="bg-green-600 text-white h-16 flex items-center shadow-lg fixed inset-0 z-40">

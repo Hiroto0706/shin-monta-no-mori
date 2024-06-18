@@ -146,7 +146,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                               <a
                                 key={cc.id}
                                 href={`/illustrations/category/${cc.id}`}
-                                className="my-1 ml-1 mr-2 py-1 px-2 cursor-pointer duration-200 hover:bg-gray-200 rounded-full"
+                                className="my-1 ml-1 mr-2 py-1.5 px-2 cursor-pointer duration-200 hover:bg-gray-200 rounded-full"
                               >
                                 # {cc.name}
                               </a>
@@ -162,45 +162,46 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
           </div>
         </div>
 
-        <div className="my-12 flex justify-end">
+        <div className="my-12 flex justify-center sm:justify-end">
           <a
             href={`http://twitter.com/share?url=https://montanomori.com/illustrations/${illustration.Image.id}&text=${illustration.Image.title}の画像`}
             target="_blank"
-            className="mx-2 pl-1 pr-2 flex items-center border bg-[#1F1F1F] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
+            className="pl-1 pr-4 flex items-center border bg-[#1F1F1F] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
           >
             <Image
               src="/sns/twitter.png"
               alt="twitterアイコン"
-              width={40}
-              height={40}
+              width={32}
+              height={32}
             />
-            <span className="text-lg">でシェアする</span>
+            <span className="text-sm">でシェア</span>
           </a>
           <a
             href={`https://www.facebook.com/share.php?u=https://montanomori.com/illustrations/${illustration.Image.id}`}
             target="_blank"
-            className="mx-2 pl-1 pr-2 flex items-center border bg-[#3F50B6] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
+            className="ml-1 pl-1 pr-4 flex items-center border bg-[#3F50B6] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
           >
             <Image
               src="/sns/facebook.png"
               alt="facebookアイコン"
-              width={40}
-              height={40}
+              width={32}
+              height={32}
             />
-            <span className="text-lg">でシェアする</span>
+            <span className="text-sm">でシェア</span>
           </a>
           <a
             href={`https://social-plugins.line.me/lineit/share?url=https://montanomori.com/illustrations/${illustration.Image.id}`}
             target="_blank"
-            className="mx-2 pl-1 pr-2 flex items-center border bg-[#01C400] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
+            className="ml-1 pl-1 pr-4 flex items-center border bg-[#01C400] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
           >
             <Image
+              className="p-1"
               src="/sns/line.png"
               alt="lineアイコン"
-              width={40}
-              height={40}
+              width={32}
+              height={32}
             />
-            <span className="text-lg">でシェアする</span>
+            <span className="text-sm">でシェア</span>
           </a>
         </div>
       </section>

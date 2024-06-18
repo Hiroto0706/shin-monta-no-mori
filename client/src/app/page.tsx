@@ -79,14 +79,14 @@ const Home = async () => {
   const others = [
     {
       name: "イラストの依頼",
-      description: "もんたにイラストを描いてほしい方はこちらへ",
+      description: "もんたがオリジナルイラストを描かせていただきます",
       src: "/top-request.png",
       link: "",
       color: "bg-blue-50",
     },
     {
       name: "お問い合わせ",
-      description: "もんたがオリジナルイラストを描かせていただきます",
+      description: "もんたの森に関する「ちょっとわかんない」ことはこちらへ",
       src: "/top-inquiry.png",
       link: "",
       color: "bg-yellow-50",
@@ -104,7 +104,7 @@ const Home = async () => {
     {
       name: "Instagram",
       src: "/sns/instagram.png",
-      link: "",
+      link: "https://www.instagram.com/yoshida_mandanda/",
     },
     {
       name: "X (Twitter)",
@@ -278,18 +278,35 @@ const Home = async () => {
             ))}
           </div>
 
-          <div className="w-full md:w-3/4 m-auto">
-            <a
-              href="https://store.line.me/stickershop/author/2887587/ja"
-              className="cursor-pointer hover:opacity-70 duration-200"
-            >
-              <Image
-                className="image"
-                src="/montanomori-line-widget.svg"
-                alt="もんたの森のLINEはこちら"
-                fill
-              />
-            </a>
+          <div className="w-full md:flex">
+            <div className="w-full md:w-1/2 py-4 md:py-0 md:pr-4">
+              <a
+                href="https://store.line.me/stickershop/author/2887587/ja"
+                target="_blank"
+                className="cursor-pointer hover:opacity-70 duration-200 w-full"
+              >
+                <Image
+                  className="image"
+                  src="/montanomori-line-widget.svg"
+                  alt="もんたの森のLINEはこちら"
+                  fill
+                />
+              </a>
+            </div>
+            <div className="w-full md:w-1/2 py-4 md:pl-4">
+              <a
+                href="https://www.instagram.com/yoshida_mandanda/"
+                target="_blank"
+                className="cursor-pointer hover:opacity-70 duration-200 w-full"
+              >
+                <Image
+                  className="image"
+                  src="/montanomori-instagram-widget.svg"
+                  alt="もんたの森のInstagramはこちら"
+                  fill
+                />
+              </a>
+            </div>
           </div>
         </section>
 
@@ -340,6 +357,7 @@ const Home = async () => {
               <a
                 key={index}
                 href={s.link}
+                target="_blank"
                 className="flex items-center my-2 cursor-pointer block w-40 group"
               >
                 <div className="w-8 h-8 relative">

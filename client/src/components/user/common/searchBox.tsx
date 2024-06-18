@@ -5,18 +5,20 @@ import { useRouter } from "next/navigation";
 import React, { FormEvent, useState } from "react";
 
 type Props = {
+  query?: string;
   maxWidth?: string;
   placeHolder?: string;
   addClass?: string;
 };
 
 const SearchBox: React.FC<Props> = ({
+  query = "",
   maxWidth = "550px",
   placeHolder = "いらすとを検索する",
   addClass,
 }) => {
   const router = useRouter();
-  const [name, setName] = useState("");
+  const [name, setName] = useState(query);
 
   const searchIllustrations = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
