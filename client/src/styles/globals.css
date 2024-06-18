@@ -30,4 +30,11 @@
     position: relative !important;
     width: auto !important;
   }
+
+  .repeat-bg-image {
+    background-image: url("/image-background.png");
+    background-repeat: repeat;
+    background-position: center;
+    background-size: 70px 70px;
+  }
 }

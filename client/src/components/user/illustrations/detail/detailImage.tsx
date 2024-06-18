@@ -1,9 +1,9 @@
 "use client";
 
 import axios from "axios";
+import Image from "next/image";
 import { saveAs } from "file-saver";
 import { Illustration } from "@/types/illustration";
-import Image from "next/image";
 import { useState } from "react";
 
 type Props = {
@@ -64,7 +64,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
         <div className="flex flex-col lg:flex-row">
           <div className="w-full max-w-[500px] m-auto lg:m-0 lg:w-2/5 lg:max-w-[400px]">
             <div
-              className="relative w-full border-2 border-gray-200 rounded-xl"
+              className="relative w-full border-2 border-gray-200 rounded-xl repeat-bg-image"
               style={{ paddingTop: "100%" }}
             >
               <div className="absolute inset-0 m-8">
@@ -113,58 +113,79 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
               {illustration.Image.title}
             </h2>
 
-            <div className="mb-8">
-              <div className="flex flex-wrap mb-2">
-                <button
-                  className="bg-green-600 text-white duration-200 font-bold rounded-lg py-2 px-3 hover:bg-green-700 flex items-center"
-                  onClick={() =>
-                    downloadImage(
-                      isSimpleImg
-                        ? illustration.Image.simple_src.String
-                        : illustration.Image.original_src
-                    )
+            <>
+              <div className="mb-8">
+                {/* sp以外の時の画像保存ボタン */}
+                <div className="flex flex-wrap mb-2 hidden sm:flex">
+                  <button
+                    className="bg-green-600 text-white duration-200 font-bold rounded-lg py-2 px-4 hover:bg-green-700 flex items-center"
+                    onClick={() =>
+                      downloadImage(
+                        isSimpleImg
+                          ? illustration.Image.simple_src.String
+                          : illustration.Image.original_src
+                      )
+                    }
+                  >
+                    <Image
+                      src="/icon/download.png"
+                      alt="ダウンロードアイコン"
+                      width={24}
+                      height={24}
+                    />
+                    <span className="ml-1">ダウンロード</span>
+                  </button>
+                  <button
+                    className="bg-gray-200 font-bold rounded-lg py-2 px-4 ml-4 duration-200 hover:bg-gray-300 flex items-center"
+                    onClick={() =>
+                      copyImageToClipboard(
+                        isSimpleImg
+                          ? illustration.Image.simple_src.String
+                          : illustration.Image.original_src,
+                        setIsCopied
+                      )
+                    }
+                  >
+                    <Image
+                      src={
+                        !isCopied ? "/icon/copy.png" : "/icon/copy-success.png"
+                      }
+                      alt="コピーアイコン"
+                      width={24}
+                      height={24}
+                    />
+                    <span className="ml-1">
+                      {!isCopied ? (
+                        <span>コピー</span>
+                      ) : (
+                        <span className="text-green-600">コピーしました</span>
+                      )}
+                    </span>
+                  </button>
+                </div>
+                {/* spの時の画像保存ボタン */}
+                <a
+                  href={
+                    !isSimpleImg
+                      ? illustration.Image.original_src
+                      : illustration.Image.simple_src.String
                   }
+                  target="_blank"
+                  className="w-full mb-2 py-2 px-4 border rounded-lg bg-green-600 block sm:hidden text-white font-bold text-lg flex justify-between cursor-pointer duration-200 hover:bg-green-700"
                 >
+                  <span>ダウンロード</span>
                   <Image
                     src="/icon/download.png"
                     alt="ダウンロードアイコン"
                     width={24}
                     height={24}
                   />
-                  <span className="ml-1">ダウンロード</span>
-                </button>
-                <button
-                  className="bg-gray-200 font-bold rounded-lg py-2 px-3 ml-4 duration-200 hover:bg-gray-300 flex items-center"
-                  onClick={() =>
-                    copyImageToClipboard(
-                      isSimpleImg
-                        ? illustration.Image.simple_src.String
-                        : illustration.Image.original_src,
-                      setIsCopied
-                    )
-                  }
-                >
-                  <Image
-                    src={
-                      !isCopied ? "/icon/copy.png" : "/icon/copy-success.png"
-                    }
-                    alt="コピーアイコン"
-                    width={24}
-                    height={24}
-                  />
-                  <span className="ml-1">
-                    {!isCopied ? (
-                      <span>コピー</span>
-                    ) : (
-                      <span className="text-green-600">コピーしました</span>
-                    )}
-                  </span>
-                </button>
+                </a>
+                <p className="text-sm">
+                  ダウンロードボタンをクリックすると、利用規約及びプライバシーポリシーに同意したものとみなされます。
+                </p>
               </div>
-              <p className="text-sm">
-                ダウンロードボタンをクリックすると、利用規約及びプライバシーポリシーに同意したものとみなされます。
-              </p>
-            </div>
+            </>
 
             {illustration.Characters.length > 0 && (
               <>
