@@ -334,15 +334,17 @@ const Home = async () => {
                     </span>
                   </div>
 
-                  {category.ChildCategory.map((cc) => (
-                    <a
-                      key={cc.id}
-                      href={`/illustrations/category/${cc.id}`}
-                      className="mr-4 hover:bg-gray-200 duration-200 py-2 px-4 cursor-pointer rounded-full"
-                    >
-                      # {cc.name}
-                    </a>
-                  ))}
+                  <div className="flex flex-wrap">
+                    {category.ChildCategory.map((cc) => (
+                      <a
+                        key={cc.id}
+                        href={`/illustrations/category/${cc.id}`}
+                        className="mr-4 hover:bg-gray-200 duration-200 py-2 px-4 cursor-pointer rounded-full"
+                      >
+                        # {cc.name}
+                      </a>
+                    ))}
+                  </div>
                 </div>
               ))}
             </>
@@ -351,7 +353,7 @@ const Home = async () => {
       </div>
 
       <footer>
-        <div className="max-w-[1100px] m-auto px-12">
+        <div className="max-w-[1100px] m-auto px-4 md:px-12">
           <div className="border-t border-gray-200 py-12 flex flex-wrap">
             {sns.map((s, index) => (
               <a

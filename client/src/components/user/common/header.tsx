@@ -4,7 +4,11 @@ import Image from "next/image";
 import React from "react";
 import SearchBox from "./searchBox";
 
-const UserHeader: React.FC = () => {
+type Props = {
+  query: string;
+};
+
+const UserHeader: React.FC<Props> = ({ query }) => {
   return (
     <>
       <div className="bg-green-600 text-white h-16 flex items-center shadow-lg fixed inset-0 z-40">
@@ -19,7 +23,7 @@ const UserHeader: React.FC = () => {
             />
           </a>
 
-          <SearchBox />
+          <SearchBox query={query} />
 
           <div className="cursor-pointer w-12 h-12 rounded-full flex flex-col items-center justify-center hover:bg-white hover:bg-opacity-20 duration-200 ml-4">
             <span className="w-7 h-0.5 bg-white block rounded-full mb-2"></span>

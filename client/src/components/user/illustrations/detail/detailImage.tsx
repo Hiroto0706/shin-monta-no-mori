@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "axios";
 import { Illustration } from "@/types/illustration";
 import Image from "next/image";
 import { useState } from "react";
@@ -8,8 +9,41 @@ type Props = {
   illustration: Illustration;
 };
 
+export const copyImageToClipboard = async (
+  src: string,
+  setIsCopied: React.Dispatch<React.SetStateAction<boolean>>
+) => {
+  try {
+    const response = await axios.get(src, { responseType: "blob" });
+    const blob = response.data;
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const image = await createImageBitmap(blob);
+    canvas.width = image.width;
+    canvas.height = image.height;
+    if (ctx) {
+      ctx.drawImage(image, 0, 0);
+    }
+
+    canvas.toBlob(async (newBlob) => {
+      if (newBlob) {
+        const clipboardItem = new ClipboardItem({ [newBlob.type]: newBlob });
+        await navigator.clipboard.write([clipboardItem]);
+        setIsCopied(true);
+        setTimeout(() => {
+          setIsCopied(false);
+        }, 3000); // 3秒後にテキストを戻す
+      }
+    }, blob.type);
+  } catch (err) {
+    console.error("Failed to copy on clipboard", err);
+  }
+};
+
 const DetailImage: React.FC<Props> = ({ illustration }) => {
   const [isSimpleImg, setIsSimpleImg] = useState(false);
+  const [isCopied, setIsCopied] = useState<boolean>(false);
 
   return (
     <>
@@ -68,11 +102,41 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
 
             <div className="mb-8">
               <div className="flex flex-wrap mb-2">
-                <button className="bg-green-600 text-white duration-200 font-bold rounded-lg py-2 px-4 hover:bg-green-700">
-                  ダウンロード
+                <button className="bg-green-600 text-white duration-200 font-bold rounded-lg py-2 px-3 hover:bg-green-700 flex items-center">
+                  <Image
+                    src="/icon/download.png"
+                    alt="ダウンロードアイコン"
+                    width={24}
+                    height={24}
+                  />
+                  <span className="ml-1">ダウンロード</span>
                 </button>
-                <button className="bg-gray-200 font-bold rounded-lg py-2 px-4 ml-4 duration-200 hover:bg-gray-300">
-                  コピー
+                <button
+                  className="bg-gray-200 font-bold rounded-lg py-2 px-3 ml-4 duration-200 hover:bg-gray-300 flex items-center"
+                  onClick={() =>
+                    copyImageToClipboard(
+                      isSimpleImg
+                        ? illustration.Image.simple_src.String
+                        : illustration.Image.original_src,
+                      setIsCopied
+                    )
+                  }
+                >
+                  <Image
+                    src={
+                      !isCopied ? "/icon/copy.png" : "/icon/copy-success.png"
+                    }
+                    alt="コピーアイコン"
+                    width={24}
+                    height={24}
+                  />
+                  <span className="ml-1">
+                    {!isCopied ? (
+                      <span>コピー</span>
+                    ) : (
+                      <span className="text-green-600">コピーしました</span>
+                    )}
+                  </span>
                 </button>
               </div>
               <p className="text-sm">
@@ -110,7 +174,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
 
             {illustration.Categories.length > 0 && (
               <>
-                <div className="mb-8">
+                <div>
                   <h3 className="text-lg font-bold mb-2 text-black">
                     カテゴリ
                   </h3>
@@ -162,44 +226,44 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
           </div>
         </div>
 
-        <div className="my-12 flex justify-center sm:justify-end">
+        <div className="mt-8 flex justify-center sm:justify-end">
           <a
             href={`http://twitter.com/share?url=https://montanomori.com/illustrations/${illustration.Image.id}&text=${illustration.Image.title}の画像`}
             target="_blank"
-            className="pl-1 pr-4 flex items-center border bg-[#1F1F1F] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
+            className="pl-1 pr-2 flex items-center border bg-[#1F1F1F] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
           >
             <Image
               src="/sns/twitter.png"
               alt="twitterアイコン"
-              width={32}
-              height={32}
+              width={28}
+              height={28}
             />
             <span className="text-sm">でシェア</span>
           </a>
           <a
             href={`https://www.facebook.com/share.php?u=https://montanomori.com/illustrations/${illustration.Image.id}`}
             target="_blank"
-            className="ml-1 pl-1 pr-4 flex items-center border bg-[#3F50B6] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
+            className="ml-1 pl-1 pr-2 flex items-center border bg-[#3F50B6] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
           >
             <Image
               src="/sns/facebook.png"
               alt="facebookアイコン"
-              width={32}
-              height={32}
+              width={28}
+              height={28}
             />
             <span className="text-sm">でシェア</span>
           </a>
           <a
             href={`https://social-plugins.line.me/lineit/share?url=https://montanomori.com/illustrations/${illustration.Image.id}`}
             target="_blank"
-            className="ml-1 pl-1 pr-4 flex items-center border bg-[#01C400] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
+            className="ml-1 pl-1 pr-2 flex items-center border bg-[#01C400] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
           >
             <Image
               className="p-1"
               src="/sns/line.png"
               alt="lineアイコン"
-              width={32}
-              height={32}
+              width={28}
+              height={28}
             />
             <span className="text-sm">でシェア</span>
           </a>

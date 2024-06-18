@@ -93,3 +93,7 @@ test-reset:
 	docker exec shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
 	docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
 	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up
+
+.PHONY: update-cors-setting
+update-cors-setting:
+	cd client/ && gsutil cors set cors-config.json gs://shin-monta-no-mori

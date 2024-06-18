@@ -31,12 +31,13 @@ const IllustrationDetailPage = async ({
           <DetailImage illustration={getIllustrationRes.illustration} />
         )}
 
-        <section className="mb-20">
+        <section>
           <div className="lg:flex">
             <div className="w-full lg:w-1/2 h-28 md:h-40 lg:h-32 flex items-center justify-center my-2 lg:my-0 lg:mr-4">
               <div className="w-full max-w-[450px] md:max-w-[550px]">
                 <a
                   href="https://store.line.me/stickershop/author/2887587/ja"
+                  target="_blank"
                   className="cursor-pointer hover:opacity-70 duration-200"
                 >
                   <Image
@@ -51,7 +52,8 @@ const IllustrationDetailPage = async ({
             <div className="w-full lg:w-1/2 h-28 md:h-40 lg:h-32 flex items-center justify-center my-2 lg:my-0 lg:ml-4">
               <div className="w-full max-w-[450px] md:max-w-[550px]">
                 <a
-                  href="https://store.line.me/stickershop/author/2887587/ja"
+                  href="https://www.instagram.com/yoshida_mandanda/"
+                  target="_blank"
                   className="cursor-pointer hover:opacity-70 duration-200"
                 >
                   <Image
@@ -66,9 +68,9 @@ const IllustrationDetailPage = async ({
           </div>
         </section>
 
-        <section className="mb-20">
-          <h3>関連イラスト</h3>
-        </section>
+        {/* <section className="mb-20">
+          <h3 className="text-xl font-bold text-black">そのほかイラスト</h3>
+        </section> */}
       </div>
     </>
   );
