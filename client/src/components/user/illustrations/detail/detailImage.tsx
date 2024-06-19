@@ -170,7 +170,6 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                       ? illustration.Image.original_src
                       : illustration.Image.simple_src.String
                   }
-                  target="_blank"
                   className="w-full mb-2 py-2 px-4 border rounded-lg bg-green-600 block sm:hidden text-white font-bold text-lg flex justify-between cursor-pointer duration-200 hover:bg-green-700"
                 >
                   <span>ダウンロード</span>

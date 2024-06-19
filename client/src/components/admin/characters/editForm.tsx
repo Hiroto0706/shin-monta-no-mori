@@ -142,7 +142,7 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
             />
           </div>
 
-          <div className="flex flex-wrap mb-16">
+          <div className="mb-16">
             <div className="mb-6 mr-2 w-1/3 min-w-[350px]">
               <div className="border-2 p-4 mt-4 bg-gray-200 rounded-lg w-80 h-80 flex justify-center items-center">
                 {imageSrc ? (
@@ -168,6 +168,7 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
                 required={imageSrc !== "" ? false : true}
               />
             </div>
+            <p className="text-sm">※ png形式の画像をアップロードしてください</p>
           </div>
 
           <button className="py-3 bg-green-600 text-white font-bold text-lg rounded-lg w-full hover:bg-white hover:text-green-600 border-2 border-green-600 duration-200">

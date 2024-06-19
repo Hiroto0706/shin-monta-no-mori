@@ -126,6 +126,7 @@ const CreateParentCategory: React.FC<Props> = ({ accessToken }) => {
                 required
               />
             </div>
+            <p className="text-sm">※ png形式の画像をアップロードしてください</p>
           </div>
 
           <button className="py-3 bg-green-600 text-white font-bold text-lg rounded-lg w-full hover:bg-white hover:text-green-600 border-2 border-green-600 duration-200">

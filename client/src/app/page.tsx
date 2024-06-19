@@ -109,7 +109,7 @@ const Home = async () => {
     {
       name: "X (Twitter)",
       src: "/sns/twitter.png",
-      link: "",
+      link: "https://x.com/hiroto_kadota",
     },
   ];
 
@@ -117,7 +117,7 @@ const Home = async () => {
     <>
       <TopHeader child_categories={fetchChildCategoriesRes.child_categories} />
 
-      <div className="max-w-[1100px] m-auto mt-40 px-4 md:px-12">
+      <div className="max-w-[1100px] m-auto mt-24 px-4 md:px-12">
         <section className="mb-40">
           <h2 className="text-2xl font-bold mb-6 text-black">新着イラスト</h2>
 

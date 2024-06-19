@@ -311,67 +311,70 @@ const CreateIllustration: React.FC<Props> = ({
             />
           </div>
 
-          <div className="flex flex-wrap mb-16">
-            <div className="mb-6 mr-2 w-1/3 min-w-[350px]">
-              <label className="text-xl w-full bg-green-600 text-white py-2 px-4 rounded-full">
-                オリジナル
-              </label>
-              <div className="border-2 p-4 mt-4 bg-gray-200 rounded-lg w-80 h-80 flex justify-center items-center">
-                {originalImageSrc ? (
-                  <div className="relative w-full h-full">
-                    <Image
-                      src={originalImageSrc}
-                      alt="オリジナル画像プレビュー"
-                      layout="fill"
-                      objectFit="contain"
-                      className="absolute inset-0"
-                    />
-                  </div>
-                ) : (
-                  <span className="flex justify-center items-center">
-                    Upload Image
-                  </span>
-                )}
+          <div className="mb-16">
+            <div className="flex flex-wrap mb-4">
+              <div className="mb-6 mr-2 w-1/3 min-w-[350px]">
+                <label className="text-xl w-full bg-green-600 text-white py-2 px-4 rounded-full">
+                  オリジナル
+                </label>
+                <div className="border-2 p-4 mt-4 bg-gray-200 rounded-lg w-80 h-80 flex justify-center items-center">
+                  {originalImageSrc ? (
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={originalImageSrc}
+                        alt="オリジナル画像プレビュー"
+                        layout="fill"
+                        objectFit="contain"
+                        className="absolute inset-0"
+                      />
+                    </div>
+                  ) : (
+                    <span className="flex justify-center items-center">
+                      Upload Image
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  onChange={(e) =>
+                    onFileChange(e, setOriginalImageSrc, setOriginalImageFile)
+                  }
+                  className="w-full mt-4"
+                  required
+                />
               </div>
-              <input
-                type="file"
-                onChange={(e) =>
-                  onFileChange(e, setOriginalImageSrc, setOriginalImageFile)
-                }
-                className="w-full mt-4"
-                required
-              />
-            </div>
 
-            <div className="mb-6 mr-2 w-1/3 min-w-[350px]">
-              <label className="text-xl w-full bg-gray-200 py-2 px-4 rounded-full">
-                シンプル
-              </label>
-              <div className="border-2 p-4 mt-4 bg-gray-200 rounded-lg w-80 h-80 flex justify-center items-center">
-                {simpleImageSrc ? (
-                  <div className="relative w-full h-full">
-                    <Image
-                      src={simpleImageSrc}
-                      alt="シンプル画像プレビュー"
-                      layout="fill"
-                      objectFit="contain"
-                      className="absolute inset-0"
-                    />
-                  </div>
-                ) : (
-                  <span className="flex justify-center items-center">
-                    Upload Image
-                  </span>
-                )}
+              <div className="mb-6 mr-2 w-1/3 min-w-[350px]">
+                <label className="text-xl w-full bg-gray-200 py-2 px-4 rounded-full">
+                  シンプル
+                </label>
+                <div className="border-2 p-4 mt-4 bg-gray-200 rounded-lg w-80 h-80 flex justify-center items-center">
+                  {simpleImageSrc ? (
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={simpleImageSrc}
+                        alt="シンプル画像プレビュー"
+                        layout="fill"
+                        objectFit="contain"
+                        className="absolute inset-0"
+                      />
+                    </div>
+                  ) : (
+                    <span className="flex justify-center items-center">
+                      Upload Image
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  onChange={(e) =>
+                    onFileChange(e, setSimpleImageSrc, setSimpleImageFile)
+                  }
+                  className="w-full mt-4"
+                />
               </div>
-              <input
-                type="file"
-                onChange={(e) =>
-                  onFileChange(e, setSimpleImageSrc, setSimpleImageFile)
-                }
-                className="w-full mt-4"
-              />
             </div>
+            <p className="text-sm">※ png形式の画像をアップロードしてください</p>
           </div>
 
           <button className="py-3 bg-green-600 text-white font-bold text-lg rounded-lg w-full hover:bg-white hover:text-green-600 border-2 border-green-600 duration-200">
