@@ -89,7 +89,7 @@ export default function TOP() {
             {error !== "" && <p className="text-red-700">{error}</p>}
             <button
               type="submit"
-              className="w-full bg-green-600 text-white p-2 rounded mt-6"
+              className="w-full bg-green-600 text-white p-2 rounded mt-6 hover:opacity-70 duration-200"
             >
               <span className="text-2xl">Login</span>
             </button>

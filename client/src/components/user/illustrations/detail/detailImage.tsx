@@ -64,10 +64,10 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
         <div className="flex flex-col lg:flex-row">
           <div className="w-full max-w-[500px] m-auto lg:m-0 lg:w-2/5 lg:max-w-[400px]">
             <div
-              className="relative w-full border-2 border-gray-200 rounded-xl repeat-bg-image"
+              className="relative w-full border-2 border-gray-200 rounded-xl repeat-bg-image bg-white"
               style={{ paddingTop: "100%" }}
             >
-              <div className="absolute inset-0 m-8">
+              <div className="absolute inset-0 m-4">
                 {!isSimpleImg ? (
                   <Image
                     className="absolute inset-0 object-cover w-full h-full"
