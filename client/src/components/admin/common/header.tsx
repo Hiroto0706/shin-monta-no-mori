@@ -5,7 +5,7 @@ import Image from "next/image";
 const AdminHeader = () => {
   return (
     <>
-      <header className="bg-green-600 text-white h-16 flex items-center shadow-lg fixed inset-0 z-40">
+      <header className="bg-green-600 text-white h-16 flex items-center fixed inset-0 z-40">
         <nav className="w-full ml-4 mr-8 flex justify-between">
           <a href="/admin" className="flex items-end">
             <Image

@@ -12,6 +12,9 @@ import {
   FetchChildCategoriesAPI,
 } from "@/api/user/category";
 import TopHeader from "@/components/user/top/topHeader";
+import HeaderMenu from "@/components/user/common/headerMenu";
+import { FetchCharactersResponse } from "@/types/user/characters";
+import { FetchAllCharactersAPI } from "@/api/user/character";
 
 const fetchIllustrations = async (): Promise<FetchIllustrationsResponse> => {
   try {
@@ -29,7 +32,7 @@ const fetchChildCategories =
       const response = await axios.get(FetchChildCategoriesAPI());
       return response.data;
     } catch (error) {
-      console.error(error);
+      console.error("キャラクターの取得に失敗しました", error);
       return { child_categories: [] };
     }
   };
@@ -44,10 +47,21 @@ const fetchCategories = async (): Promise<FetchCategoriesResponse> => {
   }
 };
 
+const fetchCharacters = async (): Promise<FetchCharactersResponse> => {
+  try {
+    const response = await axios.get(FetchAllCharactersAPI());
+    return response.data;
+  } catch (error) {
+    console.error("キャラクターの取得に失敗しました", error);
+    return { characters: [] };
+  }
+};
+
 const Home = async () => {
   const fetchIllustrationsRes = await fetchIllustrations();
   const fetchChildCategoriesRes = await fetchChildCategories();
   const fetchCategoriesRes = await fetchCategories();
+  const fetchCharactersRes = await fetchCharacters();
 
   const images = [
     {
@@ -115,7 +129,11 @@ const Home = async () => {
 
   return (
     <>
-      <TopHeader child_categories={fetchChildCategoriesRes.child_categories} />
+      <TopHeader
+        child_categories={fetchChildCategoriesRes.child_categories}
+        characters={fetchCharactersRes.characters}
+        categories={fetchCategoriesRes.categories}
+      />
 
       <div className="max-w-[1100px] m-auto mt-24 px-4 md:px-12">
         <section className="mb-40">

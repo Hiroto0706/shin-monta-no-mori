@@ -1,6 +1,5 @@
-import Header from "@/components/common/handleHeader";
+import Header from "@/components/user/common/handleHeader";
 import UserSidebar from "@/components/user/common/sidebar/sidebar";
-
 export default function UserLayout({
   children,
 }: Readonly<{
