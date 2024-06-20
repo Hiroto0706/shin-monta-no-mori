@@ -1,17 +1,47 @@
 "use client";
 
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SearchBox from "./searchBox";
+import HeaderMenu from "./headerMenu";
+import { useSearchParams } from "next/navigation";
+import { Category } from "@/types/category";
+import { Character } from "@/types/character";
 
 type Props = {
-  query: string;
+  characters: Character[];
+  categories: Category[];
 };
 
-const UserHeader: React.FC<Props> = ({ query }) => {
+const UserHeader: React.FC<Props> = ({ characters, categories }) => {
+  const searchParams = useSearchParams();
+  const query = searchParams.get("q") || "";
+  const [handleHeader, setHandlerHeader] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const pageWidth = window.innerWidth;
+      const pageSizeMiddle = 768;
+      if (pageWidth <= pageSizeMiddle) {
+        setIsMobile(true);
+      } else {
+        setIsMobile(false);
+        setHandlerHeader(false); // ウィンドウサイズが大きい場合にメニューを閉じる
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    // 初回チェック
+    handleResize();
+    // クリーンアップ
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <>
-      <div className="bg-green-600 text-white h-16 flex items-center shadow-lg fixed inset-0 z-40">
+      <div className="bg-green-600 text-white h-16 flex items-center fixed inset-0 z-40">
         <nav className="w-full h-16 flex justify-between items-center py-2 px-4">
           <a href="/" className="flex items-end mr-4">
             <Image
@@ -23,15 +53,39 @@ const UserHeader: React.FC<Props> = ({ query }) => {
             />
           </a>
 
-          <SearchBox query={query} />
+          <SearchBox
+            query={query}
+            maxWidth={550}
+            addClass="md:w-1/2 md:min-w-[400px]"
+          />
 
-          <div className="cursor-pointer w-12 h-12 rounded-full flex flex-col items-center justify-center hover:bg-white hover:bg-opacity-20 duration-200 ml-4">
-            <span className="w-7 h-0.5 bg-white block rounded-full mb-2"></span>
-            <span className="w-7 h-0.5 bg-white block rounded-full mb-2"></span>
-            <span className="w-7 h-0.5 bg-white block rounded-full"></span>
+          {/* smではハンバーガーメニューを表示 */}
+          <div className="block md:hidden">
+            <div
+              onClick={() => setHandlerHeader(!handleHeader)}
+              className="cursor-pointer w-12 h-12 rounded-full flex flex-col items-center justify-center hover:bg-white hover:bg-opacity-20 duration-200 ml-4"
+            >
+              <span className="w-7 h-0.5 bg-white block rounded-full mb-2"></span>
+              <span className="w-7 h-0.5 bg-white block rounded-full mb-2"></span>
+              <span className="w-7 h-0.5 bg-white block rounded-full"></span>
+            </div>
+          </div>
+
+          {/* sm以外ではすべてのイラストを表示 */}
+          <div className="hidden md:block">
+            <a
+              href="/illustrations"
+              className="text-sm hover:opacity-70 duration-200 cursor-pointer"
+            >
+              すべてのイラスト
+            </a>
           </div>
         </nav>
       </div>
+
+      {isMobile && handleHeader && (
+        <HeaderMenu characters={characters} categories={categories} />
+      )}
     </>
   );
 };

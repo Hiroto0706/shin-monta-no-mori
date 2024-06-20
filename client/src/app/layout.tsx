@@ -2,7 +2,7 @@ import { Inter } from "next/font/google";
 import { metadata } from "@/components/common/metaData";
 export { metadata };
 
-import Header from "@/components/common/handleHeader";
+import Header from "@/components/user/common/handleHeader";
 import BackgroundImage from "@/components/common/backgroundImage";
 
 import "@/styles/globals.css";
@@ -17,7 +17,6 @@ export default function RootLayout({
   return (
     <html lang="jp" className="text-gray-600">
       <body className={inter.className}>
-        <Header />
         <div>{children}</div>
         <BackgroundImage />
       </body>
