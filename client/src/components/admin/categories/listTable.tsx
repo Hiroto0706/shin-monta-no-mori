@@ -9,7 +9,7 @@ type Props = {
 
 const ListCategoriesTable: React.FC<Props> = ({ categories }) => {
   return (
-    <div className="my-12">
+    <div className="my-12 text-sm md:text-md">
       {categories.map((category) => (
         <div
           key={category.ParentCategory.id}
@@ -57,7 +57,7 @@ const ListCategoriesTable: React.FC<Props> = ({ categories }) => {
             ))}
             <a
               href={`categories/child/new?parent_id=${category.ParentCategory.id}`}
-              className="flex items-center text-xl border-2 mb-2 py-2 px-4 cursor-pointer rounded-full hover:bg-gray-100 duration-200"
+              className="flex items-center border-2 mb-2 py-2 px-4 cursor-pointer rounded-full hover:bg-gray-100 duration-200"
             >
               + 子カテゴリ追加
             </a>

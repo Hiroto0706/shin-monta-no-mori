@@ -75,7 +75,7 @@ const UserHeader: React.FC<Props> = ({ characters, categories }) => {
           <div className="hidden md:block">
             <a
               href="/illustrations"
-              className="text-sm hover:opacity-70 duration-200 cursor-pointer"
+              className="text-sm py-2 px-4 rounded-lg hover:bg-white hover:bg-opacity-30 duration-200 cursor-pointer"
             >
               すべてのイラスト
             </a>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Illustration } from "@/types/illustration";
 import Image from "next/image";
 import InfiniteScroll from "react-infinite-scroller";
@@ -15,8 +15,12 @@ interface Props {
   query: string | null;
 }
 
-const ListIllustrations: React.FC<Props> = ({ initialIllustrations, query }) => {
-  const [illustrations, setIllustrations] = useState<Illustration[]>(initialIllustrations);
+const ListIllustrations: React.FC<Props> = ({
+  initialIllustrations,
+  query,
+}) => {
+  const [illustrations, setIllustrations] =
+    useState<Illustration[]>(initialIllustrations);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
 

@@ -5,15 +5,15 @@ import { useRouter } from "next/navigation";
 import React, { FormEvent, useState } from "react";
 
 type Props = {
-  maxWidth: number;
   query?: string;
+  maxWidth?: string;
   placeHolder?: string;
   addClass?: string;
 };
 
 const SearchBox: React.FC<Props> = ({
   query = "",
-  maxWidth,
+  maxWidth = "550px",
   placeHolder = "いらすとを検索する",
   addClass,
 }) => {
@@ -36,7 +36,7 @@ const SearchBox: React.FC<Props> = ({
 
   return (
     <form
-      className={`flex justify-between w-full md:max-w-[${maxWidth}px] mx-auto border-gray-200 rounded-full bg-white ${addClass}`}
+      className={`flex justify-between w-full md:max-w-[${maxWidth}] mx-auto border-gray-200 rounded-full bg-white ${addClass}`}
       onSubmit={(e) => searchIllustrations(e)}
     >
       <div className="w-full">

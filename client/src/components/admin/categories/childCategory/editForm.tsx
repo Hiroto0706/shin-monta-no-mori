@@ -120,7 +120,7 @@ const EditChildCategory: React.FC<Props> = ({
         </div>
 
         <form
-          className="border-2 border-gray-300 rounded-lg p-12 bg-white"
+          className="border-2 border-gray-300 rounded-lg p-2 md:p-12 bg-white"
           onSubmit={editChildCategory}
         >
           <div className="mb-16">

@@ -76,7 +76,7 @@ const CreateChildCategory: React.FC<Props> = ({
       <div className="max-w-7xl m-auto">
         <h1 className="text-2xl font-bold mb-6">子カテゴリの作成</h1>
         <form
-          className="border-2 border-gray-300 rounded-lg p-12 bg-white"
+          className="border-2 border-gray-300 rounded-lg p-2 md:p-12 bg-white"
           onSubmit={createIllustration}
         >
           <div className="mb-16">
