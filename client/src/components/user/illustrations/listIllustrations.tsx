@@ -1,16 +1,55 @@
+"use client";
+
+import { useState } from "react";
 import { Illustration } from "@/types/illustration";
 import Image from "next/image";
-import React from "react";
+import InfiniteScroll from "react-infinite-scroller";
+import axios from "axios";
+import {
+  FetchIllustrationsAPI,
+  SearchIllustrationsAPI,
+} from "@/api/user/illustration";
 
 interface Props {
-  illustrations: Illustration[];
+  initialIllustrations: Illustration[];
+  query: string | null;
 }
 
-const ListIllustrations: React.FC<Props> = ({ illustrations }) => {
+const ListIllustrations: React.FC<Props> = ({ initialIllustrations, query }) => {
+  const [illustrations, setIllustrations] = useState<Illustration[]>(initialIllustrations);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+
+  const fetchMoreIllustrations = async (page: number) => {
+    try {
+      const response = query
+        ? await axios.get(SearchIllustrationsAPI(page, query))
+        : await axios.get(FetchIllustrationsAPI(page));
+      const newIllustrations = response.data.illustrations;
+
+      if (newIllustrations.length === 0) {
+        setHasMore(false);
+      } else {
+        setIllustrations((prevIllustrations) => [
+          ...prevIllustrations,
+          ...newIllustrations,
+        ]);
+        setPage(page + 1);
+      }
+    } catch (error) {
+      console.error("Failed to fetch more illustrations", error);
+    }
+  };
+
   return (
     <>
-      <div className="mt-8">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+      <InfiniteScroll
+        pageStart={0}
+        loadMore={fetchMoreIllustrations}
+        hasMore={hasMore}
+        loader={<div key={0}>Loading...</div>}
+      >
+        <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
           {illustrations.map((illustration) => (
             <a
               key={illustration.Image.id}
@@ -30,13 +69,13 @@ const ListIllustrations: React.FC<Props> = ({ illustrations }) => {
                   />
                 </div>
               </div>
-              <span className="group-hover:text-green-600 group-hover:font-bold duration-200">
+              <span className="break-words group-hover:text-green-600 group-hover:font-bold duration-200">
                 {illustration.Image.title}
               </span>
             </a>
           ))}
         </div>
-      </div>
+      </InfiniteScroll>
     </>
   );
 };
