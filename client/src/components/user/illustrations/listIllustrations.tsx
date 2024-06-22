@@ -1,34 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Illustration } from "@/types/illustration";
 import Image from "next/image";
 import InfiniteScroll from "react-infinite-scroller";
 import axios from "axios";
 import {
   FetchIllustrationsAPI,
+  FetchIllustrationsByCategoryAPI,
+  FetchIllustrationsByCharacterAPI,
   SearchIllustrationsAPI,
 } from "@/api/user/illustration";
 
 interface Props {
   initialIllustrations: Illustration[];
-  query: string | null;
+  fetchType: {
+    query?: string;
+    categoryID?: number;
+    characterID?: number;
+  };
 }
 
 const ListIllustrations: React.FC<Props> = ({
   initialIllustrations,
-  query,
+  fetchType,
 }) => {
   const [illustrations, setIllustrations] =
     useState<Illustration[]>(initialIllustrations);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
 
-  const fetchMoreIllustrations = async (page: number) => {
+  const fetchUrlGenerator = (page: number) => {
+    if (fetchType.query) {
+      return SearchIllustrationsAPI(page, fetchType.query);
+    } else if (fetchType.categoryID) {
+      return FetchIllustrationsByCategoryAPI(fetchType.categoryID, page);
+    } else if (fetchType.characterID) {
+      return FetchIllustrationsByCharacterAPI(fetchType.characterID, page);
+    } else {
+      return FetchIllustrationsAPI(page);
+    }
+  };
+
+  const handleFetchMore = async () => {
     try {
-      const response = query
-        ? await axios.get(SearchIllustrationsAPI(page, query))
-        : await axios.get(FetchIllustrationsAPI(page));
+      const url = fetchUrlGenerator(page);
+      const response = await axios.get(url);
       const newIllustrations = response.data.illustrations;
 
       if (newIllustrations.length === 0) {
@@ -49,7 +66,7 @@ const ListIllustrations: React.FC<Props> = ({
     <>
       <InfiniteScroll
         pageStart={0}
-        loadMore={fetchMoreIllustrations}
+        loadMore={handleFetchMore}
         hasMore={hasMore}
         loader={<div key={0}>Loading...</div>}
       >

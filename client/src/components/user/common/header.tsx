@@ -4,7 +4,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import SearchBox from "./searchBox";
 import HeaderMenu from "./headerMenu";
-import { useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Category } from "@/types/category";
 import { Character } from "@/types/character";
 
@@ -14,10 +14,16 @@ type Props = {
 };
 
 const UserHeader: React.FC<Props> = ({ characters, categories }) => {
-  const searchParams = useSearchParams();
-  const query = searchParams.get("q") || "";
+  const pathname = usePathname();
+  const [query, setQuery] = useState("");
   const [handleHeader, setHandlerHeader] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const pathSegments = pathname.split("/");
+    const lastSegment = pathSegments[pathSegments.length - 1];
+    setQuery(lastSegment);
+  }, [pathname]);
 
   useEffect(() => {
     const handleResize = () => {

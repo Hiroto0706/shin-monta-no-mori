@@ -1,22 +1,15 @@
 import axios from "axios";
 import { FetchIllustrationsResponse } from "@/types/user/illustration";
-import {
-  FetchIllustrationsByCategoryAPI,
-  FetchIllustrationsByCharacterAPI,
-} from "@/api/user/illustration";
+import { SearchIllustrationsAPI } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
-import { GetChildCategoryResponse } from "@/types/user/categories";
-import { GetChildCategoryAPI } from "@/api/user/category";
-import { GetCharacterAPI } from "@/api/user/character";
-import { GetCharacterResponse } from "@/types/user/characters";
 
-const fetchIllustrationsByCharacterID = async (
-  character_id: number
+const fetchIllustrations = async (
+  query: string,
+  page: number = 0
 ): Promise<FetchIllustrationsResponse> => {
   try {
-    const response = await axios.get(
-      FetchIllustrationsByCharacterAPI(character_id)
-    );
+    const response = await axios.get(SearchIllustrationsAPI(page, query));
+
     return response.data;
   } catch (error) {
     console.error(error);
@@ -24,46 +17,27 @@ const fetchIllustrationsByCharacterID = async (
   }
 };
 
-const getCharacter = async (
-  character_id: number
-): Promise<GetCharacterResponse> => {
-  try {
-    const response = await axios.get(GetCharacterAPI(character_id));
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    return { character: null };
-  }
-};
-
-const FetchIllustrationsByCategoryID = async ({
+const SearchIllustrationsPage = async ({
   params,
 }: {
-  params: { character_id: number };
+  params: { query: string };
 }) => {
-  const fetchIllustrationsByCategoryIDRes =
-    await fetchIllustrationsByCharacterID(params.character_id);
-  const getCharacterRes = await getCharacter(params.character_id);
+  const query = params.query ? decodeURIComponent(params.query) : "";
+  const fetchIllustrationsRes = await fetchIllustrations(query);
 
   return (
     <>
-      <div className="w-full max-w-[1100px]  2xl:max-w-[1600px] m-auto">
-        <h1 className="text-xl font-bold mb-6">
-          {getCharacterRes.character != null ? (
-            <>{`『${getCharacterRes.character.name}』でキャラクター検索`}</>
-          ) : (
-            <div>存在しないキャラクターを検索しています</div>
-          )}
-        </h1>
+      <div className="w-full max-w-[1100px] 2xl:max-w-[1600px] m-auto">
+        <h1 className="text-xl font-bold mb-6">『{query}』で検索</h1>
 
-        {fetchIllustrationsByCategoryIDRes.illustrations.length > 0 &&
-        getCharacterRes.character != null ? (
+        {fetchIllustrationsRes.illustrations.length > 0 ? (
           <ListIllustrations
-            illustrations={fetchIllustrationsByCategoryIDRes.illustrations}
+            initialIllustrations={fetchIllustrationsRes.illustrations}
+            fetchType={{ query: query }}
           />
         ) : (
           <div>
-            イラストが見つかりませんでした{" "}
+            イラストが見つかりませんでした
             <a
               href="/"
               className="text-sm ml-4 underline border-blue-600 text-blue-600 cursor-pointer hover:opacity-70 duration-200"
@@ -77,4 +51,4 @@ const FetchIllustrationsByCategoryID = async ({
   );
 };
 
-export default FetchIllustrationsByCategoryID;
+export default SearchIllustrationsPage;
