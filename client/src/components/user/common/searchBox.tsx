@@ -23,15 +23,7 @@ const SearchBox: React.FC<Props> = ({
   const searchIllustrations = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const queryParams: { [key: string]: string } = {};
-
-    if (name) {
-      queryParams.q = name;
-    }
-
-    const queryString = new URLSearchParams(queryParams).toString();
-    router.push(`/illustrations?${queryString}`);
-    router.refresh();
+    router.push(`/illustrations/search/${name}`);
   };
 
   return (

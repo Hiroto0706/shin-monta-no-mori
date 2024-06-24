@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/common/loader";
 import { Category } from "@/types/category";
 import { Character } from "@/types/character";
 import Image from "next/image";
@@ -62,24 +63,32 @@ const SidebarSub: React.FC<Props> = ({
               )}
 
               {/* キャラクターサイドバー */}
-              {selectedLinkObj.text === "キャラ" && (
+              {characters.length > 0 ? (
                 <>
-                  {characters.map((character) => (
-                    <a
-                      key={character.id}
-                      href={`/illustrations/character/${character.id}`}
-                      className="flex items-center mb-2 hover:bg-gray-200 duration-200 p-1 rounded-full cursor-pointer"
-                    >
-                      <Image
-                        className="border border-gray-200 rounded-full bg-white shadow"
-                        src={character.src}
-                        alt={character.filename.String}
-                        width={36}
-                        height={36}
-                      />
-                      <span className="ml-2 text-sm">{character.name}</span>
-                    </a>
-                  ))}
+                  {selectedLinkObj.text === "キャラ" && (
+                    <>
+                      {characters.map((character) => (
+                        <a
+                          key={character.id}
+                          href={`/illustrations/character/${character.id}`}
+                          className="flex items-center mb-2 hover:bg-gray-200 duration-200 p-1 rounded-full cursor-pointer"
+                        >
+                          <Image
+                            className="border border-gray-200 rounded-full bg-white shadow"
+                            src={character.src}
+                            alt={character.filename.String}
+                            width={36}
+                            height={36}
+                          />
+                          <span className="ml-2 text-sm">{character.name}</span>
+                        </a>
+                      ))}
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Loader height="h-[86vh]" size={30} />
                 </>
               )}
             </>

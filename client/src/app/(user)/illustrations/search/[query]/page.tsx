@@ -1,13 +1,14 @@
 import axios from "axios";
 import { FetchIllustrationsResponse } from "@/types/user/illustration";
-import { FetchIllustrationsAPI } from "@/api/user/illustration";
+import { SearchIllustrationsAPI } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
 
 const fetchIllustrations = async (
+  query: string,
   page: number = 0
 ): Promise<FetchIllustrationsResponse> => {
   try {
-    const response = await axios.get(FetchIllustrationsAPI(page));
+    const response = await axios.get(SearchIllustrationsAPI(page, query));
 
     return response.data;
   } catch (error) {
@@ -16,18 +17,23 @@ const fetchIllustrations = async (
   }
 };
 
-const AllIllustrationsPage = async () => {
-  const fetchIllustrationsRes = await fetchIllustrations();
+const SearchIllustrationsPage = async ({
+  params,
+}: {
+  params: { query: string };
+}) => {
+  const query = params.query ? decodeURIComponent(params.query) : "";
+  const fetchIllustrationsRes = await fetchIllustrations(query);
 
   return (
     <>
       <div className="w-full max-w-[1100px] 2xl:max-w-[1600px] m-auto">
-        <h1 className="text-xl font-bold mb-6">すべてのイラスト</h1>
+        <h1 className="text-xl font-bold mb-6">『{query}』で検索</h1>
 
         {fetchIllustrationsRes.illustrations.length > 0 ? (
           <ListIllustrations
             initialIllustrations={fetchIllustrationsRes.illustrations}
-            fetchType={{}}
+            fetchType={{ query: query }}
           />
         ) : (
           <div>
@@ -45,4 +51,4 @@ const AllIllustrationsPage = async () => {
   );
 };
 
-export default AllIllustrationsPage;
+export default SearchIllustrationsPage;

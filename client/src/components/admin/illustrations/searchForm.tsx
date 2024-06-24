@@ -14,7 +14,10 @@ type Props = {
   categories: Category[];
 };
 
-const IllustrationsSearchForm: React.FC<Props> = ({ characters, categories }) => {
+const IllustrationsSearchForm: React.FC<Props> = ({
+  characters,
+  categories,
+}) => {
   const router = useRouter();
   const displayLimit = 3;
   const [title, setTitle] = useState("");
@@ -92,7 +95,7 @@ const IllustrationsSearchForm: React.FC<Props> = ({ characters, categories }) =>
           />
         </div>
 
-        <div className="pr-2 lg:pr-0 lg:mr-3 mb-6 lg:mb-3 relative w-1/2 lg:w-80">
+        {/* <div className="pr-2 lg:pr-0 lg:mr-3 mb-6 lg:mb-3 relative w-1/2 lg:w-80">
           <div
             onClick={() => toggleCharactersModal(!showCharacterModal)}
             className="border-2 border-gray-200 py-2.5 px-4 rounded bg-white flex justify-between cursor-pointer character-modal"
@@ -218,7 +221,7 @@ const IllustrationsSearchForm: React.FC<Props> = ({ characters, categories }) =>
               </div>
             </div>
           )}
-        </div>
+        </div> */}
 
         <button className="flex justify-center items-center lg:justify-start bg-green-600 text-white rounded-md font-bold py-2.5 border-2 border-green-600 pl-4 pr-3 lg:mb-6 w-full lg:w-auto hover:opacity-70 duration-200">
           <span className="mr-1">検索</span>

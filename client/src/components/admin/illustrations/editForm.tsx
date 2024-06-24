@@ -209,7 +209,7 @@ const EditIllustration: React.FC<Props> = ({
           </button>
         </div>
         <form
-          className="border-2 border-gray-300 rounded-lg p-12 bg-white"
+          className="border-2 border-gray-300 rounded-lg p-2 md:p-12 bg-white"
           onSubmit={editIllustration}
         >
           <div className="mb-16">
@@ -386,11 +386,11 @@ const EditIllustration: React.FC<Props> = ({
 
           <div className="mb-16">
             <div className="flex flex-wrap mb-4">
-              <div className="mb-6 mr-2 w-1/3 min-w-[350px]">
+              <div className="mb-6 mr-2 w-1/3 min-w-[300px] md:min-w-[350px]">
                 <label className="text-xl w-full bg-green-600 text-white py-2 px-4 rounded-full">
                   オリジナル
                 </label>
-                <div className="border-2 p-4 mt-4 bg-gray-200 rounded-lg w-80 h-80 flex justify-center items-center">
+                <div className="border-2 p-4 mt-4 bg-gray-200 rounded-lg w-60 h-60 md:w-80 md:h-80 flex justify-center items-center">
                   {originalImageSrc ? (
                     <div className="relative w-full h-full">
                       <Image
@@ -417,11 +417,11 @@ const EditIllustration: React.FC<Props> = ({
                 />
               </div>
 
-              <div className="mb-6 mr-2 w-1/3 min-w-[350px]">
+              <div className="mb-6 mr-2 w-1/3 min-w-[300px] md:min-w-[350px]">
                 <label className="text-xl w-full bg-gray-200 py-2 px-4 rounded-full">
                   シンプル
                 </label>
-                <div className="border-2 p-4 mt-4 bg-gray-200 rounded-lg w-80 h-80 flex justify-center items-center">
+                <div className="border-2 p-4 mt-4 bg-gray-200 rounded-lg w-60 h-60 md:w-80 md:h-80 flex justify-center items-center">
                   {simpleImageSrc ? (
                     <div className="relative w-full h-full relative">
                       <span

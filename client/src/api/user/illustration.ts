@@ -4,30 +4,38 @@ export const FetchIllustrationsAPI = (page: number = 0): string => {
 
 export const SearchIllustrationsAPI = (
   page: number = 0,
-  query: string | null
+  query: string
 ): string => {
   let url = process.env.NEXT_PUBLIC_BASE_API + "illustrations/search?p=" + page;
-  if (query) {
+  if (query != "") {
     url += `&q=${encodeURIComponent(query)}`;
   }
   return url;
 };
 
 export const FetchIllustrationsByCategoryAPI = (
-  category_id: number
+  category_id: number,
+  page: number
 ): string => {
   return (
     process.env.NEXT_PUBLIC_BASE_API +
     "illustrations/category/child/" +
-    category_id
+    category_id +
+    "?p=" +
+    page
   );
 };
 
 export const FetchIllustrationsByCharacterAPI = (
-  character_id: number
+  character_id: number,
+  page: number
 ): string => {
   return (
-    process.env.NEXT_PUBLIC_BASE_API + "illustrations/character/" + character_id
+    process.env.NEXT_PUBLIC_BASE_API +
+    "illustrations/character/" +
+    character_id +
+    "?p=" +
+    page
   );
 };
 

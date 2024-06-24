@@ -6,6 +6,7 @@ import { Character } from "@/types/character";
 import { useEffect, useState } from "react";
 import { Category } from "@/types/category";
 import { fetchCharacters } from "./sidebar";
+import Loader from "@/components/common/loader";
 
 type Props = {
   links: {
@@ -69,6 +70,7 @@ const SidebarMain: React.FC<Props> = ({ links, categories }) => {
           </ul>
         </div>
       </div>
+
       <SidebarSub
         links={links}
         selectedLink={selectedLink}

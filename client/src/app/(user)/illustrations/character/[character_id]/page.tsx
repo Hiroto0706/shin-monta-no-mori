@@ -1,21 +1,17 @@
 import axios from "axios";
 import { FetchIllustrationsResponse } from "@/types/user/illustration";
-import {
-  FetchIllustrationsByCategoryAPI,
-  FetchIllustrationsByCharacterAPI,
-} from "@/api/user/illustration";
+import { FetchIllustrationsByCharacterAPI } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
-import { GetChildCategoryResponse } from "@/types/user/categories";
-import { GetChildCategoryAPI } from "@/api/user/category";
 import { GetCharacterAPI } from "@/api/user/character";
 import { GetCharacterResponse } from "@/types/user/characters";
 
 const fetchIllustrationsByCharacterID = async (
-  character_id: number
+  character_id: number,
+  page: number = 0
 ): Promise<FetchIllustrationsResponse> => {
   try {
     const response = await axios.get(
-      FetchIllustrationsByCharacterAPI(character_id)
+      FetchIllustrationsByCharacterAPI(character_id, page)
     );
     return response.data;
   } catch (error) {
@@ -59,11 +55,14 @@ const FetchIllustrationsByCategoryID = async ({
         {fetchIllustrationsByCategoryIDRes.illustrations.length > 0 &&
         getCharacterRes.character != null ? (
           <ListIllustrations
-            illustrations={fetchIllustrationsByCategoryIDRes.illustrations}
+            initialIllustrations={
+              fetchIllustrationsByCategoryIDRes.illustrations
+            }
+            fetchType={{ characterID: params.character_id }}
           />
         ) : (
           <div>
-            イラストが見つかりませんでした{" "}
+            イラストが見つかりませんでした
             <a
               href="/"
               className="text-sm ml-4 underline border-blue-600 text-blue-600 cursor-pointer hover:opacity-70 duration-200"

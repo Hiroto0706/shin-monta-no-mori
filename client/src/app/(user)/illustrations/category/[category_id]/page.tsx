@@ -4,13 +4,15 @@ import { FetchIllustrationsByCategoryAPI } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
 import { GetChildCategoryResponse } from "@/types/user/categories";
 import { GetChildCategoryAPI } from "@/api/user/category";
+import { Illustration } from "@/types/illustration";
 
 const fetchIllustrationsByCategoryID = async (
-  category_id: number
+  category_id: number,
+  page: number = 0
 ): Promise<FetchIllustrationsResponse> => {
   try {
     const response = await axios.get(
-      FetchIllustrationsByCategoryAPI(category_id)
+      FetchIllustrationsByCategoryAPI(category_id, page)
     );
     return response.data;
   } catch (error) {
@@ -56,7 +58,10 @@ const FetchIllustrationsByCategoryID = async ({
         {fetchIllustrationsByCategoryIDRes.illustrations.length > 0 &&
         getChildCategoryRes.child_category != null ? (
           <ListIllustrations
-            illustrations={fetchIllustrationsByCategoryIDRes.illustrations}
+            initialIllustrations={
+              fetchIllustrationsByCategoryIDRes.illustrations
+            }
+            fetchType={{ categoryID: params.category_id }}
           />
         ) : (
           <div>
