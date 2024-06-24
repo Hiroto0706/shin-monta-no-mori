@@ -27,6 +27,7 @@ yarn-error.log*
 
 # local env files
 # TODO: prdやstgはignoreする
+.env
 
 # vercel
 .vercel

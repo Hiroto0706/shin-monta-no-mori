@@ -8,7 +8,7 @@ import {
 } from "@/types/admin/category";
 import EditChildCategory from "@/components/admin/categories/childCategory/editForm";
 
-export const fetchCategories = async (
+const fetchCategories = async (
   accessToken: string | undefined
 ): Promise<FetchCategoriesResponse> => {
   try {
@@ -25,7 +25,7 @@ export const fetchCategories = async (
   }
 };
 
-export const getChildCategory = async (
+const getChildCategory = async (
   id: number,
   accessToken: string | undefined
 ): Promise<GetChildCategoryResponse> => {

@@ -129,7 +129,7 @@ const CreateIllustration: React.FC<Props> = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [toggleCategoriesModal, toggleCharactersModal]);
 
   return (
     <>

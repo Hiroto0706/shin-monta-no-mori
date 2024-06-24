@@ -6,7 +6,7 @@ import { FetchCategoriesAPI, SearchCategoriesAPI } from "@/api/admin/category";
 import { getServerAccessToken } from "@/utils/accessToken/server";
 import ListCategoriesTable from "@/components/admin/categories/listTable";
 
-export const fetchCategories = async (
+const fetchCategories = async (
   query: string,
   accessToken: string | undefined
 ): Promise<FetchCategoriesResponse> => {

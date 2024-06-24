@@ -7,7 +7,7 @@ import ListCharactersTable from "@/components/admin/characters/listTable";
 import Pagination from "@/components/common/pagenation";
 import CharactersSearchForm from "@/components/admin/characters/searchForm";
 
-export const fetchCharacters = async (
+const fetchCharacters = async (
   page: number = 0,
   query: string,
   accessToken: string | undefined

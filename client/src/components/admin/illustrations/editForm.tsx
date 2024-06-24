@@ -164,7 +164,7 @@ const EditIllustration: React.FC<Props> = ({
     setCheckedChildCategories(
       illustration.Categories.flatMap((category) => category.ChildCategory)
     );
-  }, [illustration]);
+  }, [illustration, setCheckedCharacters, setCheckedChildCategories]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -188,7 +188,7 @@ const EditIllustration: React.FC<Props> = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [toggleCategoriesModal, toggleCharactersModal]);
 
   return (
     <>

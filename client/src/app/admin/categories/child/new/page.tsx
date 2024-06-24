@@ -5,7 +5,7 @@ import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { FetchCategoriesAPI } from "@/api/admin/category";
 import { FetchCategoriesResponse } from "@/types/admin/category";
 
-export const fetchCategories = async (
+const fetchCategories = async (
   accessToken: string | undefined
 ): Promise<FetchCategoriesResponse> => {
   try {
