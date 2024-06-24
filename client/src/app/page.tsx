@@ -94,21 +94,21 @@ const Home = async () => {
       name: "イラストの依頼",
       description: "もんたがオリジナルイラストを描かせていただきます",
       src: "/top-request.png",
-      link: "",
+      link: "https://coconala.com/services/3339432",
       color: "bg-blue-50",
     },
     {
       name: "お問い合わせ",
       description: "もんたの森に関する「ちょっとわかんない」ことはこちらへ",
       src: "/top-inquiry.png",
-      link: "",
+      link: "https://forms.gle/THqHAigzTZa7J9D28",
       color: "bg-yellow-50",
     },
     {
       name: "フォーラム",
       description: "バグの報告、機能リクエストなどはこちらへ",
       src: "/top-forum.png",
-      link: "",
+      link: "https://forms.gle/i4Fp9Xoeq4fkMEc88",
       color: "bg-red-50",
     },
   ];
@@ -272,6 +272,7 @@ const Home = async () => {
               <a
                 key={i}
                 href={other.link}
+                target="_blank"
                 className="pointer-cursor px-2 pt-2 pb-4 hover:bg-gray-100 duration-200 rounded-lg"
               >
                 <div
@@ -393,8 +394,15 @@ const Home = async () => {
               </a>
             ))}
           </div>
-          <div className="py-12 border-t border-gray-200 flex justify-center">
-            &copy;もんたの森 2024
+
+          <div className="py-12 border-t border-gray-200 flex">
+            <span>&copy;もんたの森 2024</span>
+            <a
+              href="/terms-of-service"
+              className="ml-8 underline cursor-pointer"
+            >
+              ご利用規約
+            </a>
           </div>
         </div>
       </footer>

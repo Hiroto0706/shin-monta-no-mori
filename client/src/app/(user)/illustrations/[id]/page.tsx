@@ -27,8 +27,18 @@ const IllustrationDetailPage = async ({
   return (
     <>
       <div className="w-full max-w-[1100px] m-auto">
-        {getIllustrationRes.illustration && (
+        {getIllustrationRes.illustration ? (
           <DetailImage illustration={getIllustrationRes.illustration} />
+        ) : (
+          <div className="my-8">
+            <div className="mb-4">お探しのイラストは見つかりませんでした</div>
+            <a
+              href="/"
+              className="mt-4 underline border-blue-600 text-blue-600 cursor-pointer hover:text-blue-700 duration-200"
+            >
+              ホームに戻る
+            </a>
+          </div>
         )}
 
         <section>

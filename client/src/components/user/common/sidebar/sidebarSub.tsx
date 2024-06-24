@@ -63,9 +63,9 @@ const SidebarSub: React.FC<Props> = ({
               )}
 
               {/* キャラクターサイドバー */}
-              {characters.length > 0 ? (
+              {selectedLinkObj.text === "キャラ" && (
                 <>
-                  {selectedLinkObj.text === "キャラ" && (
+                  {characters.length > 0 ? (
                     <>
                       {characters.map((character) => (
                         <a
@@ -84,11 +84,11 @@ const SidebarSub: React.FC<Props> = ({
                         </a>
                       ))}
                     </>
+                  ) : (
+                    <>
+                      <Loader height="h-[86vh]" size={30} />
+                    </>
                   )}
-                </>
-              ) : (
-                <>
-                  <Loader height="h-[86vh]" size={30} />
                 </>
               )}
             </>

@@ -181,7 +181,14 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                   />
                 </a>
                 <p className="text-sm">
-                  ダウンロードボタンをクリックすると、利用規約及びプライバシーポリシーに同意したものとみなされます。
+                  ダウンロードボタンをクリックすると、
+                  <a
+                    href="/terms-of-service"
+                    className="text-blue-600 underline border-blue-600 text-blue-600 cursor-pointer hover:text-blue-700 duration-200"
+                  >
+                    利用規約
+                  </a>
+                  に同意したものとみなされます。
                 </p>
               </div>
             </>

@@ -40,7 +40,7 @@ const SearchIllustrationsPage = async ({
             イラストが見つかりませんでした
             <a
               href="/"
-              className="text-sm ml-4 underline border-blue-600 text-blue-600 cursor-pointer hover:opacity-70 duration-200"
+              className="text-sm ml-4 underline border-blue-600 text-blue-600 cursor-pointer hover:text-blue-700 duration-200"
             >
               ホームに戻る
             </a>
