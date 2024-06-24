@@ -12,7 +12,6 @@ import {
   FetchChildCategoriesAPI,
 } from "@/api/user/category";
 import TopHeader from "@/components/user/top/topHeader";
-import HeaderMenu from "@/components/user/common/headerMenu";
 import { FetchCharactersResponse } from "@/types/user/characters";
 import { FetchAllCharactersAPI } from "@/api/user/character";
 
@@ -163,7 +162,7 @@ const Home = async () => {
                           />
                         </div>
                       </div>
-                      <span className="group-hover:text-green-600 group-hover:font-bold duration-200">
+                      <span className="break-words group-hover:text-green-600 duration-200">
                         {illustration.Image.title}
                       </span>
                     </a>

@@ -90,7 +90,7 @@ const ListIllustrations: React.FC<Props> = ({
                   />
                 </div>
               </div>
-              <span className="break-words group-hover:text-green-600 group-hover:font-bold duration-200">
+              <span className="break-words group-hover:text-green-600 duration-200">
                 {illustration.Image.title}
               </span>
             </a>
