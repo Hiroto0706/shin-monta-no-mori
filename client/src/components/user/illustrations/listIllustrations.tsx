@@ -11,6 +11,7 @@ import {
   FetchIllustrationsByCharacterAPI,
   SearchIllustrationsAPI,
 } from "@/api/user/illustration";
+import Loader from "@/components/common/loader";
 
 interface Props {
   initialIllustrations: Illustration[];
@@ -27,7 +28,12 @@ const ListIllustrations: React.FC<Props> = ({
 }) => {
   const [illustrations, setIllustrations] =
     useState<Illustration[]>(initialIllustrations);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(
+    !(
+      initialIllustrations.length <
+      Number(process.env.NEXT_PUBLIC_IMAGE_FETCH_LIMIT)
+    )
+  );
   const [page, setPage] = useState(1);
 
   const fetchUrlGenerator = (page: number) => {
@@ -68,7 +74,11 @@ const ListIllustrations: React.FC<Props> = ({
         pageStart={0}
         loadMore={handleFetchMore}
         hasMore={hasMore}
-        loader={<div key={0}>Loading...</div>}
+        loader={
+          <div key={0}>
+            <Loader />
+          </div>
+        }
       >
         <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
           {illustrations.map((illustration) => (
