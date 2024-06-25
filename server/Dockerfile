@@ -9,6 +9,6 @@ RUN go build -o /build/main ./server/cmd/main.go
 FROM alpine:3.19
 WORKDIR /app
 COPY --from=builder /build/main /usr/local/bin/main
-# COPY app.env .
-# COPY credential.json .
-# COPY db/migration ./db/migration
+
+EXPOSE 8080
+CMD [ "/usr/local/bin/main" ]
