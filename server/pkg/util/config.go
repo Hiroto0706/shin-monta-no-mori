@@ -18,8 +18,8 @@ type Config struct {
 	DBHost               string        `mapstructure:"DB_HOST"`
 	DBPort               int           `mapstructure:"DB_PORT"`
 	DBName               string        `mapstructure:"DB_NAME"`
-	DBUrl                string        `mapstructure:"DB_URL"`
-	TestDBUrl            string        `mapstructure:"TEST_DB_URL"`
+	DBUrl                string        `mapstructure:"DATABASE_URL"`
+	TestDBUrl            string        `mapstructure:"TEST_DATABASE_URL"`
 	TestDBName           string        `mapstructure:"TEST_DB_NAME"`
 	MigrationURL         string        `mapstructure:"MIGRATION_URL"`
 	SeedURL              string        `mapstructure:"SEED_URL"`

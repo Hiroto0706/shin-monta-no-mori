@@ -1,5 +1,5 @@
-DB_URL=postgresql://postgres:password@localhost:5432/shin-monta-no-mori?sslmode=disable
-TEST_DB_URL=postgresql://postgres:password@localhost:5432/shin-monta-no-mori-test?sslmode=disable
+DATABASE_URL=postgresql://postgres:password@localhost:5432/shin-monta-no-mori?sslmode=disable
+TEST_DATABASE_URL=postgresql://postgres:password@localhost:5432/shin-monta-no-mori-test?sslmode=disable
 
 .PHONY: createdb
 createdb:
@@ -19,23 +19,23 @@ new_migration:
 
 .PHONY: migrateup
 migrateup:
-	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose up
-	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up
+	migrate -path server/internal/db/migration -database "$(DATABASE_URL)" -verbose up
+	migrate -path server/internal/db/migration -database "$(TEST_DATABASE_URL)" -verbose up
 
 .PHONY: migrateup1
 migrateup1:
-	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose up 1
-	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up 1
+	migrate -path server/internal/db/migration -database "$(DATABASE_URL)" -verbose up 1
+	migrate -path server/internal/db/migration -database "$(TEST_DATABASE_URL)" -verbose up 1
 
 .PHONY: migratedown
 migratedown:
-	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose down
-	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose down
+	migrate -path server/internal/db/migration -database "$(DATABASE_URL)" -verbose down
+	migrate -path server/internal/db/migration -database "$(TEST_DATABASE_URL)" -verbose down
 
 .PHONY: migratedown1
 migratedown1:
-	migrate -path server/internal/db/migration -database "$(DB_URL)" -verbose down 1
-	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose down 1
+	migrate -path server/internal/db/migration -database "$(DATABASE_URL)" -verbose down 1
+	migrate -path server/internal/db/migration -database "$(TEST_DATABASE_URL)" -verbose down 1
 
 .PHONY: dc-up
 dc-up:
@@ -62,7 +62,7 @@ test:
 	# テスト実行環境の構築
 	docker exec shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
 	docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
-	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up
+	migrate -path server/internal/db/migration -database "$(TEST_DATABASE_URL)" -verbose up
 	mkdir -p coverage
 
 	# 各サブディレクトリのテストを実行し、個別のカバレッジファイルを生成
@@ -92,7 +92,7 @@ test:
 test-reset:
 	docker exec shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
 	docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
-	migrate -path server/internal/db/migration -database "$(TEST_DB_URL)" -verbose up
+	migrate -path server/internal/db/migration -database "$(TEST_DATABASE_URL)" -verbose up
 
 .PHONY: update-cors-setting
 update-cors-setting:
