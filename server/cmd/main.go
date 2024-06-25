@@ -33,7 +33,9 @@ func main() {
 	store := db.NewStore(conn)
 	// DBのシードファイルを実行
 	if config.Environment == "dev" {
-		util.Seeding(store)
+		util.SeedingForDev(store)
+	} else if config.Environment == "prd" {
+		util.SeedingForPrd(store)
 	}
 	token, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {

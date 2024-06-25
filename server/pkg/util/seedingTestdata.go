@@ -9,7 +9,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func Seeding(store *db.Store) {
+func SeedingForDev(store *db.Store) {
 	queries := []string{
 		fmt.Sprintln(`
 		INSERT INTO operators (name, hashed_password, email)
