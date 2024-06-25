@@ -32,9 +32,10 @@ func NewServer(config util.Config, store *db.Store, tokenMaker token.Maker) *Ser
 	return server
 }
 
-func CORSMiddleware() gin.HandlerFunc {
+func CORSMiddleware(config util.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		origin := config.Origin
+		c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, Authorization")
 		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")

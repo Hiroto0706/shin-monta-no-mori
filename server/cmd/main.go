@@ -40,7 +40,7 @@ func main() {
 		log.Fatal("cannot create token maker : %w", err)
 	}
 	server := app.NewServer(config, store, token)
-	server.Router.Use(app.CORSMiddleware())
+	server.Router.Use(app.CORSMiddleware(config))
 
 	// Userサイドのルート設定
 	api.SetUserRouters(server)

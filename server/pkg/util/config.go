@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Environment          string        `mapstructure:"ENVIRONMENT"`
 	ServerAddress        string        `mapstructure:"SERVER_ADDRESS"`
+	Origin               string        `mapstructure:"ORIGIN"`
 	ImageFetchLimit      int           `mapstructure:"IMAGE_FETCH_LIMIT"`
 	CharacterFetchLimit  int           `mapstructure:"CHARACTER_FETCH_LIMIT"`
 	DBDriver             string        `mapstructure:"DB_DRIVER"`
