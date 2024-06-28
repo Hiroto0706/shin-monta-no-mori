@@ -33,7 +33,11 @@ const LoginPage = () => {
         // クッキーを特定の日付まで有効にする
         const expirationDate = new Date();
         expirationDate.setDate(expirationDate.getDate() + 2);
-        Cookies.set("access_token", accessToken, { expires: expirationDate });
+        Cookies.set("access_token", accessToken, {
+          expires: expirationDate,
+          secure: true,
+          sameSite: "None",
+        });
 
         router.push("/admin");
       } else {
