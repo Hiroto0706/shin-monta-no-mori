@@ -1,6 +1,7 @@
 "use client";
 
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthLoginAPI } from "@/api/auth";
@@ -28,6 +29,12 @@ const LoginPage = () => {
         withCredentials: true,
       });
       if (response.status == 200) {
+        const accessToken = response.data.access_token;
+        // クッキーを特定の日付まで有効にする
+        const expirationDate = new Date();
+        expirationDate.setDate(expirationDate.getDate() + 2);
+        Cookies.set("access_token", accessToken, { expires: expirationDate });
+
         router.push("/admin");
       } else {
         router.push("/login");

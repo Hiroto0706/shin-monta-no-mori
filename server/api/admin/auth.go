@@ -79,16 +79,6 @@ func Login(ctx *app.AppContext) {
 		return
 	}
 
-	// クッキーにトークンを設定
-	httpOnly := true
-	secure := false
-
-	if ctx.Server.Config.Environment != "dev" {
-		secure = true
-	}
-
-	ctx.SetCookie("access_token", accessToken, int(ctx.Server.Config.AccessTokenDuration.Seconds()), "/", "", secure, httpOnly)
-
 	rsp := loginResponse{
 		AccessToken: accessToken,
 	}
