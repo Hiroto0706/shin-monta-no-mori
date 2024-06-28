@@ -87,10 +87,11 @@ func Login(ctx *app.AppContext) {
 		Path:     "/",
 		Expires:  time.Now().Add(ctx.Server.Config.AccessTokenDuration),
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   false,
 	}
-	if ctx.Server.Config.Environment == "dev" {
-		cookie.Secure = false
+	if ctx.Server.Config.Environment != "dev" {
+		cookie.Secure = true
+		cookie.SameSite = http.SameSiteNoneMode
 	}
 	http.SetCookie(ctx.Writer, cookie)
 

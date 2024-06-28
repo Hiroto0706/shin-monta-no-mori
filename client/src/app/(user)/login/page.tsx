@@ -27,7 +27,11 @@ export default function TOP() {
       const response = await axios.post(AuthLoginAPI(), formData, {
         withCredentials: true,
       });
-      router.push("/admin");
+      if (response.status == 200) {
+        router.push("/admin");
+      } else {
+        router.push("/login");
+      }
     } catch (error: any) {
       if (error.code === "ERR_NETWORK") {
         setError("予期せぬエラーが発生しました");
@@ -36,9 +40,6 @@ export default function TOP() {
       }
       return;
     }
-
-    // TODO: ここでログインのロジックを追加
-    router.push("/admin");
   };
 
   return (
