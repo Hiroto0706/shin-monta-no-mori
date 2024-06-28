@@ -2,6 +2,7 @@ package admin
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 
 	"shin-monta-no-mori/server/internal/app"
@@ -93,6 +94,7 @@ type verifyRequest struct {
 func VerifyAccessToken(ctx *app.AppContext) {
 	var req verifyRequest
 	if err := ctx.ShouldBind(&req); err != nil {
+		log.Println(err)
 		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
 		return
 	}
