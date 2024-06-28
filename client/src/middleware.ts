@@ -4,6 +4,9 @@ import { VerifyAPI } from "@/api/auth";
 export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get("access_token")?.value;
 
+  console.log("そもそもこことおってる？");
+  console.log(accessToken);
+
   if (!accessToken) {
     if (request.nextUrl.pathname === "/login") {
       return NextResponse.next();
