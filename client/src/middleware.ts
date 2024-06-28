@@ -26,9 +26,11 @@ export async function middleware(request: NextRequest) {
       console.log("ここまできてたらうまくいく")
       return NextResponse.next();
     } else {
+      console.log("verifyAPIのエラー")
       return NextResponse.redirect(new URL("/login", request.url));
     }
   } catch (error) {
+    console.log("verify失敗")
     return NextResponse.redirect(new URL("/login", request.url));
   }
 }
