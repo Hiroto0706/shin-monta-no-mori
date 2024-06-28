@@ -44,7 +44,7 @@ export default function TOP() {
   return (
     <>
       <div className="flex flex-col items-center justify-center p-12">
-        <div className="p-12 border-gray-200 border-2 rounded-xl bg-white bg-opacity-70 w-2/4 min-w-[450px]">
+        <div className="p-6 md:p-12 border-gray-200 border-2 rounded-xl bg-white bg-opacity-70 w-2/4 min-w-[350px] md:min-w-[450px]">
           <h1 className="text-2xl font-bold mb-8">管理者ログインフォーム</h1>
           <form onSubmit={handleSubmit} className="w-full">
             <div className="mb-6">
