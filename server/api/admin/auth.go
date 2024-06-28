@@ -100,9 +100,12 @@ func VerifyAccessToken(ctx *app.AppContext) {
 	}
 	_, err := ctx.Server.TokenMaker.VerifyToken(req.AccessToken)
 	if err != nil {
+		log.Println(err)
 		ctx.JSON(http.StatusUnauthorized, app.ErrorResponse(err))
 		return
 	}
+
+	log.Println("ここまできてる")
 
 	ctx.JSON(http.StatusOK, gin.H{"result": true})
 }

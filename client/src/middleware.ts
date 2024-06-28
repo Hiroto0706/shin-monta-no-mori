@@ -26,6 +26,7 @@ export async function middleware(request: NextRequest) {
     });
 
     const data = await response.json();
+    console.log(data)
     if (data.result) {
       console.log("ここまできてたらうまくいく");
       return NextResponse.next();
@@ -35,6 +36,7 @@ export async function middleware(request: NextRequest) {
     }
   } catch (error) {
     console.log("verify失敗");
+    console.error(error)
     return NextResponse.redirect(new URL("/login", request.url));
   }
 }
