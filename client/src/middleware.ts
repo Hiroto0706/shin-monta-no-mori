@@ -8,11 +8,8 @@ export async function middleware(request: NextRequest) {
   console.log(accessToken);
 
   if (!accessToken) {
-    if (request.nextUrl.pathname === "/login") {
-      return NextResponse.next();
-    } else {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
+    console.log("access tokenがない場合はここ")
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   const formData = new URLSearchParams();
@@ -26,9 +23,7 @@ export async function middleware(request: NextRequest) {
 
     const data = await response.json();
     if (data.result) {
-      if (request.nextUrl.pathname === "/login") {
-        return NextResponse.redirect(new URL("/admin", request.url));
-      }
+      console.log("ここまできてたらうまくいく")
       return NextResponse.next();
     } else {
       return NextResponse.redirect(new URL("/login", request.url));

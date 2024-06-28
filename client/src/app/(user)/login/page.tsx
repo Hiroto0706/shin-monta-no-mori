@@ -36,7 +36,7 @@ const LoginPage = () => {
         Cookies.set("access_token", accessToken, {
           expires: expirationDate,
           secure: true,
-          sameSite: "None",
+          sameSite: "Strict",
         });
 
         router.push("/admin");
