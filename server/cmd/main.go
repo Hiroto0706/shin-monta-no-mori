@@ -22,6 +22,7 @@ func main() {
 		log.Fatal("cannot load config :", err)
 	}
 
+	log.Println(config.DBUrl)
 	conn, err := sql.Open(config.DBDriver, config.DBUrl)
 	if err != nil {
 		log.Fatal("cannot connect to db: ", err)

@@ -19,14 +19,19 @@ export async function middleware(request: NextRequest) {
   const formData = new URLSearchParams();
   formData.append("access_token", accessToken);
 
+  console.log(formData);
+
   try {
     const response = await fetch(VerifyAPI(), {
       method: "POST",
-      body: formData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: formData.toString(),
     });
 
     const data = await response.json();
-    console.log(data)
+    console.log(data);
     if (data.result) {
       console.log("ここまできてたらうまくいく");
       return NextResponse.next();
@@ -36,7 +41,7 @@ export async function middleware(request: NextRequest) {
     }
   } catch (error) {
     console.log("verify失敗");
-    console.error(error)
+    console.error(error);
     return NextResponse.redirect(new URL("/login", request.url));
   }
 }
