@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthLoginAPI } from "@/api/auth";
 
-export default function TOP() {
+const LoginPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -99,4 +99,6 @@ export default function TOP() {
       </div>
     </>
   );
-}
+};
+
+export default LoginPage;

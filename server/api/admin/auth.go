@@ -3,7 +3,6 @@ package admin
 import (
 	"database/sql"
 	"net/http"
-	"time"
 
 	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
@@ -81,19 +80,14 @@ func Login(ctx *app.AppContext) {
 	}
 
 	// クッキーにトークンを設定
-	cookie := &http.Cookie{
-		Name:     "access_token",
-		Value:    accessToken,
-		Path:     "/",
-		Expires:  time.Now().Add(ctx.Server.Config.AccessTokenDuration),
-		HttpOnly: true,
-		Secure:   false,
-	}
+	httpOnly := true
+	secure := false
+
 	if ctx.Server.Config.Environment != "dev" {
-		cookie.Secure = true
-		cookie.SameSite = http.SameSiteNoneMode
+		secure = true
 	}
-	http.SetCookie(ctx.Writer, cookie)
+
+	ctx.SetCookie("access_token", accessToken, int(ctx.Server.Config.AccessTokenDuration.Seconds()), "/", "", secure, httpOnly)
 
 	rsp := loginResponse{
 		AccessToken: accessToken,
