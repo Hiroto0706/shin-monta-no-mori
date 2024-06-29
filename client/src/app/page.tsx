@@ -28,7 +28,11 @@ const fetchIllustrations = async (): Promise<FetchIllustrationsResponse> => {
 const fetchChildCategories =
   async (): Promise<FetchChildCategoriesResponse> => {
     try {
-      const response = await axios.get(FetchChildCategoriesAPI());
+      const response = await axios.get(FetchChildCategoriesAPI(), {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("キャラクターの取得に失敗しました", error);
@@ -38,7 +42,11 @@ const fetchChildCategories =
 
 const fetchCategories = async (): Promise<FetchCategoriesResponse> => {
   try {
-    const response = await axios.get(FetchCategoriesAllAPI());
+    const response = await axios.get(FetchCategoriesAllAPI(), {
+      headers: {
+        "Cache-Control": "no-store",
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("カテゴリの取得に失敗しました", error);
@@ -48,7 +56,11 @@ const fetchCategories = async (): Promise<FetchCategoriesResponse> => {
 
 const fetchCharacters = async (): Promise<FetchCharactersResponse> => {
   try {
-    const response = await axios.get(FetchAllCharactersAPI());
+    const response = await axios.get(FetchAllCharactersAPI(), {
+      headers: {
+        "Cache-Control": "no-store",
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("キャラクターの取得に失敗しました", error);

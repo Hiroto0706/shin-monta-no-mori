@@ -13,9 +13,17 @@ const fetchIllustrations = async (
   try {
     let response;
     if (query != "") {
-      response = await axios.get(SearchIllustrationsAPI(page, query));
+      response = await axios.get(SearchIllustrationsAPI(page, query), {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      });
     } else {
-      response = await axios.get(FetchIllustrationsAPI(page));
+      response = await axios.get(FetchIllustrationsAPI(page), {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      });
     }
     return response.data;
   } catch (error) {

@@ -7,7 +7,11 @@ const fetchIllustrations = async (
   page: number = 0
 ): Promise<FetchIllustrationsResponse> => {
   try {
-    const response = await axios.get(FetchIllustrationsAPI(page));
+    const response = await axios.get(FetchIllustrationsAPI(page), {
+      headers: {
+        "Cache-Control": "no-store",
+      },
+    });
 
     return response.data;
   } catch (error) {

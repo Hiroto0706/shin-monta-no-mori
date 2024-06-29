@@ -11,7 +11,12 @@ const fetchIllustrationsByCharacterID = async (
 ): Promise<FetchIllustrationsResponse> => {
   try {
     const response = await axios.get(
-      FetchIllustrationsByCharacterAPI(character_id, page)
+      FetchIllustrationsByCharacterAPI(character_id, page),
+      {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      }
     );
     return response.data;
   } catch (error) {
@@ -24,7 +29,11 @@ const getCharacter = async (
   character_id: number
 ): Promise<GetCharacterResponse> => {
   try {
-    const response = await axios.get(GetCharacterAPI(character_id));
+    const response = await axios.get(GetCharacterAPI(character_id), {
+      headers: {
+        "Cache-Control": "no-store",
+      },
+    });
     return response.data;
   } catch (error) {
     console.error(error);

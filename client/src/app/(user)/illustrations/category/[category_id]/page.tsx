@@ -12,7 +12,12 @@ const fetchIllustrationsByCategoryID = async (
 ): Promise<FetchIllustrationsResponse> => {
   try {
     const response = await axios.get(
-      FetchIllustrationsByCategoryAPI(category_id, page)
+      FetchIllustrationsByCategoryAPI(category_id, page),
+      {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      }
     );
     return response.data;
   } catch (error) {
@@ -25,7 +30,11 @@ const getChildCategory = async (
   category_id: number
 ): Promise<GetChildCategoryResponse> => {
   try {
-    const response = await axios.get(GetChildCategoryAPI(category_id));
+    const response = await axios.get(GetChildCategoryAPI(category_id), {
+      headers: {
+        "Cache-Control": "no-store",
+      },
+    });
     return response.data;
   } catch (error) {
     console.error(error);
