@@ -5,8 +5,10 @@ import SidebarSub from "@/components/user/common/sidebar/sidebarSub";
 import { Character } from "@/types/character";
 import { useEffect, useState } from "react";
 import { Category } from "@/types/category";
-import { fetchCharacters } from "./sidebar";
-import Loader from "@/components/common/loader";
+import {
+  fetchCategories,
+  fetchCharacters,
+} from "@/components/user/common/sidebar/sidebar";
 
 type Props = {
   links: {
@@ -16,14 +18,20 @@ type Props = {
     icon_active: string;
     text: string;
   }[];
-  categories: Category[];
 };
 
-const SidebarMain: React.FC<Props> = ({ links, categories }) => {
+const SidebarMain: React.FC<Props> = ({ links }) => {
   const [selectedLink, setSelectedLink] = useState<number>(0);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [characters, setCharacters] = useState<Character[]>([]);
 
   useEffect(() => {
+    fetchCategories().then((data) => {
+      if (data) {
+        setCategories(data);
+      }
+    });
+
     if (selectedLink === 1) {
       fetchCharacters().then((data) => {
         if (data) {

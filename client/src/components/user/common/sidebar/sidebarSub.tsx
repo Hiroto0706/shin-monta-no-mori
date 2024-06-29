@@ -35,30 +35,40 @@ const SidebarSub: React.FC<Props> = ({
               {/* カテゴリーサイドバー */}
               {selectedLinkObj.text === "カテゴリ" && (
                 <>
-                  {categories.map((category) => (
-                    <div key={category.ParentCategory.id} className="mb-4">
-                      <div className="flex items-center my-2">
-                        <Image
-                          src={category.ParentCategory.src}
-                          alt={category.ParentCategory.filename.String}
-                          width={24}
-                          height={24}
-                        />
-                        <span className="font-bold text-md text-black ml-2">
-                          {category.ParentCategory.name}
-                        </span>
-                      </div>
-                      {category.ChildCategory.map((childCategory) => (
-                        <a
-                          key={childCategory.id}
-                          href={`/illustrations/category/${childCategory.id}`}
-                          className="text-md py-1 px-2 hover:bg-gray-200 duration-200 rounded-full cursor-pointer block mb-1"
-                        >
-                          <span># {childCategory.name}</span>
-                        </a>
+                  {categories.length > 0 ? (
+                    <>
+                      {categories.map((category) => (
+                        <div key={category.ParentCategory.id} className="mb-4">
+                          <div className="flex items-center my-2">
+                            <Image
+                              src={category.ParentCategory.src}
+                              alt={category.ParentCategory.filename.String}
+                              width={24}
+                              height={24}
+                            />
+                            <span className="font-bold text-md text-black ml-2">
+                              {category.ParentCategory.name}
+                            </span>
+                          </div>
+                          {category.ChildCategory.map((childCategory) => (
+                            <a
+                              key={childCategory.id}
+                              href={`/illustrations/category/${childCategory.id}`}
+                              className="text-md py-1 px-2 hover:bg-gray-200 duration-200 rounded-full cursor-pointer block mb-1"
+                            >
+                              <span># {childCategory.name}</span>
+                            </a>
+                          ))}
+                        </div>
                       ))}
-                    </div>
-                  ))}
+                    </>
+                  ) : (
+                    <>
+                      <>
+                        <Loader height="h-[86vh]" size={30} />
+                      </>
+                    </>
+                  )}
                 </>
               )}
 

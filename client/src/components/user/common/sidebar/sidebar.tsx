@@ -3,15 +3,15 @@ import SidebarMain from "./sidebarMain";
 import { Character } from "@/types/character";
 import { FetchAllCharactersAPI } from "@/api/user/character";
 import { FetchCategoriesAllAPI } from "@/api/user/category";
-import { FetchCategoriesResponse } from "@/types/user/categories";
+import { Category } from "@/types/category";
 
-const fetchCategories = async (): Promise<FetchCategoriesResponse> => {
+export const fetchCategories = async (): Promise<Category[] | undefined> => {
   try {
     const response = await axios.get(FetchCategoriesAllAPI());
-    return response.data;
+    return response.data.categories;
   } catch (error) {
     console.error("カテゴリの取得に失敗しました", error);
-    return { categories: [] };
+    return undefined;
   }
 };
 
@@ -21,13 +21,12 @@ export const fetchCharacters = async (): Promise<Character[] | undefined> => {
 
     return response.data.characters;
   } catch (error) {
-    console.error(error);
+    console.error("キャラクターの取得に失敗しました", error);
     return undefined;
   }
 };
 
 const UserSidebar = async () => {
-  const fetchCategoriesRes = await fetchCategories();
   const links = [
     {
       id: 0,
@@ -48,7 +47,7 @@ const UserSidebar = async () => {
   return (
     <>
       <div className="duration-200 transform -translate-x-full md:transform-none">
-        <SidebarMain links={links} categories={fetchCategoriesRes.categories} />
+        <SidebarMain links={links} />
       </div>
     </>
   );
