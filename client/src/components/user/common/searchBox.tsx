@@ -23,7 +23,11 @@ const SearchBox: React.FC<Props> = ({
   const searchIllustrations = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    router.push(`/illustrations/search/${name}`);
+    if (name != "") {
+      router.push(`/illustrations/search/${name}`);
+    } else {
+      router.push("/illustrations");
+    }
   };
 
   return (
