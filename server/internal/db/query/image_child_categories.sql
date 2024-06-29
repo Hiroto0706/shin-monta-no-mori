@@ -16,7 +16,7 @@ ORDER BY child_category_id DESC;
 SELECT *
 FROM image_child_categories_relations
 WHERE child_category_id = $3
-ORDER BY child_category_id DESC
+ORDER BY image_id DESC
 LIMIT $1 OFFSET $2;
 -- name: UpdateImageChildCategoryRelations :one
 UPDATE image_child_categories_relations

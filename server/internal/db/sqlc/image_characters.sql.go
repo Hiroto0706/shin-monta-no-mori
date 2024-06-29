@@ -61,7 +61,7 @@ const listImageCharacterRelationsByCharacterIDWIthPagination = `-- name: ListIma
 SELECT id, image_id, character_id
 FROM image_characters_relations
 WHERE character_id = $3
-ORDER BY character_id DESC
+ORDER BY image_id DESC
 LIMIT $1 OFFSET $2
 `
 

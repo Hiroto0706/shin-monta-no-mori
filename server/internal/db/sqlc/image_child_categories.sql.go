@@ -91,7 +91,7 @@ const listImageChildCategoryRelationsByChildCategoryIDWithPagination = `-- name:
 SELECT id, image_id, child_category_id
 FROM image_child_categories_relations
 WHERE child_category_id = $3
-ORDER BY child_category_id DESC
+ORDER BY image_id DESC
 LIMIT $1 OFFSET $2
 `
 

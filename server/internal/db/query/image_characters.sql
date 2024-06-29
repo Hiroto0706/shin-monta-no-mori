@@ -11,7 +11,7 @@ ORDER BY image_id DESC;
 SELECT *
 FROM image_characters_relations
 WHERE character_id = $3
-ORDER BY character_id DESC
+ORDER BY image_id DESC
 LIMIT $1 OFFSET $2;
 -- name: UpdateImageCharacterRelations :one
 UPDATE image_characters_relations
