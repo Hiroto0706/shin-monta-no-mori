@@ -223,7 +223,7 @@ const IllustrationsSearchForm: React.FC<Props> = ({
           )}
         </div> */}
 
-        <button className="flex justify-center items-center lg:justify-start bg-green-600 text-white rounded-md font-bold py-2.5 border-2 border-green-600 pl-4 pr-3 lg:mb-6 w-full lg:w-auto hover:opacity-70 duration-200">
+        <button className="flex justify-center items-center lg:justify-start bg-green-600 text-white rounded-md font-bold py-2.5 pl-4 pr-3 lg:mb-6 w-full lg:w-auto hover:opacity-70 duration-200">
           <span className="mr-1">検索</span>
           <Image
             src="/icon/search.png"
