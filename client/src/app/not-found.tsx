@@ -1,4 +1,4 @@
-import Header from "@/components/user/common/handleHeader";
+import Header from "@/components/user/common/header/handleHeader";
 import UserSidebar from "@/components/user/common/sidebar/sidebar";
 import Image from "next/image";
 

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import SearchBox from "./searchBox";
+import SearchBox from "../searchBox";
 import HeaderMenu from "./headerMenu";
 import { usePathname } from "next/navigation";
 import { Category } from "@/types/category";

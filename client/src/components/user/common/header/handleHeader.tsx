@@ -1,5 +1,5 @@
 import axios from "axios";
-import UserHeader from "@/components/user/common/header";
+import UserHeader from "@/components/user/common/header/header";
 import { FetchCategoriesAllAPI } from "@/api/user/category";
 import { FetchCategoriesResponse } from "@/types/user/categories";
 import { FetchCharactersResponse } from "@/types/user/characters";

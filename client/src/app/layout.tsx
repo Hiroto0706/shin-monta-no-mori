@@ -2,7 +2,7 @@ import { Inter } from "next/font/google";
 import { metadata } from "@/components/common/metaData";
 export { metadata };
 
-import Header from "@/components/user/common/handleHeader";
+import Header from "@/components/user/common/header/handleHeader";
 import BackgroundImage from "@/components/common/backgroundImage";
 
 import "@/styles/globals.css";

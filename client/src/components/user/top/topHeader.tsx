@@ -3,7 +3,7 @@
 import Image from "next/image";
 import SearchFormTop from "./searchForm";
 import { Category, ChildCategory } from "@/types/category";
-import HeaderMenu from "../common/headerMenu";
+import HeaderMenu from "../common/header/headerMenu";
 import { Character } from "@/types/character";
 import { useEffect, useState } from "react";
 
