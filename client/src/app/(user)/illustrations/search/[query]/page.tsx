@@ -1,6 +1,9 @@
 import axios from "axios";
 import { FetchIllustrationsResponse } from "@/types/user/illustration";
-import { SearchIllustrationsAPI } from "@/api/user/illustration";
+import {
+  FetchIllustrationsAPI,
+  SearchIllustrationsAPI,
+} from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
 
 const fetchIllustrations = async (
@@ -8,8 +11,12 @@ const fetchIllustrations = async (
   page: number = 0
 ): Promise<FetchIllustrationsResponse> => {
   try {
-    const response = await axios.get(SearchIllustrationsAPI(page, query));
-
+    let response;
+    if (query != "") {
+      response = await axios.get(SearchIllustrationsAPI(page, query));
+    } else {
+      response = await axios.get(FetchIllustrationsAPI(page));
+    }
     return response.data;
   } catch (error) {
     console.error(error);
