@@ -17,7 +17,11 @@ import { FetchAllCharactersAPI } from "@/api/user/character";
 
 const fetchIllustrations = async (): Promise<FetchIllustrationsResponse> => {
   try {
-    const response = await axios.get(FetchIllustrationsAPI());
+    const response = await axios.get(FetchIllustrationsAPI(), {
+      headers: {
+        "Cache-Control": "no-store",
+      },
+    });
     return response.data;
   } catch (error) {
     console.error(error);
