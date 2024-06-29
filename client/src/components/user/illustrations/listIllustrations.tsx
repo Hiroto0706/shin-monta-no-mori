@@ -80,7 +80,7 @@ const ListIllustrations: React.FC<Props> = ({
           </div>
         }
       >
-        <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+        <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
           {illustrations.map((illustration) => (
             <a
               key={illustration.Image.id}

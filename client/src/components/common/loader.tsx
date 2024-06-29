@@ -7,7 +7,7 @@ type Props = {
   size?: number;
 };
 
-const Loader: React.FC<Props> = ({ height = "h-32", size = 50 }) => {
+const Loader: React.FC<Props> = ({ height = "h-[400px]", size = 50 }) => {
   return (
     <>
       <div className={`w-full ${height}`}>
