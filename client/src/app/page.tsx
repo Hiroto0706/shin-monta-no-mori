@@ -15,6 +15,8 @@ import TopHeader from "@/components/user/top/topHeader";
 import { FetchCharactersResponse } from "@/types/user/characters";
 import { FetchAllCharactersAPI } from "@/api/user/character";
 
+export const dynamicParams = false;
+
 const fetchIllustrations = async (): Promise<FetchIllustrationsResponse> => {
   try {
     const response = await axios.get(FetchIllustrationsAPI(), {
