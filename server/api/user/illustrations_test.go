@@ -293,14 +293,17 @@ func TestGetIllustration(t *testing.T) {
 			if tt.wantErr {
 				require.NotEmpty(t, w.Body.String())
 			} else {
-				var got model.Illustration
+				type wantType struct {
+					Illustration *model.Illustration `json:"illustration"`
+				}
+				var got wantType
 				err := json.Unmarshal(w.Body.Bytes(), &got)
 				require.NoError(t, err)
 				ignoreFields := map[string][]string{
 					"Image": {"CreatedAt", "UpdatedAt"},
 					"Other": {"CreatedAt", "UpdatedAt"},
 				}
-				compareIllustrationsObjects(t, got, tt.want, ignoreFields)
+				compareIllustrationsObjects(t, *got.Illustration, tt.want, ignoreFields)
 			}
 		})
 	}
