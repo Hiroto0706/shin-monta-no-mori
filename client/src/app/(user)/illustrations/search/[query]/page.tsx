@@ -16,12 +16,16 @@ const fetchIllustrations = async (
       response = await axios.get(SearchIllustrationsAPI(page, query), {
         headers: {
           "Cache-Control": "no-store",
+          "CDN-Cache-Control": "no-store",
+          "Vercel-CDN-Cache-Control": "no-store",
         },
       });
     } else {
       response = await axios.get(FetchIllustrationsAPI(page), {
         headers: {
           "Cache-Control": "no-store",
+          "CDN-Cache-Control": "no-store",
+          "Vercel-CDN-Cache-Control": "no-store",
         },
       });
     }

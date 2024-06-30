@@ -20,6 +20,8 @@ const fetchIllustrations = async (): Promise<FetchIllustrationsResponse> => {
     const response = await axios.get(FetchIllustrationsAPI(), {
       headers: {
         "Cache-Control": "no-store",
+        "CDN-Cache-Control": "no-store",
+        "Vercel-CDN-Cache-Control": "no-store",
       },
     });
     return response.data;
@@ -35,6 +37,8 @@ const fetchChildCategories =
       const response = await axios.get(FetchChildCategoriesAPI(), {
         headers: {
           "Cache-Control": "no-store",
+          "CDN-Cache-Control": "no-store",
+          "Vercel-CDN-Cache-Control": "no-store",
         },
       });
       return response.data;
@@ -49,6 +53,8 @@ const fetchCategories = async (): Promise<FetchCategoriesResponse> => {
     const response = await axios.get(FetchCategoriesAllAPI(), {
       headers: {
         "Cache-Control": "no-store",
+        "CDN-Cache-Control": "no-store",
+        "Vercel-CDN-Cache-Control": "no-store",
       },
     });
     return response.data;
@@ -63,6 +69,8 @@ const fetchCharacters = async (): Promise<FetchCharactersResponse> => {
     const response = await axios.get(FetchAllCharactersAPI(), {
       headers: {
         "Cache-Control": "no-store",
+        "CDN-Cache-Control": "no-store",
+        "Vercel-CDN-Cache-Control": "no-store",
       },
     });
     return response.data;

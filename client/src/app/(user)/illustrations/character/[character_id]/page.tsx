@@ -15,6 +15,8 @@ const fetchIllustrationsByCharacterID = async (
       {
         headers: {
           "Cache-Control": "no-store",
+          "CDN-Cache-Control": "no-store",
+          "Vercel-CDN-Cache-Control": "no-store",
         },
       }
     );
@@ -32,6 +34,8 @@ const getCharacter = async (
     const response = await axios.get(GetCharacterAPI(character_id), {
       headers: {
         "Cache-Control": "no-store",
+        "CDN-Cache-Control": "no-store",
+        "Vercel-CDN-Cache-Control": "no-store",
       },
     });
     return response.data;

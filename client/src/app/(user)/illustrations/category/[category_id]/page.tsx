@@ -16,6 +16,8 @@ const fetchIllustrationsByCategoryID = async (
       {
         headers: {
           "Cache-Control": "no-store",
+          "CDN-Cache-Control": "no-store",
+          "Vercel-CDN-Cache-Control": "no-store",
         },
       }
     );
@@ -33,6 +35,8 @@ const getChildCategory = async (
     const response = await axios.get(GetChildCategoryAPI(category_id), {
       headers: {
         "Cache-Control": "no-store",
+        "CDN-Cache-Control": "no-store",
+        "Vercel-CDN-Cache-Control": "no-store",
       },
     });
     return response.data;
