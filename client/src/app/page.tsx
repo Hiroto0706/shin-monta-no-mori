@@ -313,7 +313,7 @@ const Home = async () => {
           </div>
 
           <div className="w-full md:flex">
-            <div className="w-full md:w-1/2 py-4 md:py-0 md:pr-4">
+            <div className="w-full md:w-1/2 py-4 md:pr-4">
               <a
                 href="https://store.line.me/stickershop/author/2887587/ja"
                 target="_blank"
