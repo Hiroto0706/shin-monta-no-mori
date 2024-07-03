@@ -61,8 +61,14 @@ const HeaderMenu: React.FC<Props> = ({ characters, categories }) => {
               <ul className="ml-2 pl-4 border-l-2 border-white">
                 {categories.map((category) => (
                   <div key={category.ParentCategory.id}>
-                    <div className="text-lg font-bold">
-                      {category.ParentCategory.name}
+                    <div className="text-lg font-bold flex items-center">
+                      <Image
+                        src={category.ParentCategory.src}
+                        alt={category.ParentCategory.name}
+                        width={28}
+                        height={28}
+                      />
+                      <span className="ml-2">{category.ParentCategory.name}</span>
                     </div>
                     <div className="flex flex-wrap mb-4">
                       {category.ChildCategory.map((cc) => (

@@ -57,6 +57,7 @@ export const copyImageToClipboard = async (
 const DetailImage: React.FC<Props> = ({ illustration }) => {
   const [isSimpleImg, setIsSimpleImg] = useState(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
+  const siteUrl = "https://www.montanomori.com/";
 
   return (
     <>
@@ -277,7 +278,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
 
         <div className="mt-8 flex justify-start sm:justify-end">
           <a
-            href={`http://twitter.com/share?url=https://montanomori.com/illustrations/${illustration.Image.id}&text=${illustration.Image.title}の画像`}
+            href={`http://twitter.com/share?url=${siteUrl}illustrations/${illustration.Image.id}&text=${illustration.Image.title}の画像`}
             target="_blank"
             className="pl-1 pr-2 flex items-center border bg-[#1F1F1F] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
           >
@@ -290,7 +291,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
             <span className="text-sm">でシェア</span>
           </a>
           <a
-            href={`https://www.facebook.com/share.php?u=https://montanomori.com/illustrations/${illustration.Image.id}`}
+            href={`https://www.facebook.com/share.php?u=${siteUrl}illustrations/${illustration.Image.id}`}
             target="_blank"
             className="ml-1 pl-1 pr-2 flex items-center border bg-[#3F50B6] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
           >
@@ -303,7 +304,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
             <span className="text-sm">でシェア</span>
           </a>
           <a
-            href={`https://social-plugins.line.me/lineit/share?url=https://montanomori.com/illustrations/${illustration.Image.id}`}
+            href={`https://social-plugins.line.me/lineit/share?url=${siteUrl}illustrations/${illustration.Image.id}`}
             target="_blank"
             className="ml-1 pl-1 pr-2 flex items-center border bg-[#01C400] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
           >
