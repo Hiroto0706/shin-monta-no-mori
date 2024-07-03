@@ -65,8 +65,8 @@ const HeaderMenu: React.FC<Props> = ({ characters, categories }) => {
                       <Image
                         src={category.ParentCategory.src}
                         alt={category.ParentCategory.name}
-                        width={28}
-                        height={28}
+                        width={24}
+                        height={24}
                       />
                       <span className="ml-2">{category.ParentCategory.name}</span>
                     </div>
