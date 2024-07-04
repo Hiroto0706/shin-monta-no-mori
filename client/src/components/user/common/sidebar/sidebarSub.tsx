@@ -13,7 +13,7 @@ type Props = {
     icon_active: string;
     text: string;
   }[];
-  selectedLink: number;
+  selectedLink: number | null;
   characters: Character[];
   categories: Category[];
 };

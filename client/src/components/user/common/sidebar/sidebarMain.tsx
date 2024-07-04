@@ -21,13 +21,7 @@ type Props = {
 };
 
 const SidebarMain: React.FC<Props> = ({ links }) => {
-  const [selectedLink, setSelectedLink] = useState<number>(
-    Number(
-      localStorage.getItem("sidebar_status") != null
-        ? localStorage.getItem("sidebar_status")
-        : 0
-    )
-  );
+  const [selectedLink, setSelectedLink] = useState<number | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [characters, setCharacters] = useState<Character[]>([]);
 
@@ -37,11 +31,17 @@ const SidebarMain: React.FC<Props> = ({ links }) => {
   };
 
   useEffect(() => {
-    fetchCategories().then((data) => {
-      if (data) {
-        setCategories(data);
-      }
-    });
+    setSelectedLink(Number(localStorage.getItem("sidebar_status")));
+  }, []);
+
+  useEffect(() => {
+    if (selectedLink === 0 || selectedLink === null) {
+      fetchCategories().then((data) => {
+        if (data) {
+          setCategories(data);
+        }
+      });
+    }
 
     if (selectedLink === 1) {
       fetchCharacters().then((data) => {
