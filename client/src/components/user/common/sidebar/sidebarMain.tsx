@@ -21,9 +21,20 @@ type Props = {
 };
 
 const SidebarMain: React.FC<Props> = ({ links }) => {
-  const [selectedLink, setSelectedLink] = useState<number>(0);
+  const [selectedLink, setSelectedLink] = useState<number>(
+    Number(
+      localStorage.getItem("sidebar_status")
+        ? Number(localStorage.getItem("sidebar_status"))
+        : 0
+    )
+  );
   const [categories, setCategories] = useState<Category[]>([]);
   const [characters, setCharacters] = useState<Character[]>([]);
+
+  const setSidebarStatus = (id: number) => {
+    setSelectedLink(id);
+    localStorage.setItem("sidebar_status", id.toString());
+  };
 
   useEffect(() => {
     fetchCategories().then((data) => {
@@ -51,7 +62,7 @@ const SidebarMain: React.FC<Props> = ({ links }) => {
                 <li
                   key={index}
                   className="mt-2 p-1 w-14 duration-200 rounded-lg hover:bg-gray-200 cursor-pointer"
-                  onClick={() => setSelectedLink(link.id)}
+                  onClick={() => setSidebarStatus(link.id)}
                 >
                   <div className="flex flex-col items-center">
                     <Image
