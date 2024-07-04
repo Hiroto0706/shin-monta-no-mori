@@ -10,7 +10,7 @@ import {
   SearchIllustrationsAPI,
 } from "@/api/admin/illustration";
 import { FetchAllCharactersAPI } from "@/api/admin/character";
-import { FetchCategoriesAPI } from "@/api/admin/category";
+import { FetchAllCategoriesAPI, FetchCategoriesAPI } from "@/api/admin/category";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { getServerAccessToken } from "@/utils/accessToken/server";
 
@@ -64,7 +64,7 @@ export const fetchCategories = async (
   accessToken: string | undefined
 ): Promise<Category[]> => {
   try {
-    const response = await axios.get(FetchCategoriesAPI(), {
+    const response = await axios.get(FetchAllCategoriesAPI(), {
       headers: {
         Authorization: SetBearerToken(accessToken),
       },

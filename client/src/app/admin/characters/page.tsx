@@ -26,6 +26,7 @@ const fetchCharacters = async (
             Authorization: SetBearerToken(accessToken),
           },
         });
+    console.log("charactersの長さ => ", response.data.characters.length);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -33,7 +34,7 @@ const fetchCharacters = async (
   }
 };
 
-export default async function IllustrationsListPage({
+export default async function CharactersListPage({
   searchParams,
 }: {
   searchParams: {

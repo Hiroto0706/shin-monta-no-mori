@@ -1,11 +1,18 @@
-export const FetchCategoriesAPI = (): string => {
-  return process.env.NEXT_PUBLIC_BASE_API + "admin/categories/list";
+export const FetchAllCategoriesAPI = (): string => {
+  return process.env.NEXT_PUBLIC_BASE_API + "admin/categories/list/all";
 };
 
-export const SearchCategoriesAPI = (query: string): string => {
-  return (
-    process.env.NEXT_PUBLIC_BASE_API + "admin/categories/search?q=" + query
-  );
+export const FetchCategoriesAPI = (page: number): string => {
+  return process.env.NEXT_PUBLIC_BASE_API + "admin/categories/list?p=" + page;
+};
+
+export const SearchCategoriesAPI = (page: number, query: string): string => {
+  let url =
+    process.env.NEXT_PUBLIC_BASE_API + "admin/categories/search?p=" + page;
+  if (query) {
+    url += `&q=${encodeURIComponent(query)}`;
+  }
+  return url;
 };
 
 export const CreateParentCategoryAPI = (): string => {

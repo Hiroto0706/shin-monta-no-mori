@@ -40,7 +40,11 @@ func ListCategories(ctx *app.AppContext) {
 		return
 	}
 
-	pcates, err := ctx.Server.Store.ListParentCategories(ctx)
+	arg := db.ListParentCategoriesParams{
+		Limit:  int32(ctx.Server.Config.CategoryFetchLimit),
+		Offset: int32(int(req.Page) * ctx.Server.Config.CategoryFetchLimit),
+	}
+	pcates, err := ctx.Server.Store.ListParentCategories(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ctx.Server.Store.ListParentCategories : %w", err)))
 		return
@@ -70,10 +74,10 @@ func ListCategories(ctx *app.AppContext) {
 // @Produce json
 // @Success 200 {object} listCategoriesResponse
 // @Failure 500 {object} app.ErrorResponse
-// @Router /categories/all [get]
 // @param ctx AppContext
-func ListCategoriesAll(ctx *app.AppContext) {
-	pcates, err := ctx.Server.Store.ListParentCategories(ctx)
+// @Router /categories/all [get]
+func ListAllCategories(ctx *app.AppContext) {
+	pcates, err := ctx.Server.Store.ListAllParentCategories(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ctx.Server.Store.ListParentCategories : %w", err)))
 		return

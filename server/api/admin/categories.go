@@ -27,6 +27,41 @@ type listCategoriesRequest struct {
 
 type listCategoriesResponse struct {
 	Categories []model.Category `json:"categories"`
+	TotalPages int64            `json:"total_pages"`
+	TotalCount int64            `json:"total_count"`
+}
+
+// ListAllCategories handles the request to list all categories including their parent and child categories.
+// @Summary List all categories
+// @Description Get a list of all categories, including their parent and child categories.
+// @Tags categories
+// @Produce json
+// @Success 200 {object} listCategoriesResponse
+// @Failure 500 {object} app.ErrorResponse
+// @param ctx AppContext
+// @Router /api/v1/admin/categories/list/all [get]
+func ListAllCategories(ctx *app.AppContext) {
+	pcates, err := ctx.Server.Store.ListAllParentCategories(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ctx.Server.Store.ListParentCategories : %w", err)))
+		return
+	}
+
+	categories := make([]model.Category, len(pcates))
+	for i, pcate := range pcates {
+		ccates, err := ctx.Server.Store.GetChildCategoriesByParentID(ctx, pcate.ID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
+			return
+		}
+
+		categories[i] = model.Category{
+			ParentCategory: pcate,
+			ChildCategory:  ccates,
+		}
+	}
+
+	ctx.JSON(http.StatusOK, listCategoriesResponse{Categories: categories})
 }
 
 // ListCategories godoc
@@ -40,14 +75,18 @@ type listCategoriesResponse struct {
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: An error occurred on the server which prevented the completion of the request."
 // @Router /api/v1/admin/categories/list [get]
 func ListCategories(ctx *app.AppContext) {
-	// // TODO: bind 周りの処理は関数化して共通化したほうがいい
-	// var req listCategoriesRequest
-	// if err := c.ShouldBindQuery(&req); err != nil {
-	// 	ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
-	// 	return
-	// }
+	// TODO: bind 周りの処理は関数化して共通化したほうがいい
+	var req listCategoriesRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
+		return
+	}
 
-	pcates, err := ctx.Server.Store.ListParentCategories(ctx)
+	arg := db.ListParentCategoriesParams{
+		Limit:  int32(ctx.Server.Config.CategoryFetchLimit),
+		Offset: int32(int(req.Page) * ctx.Server.Config.CategoryFetchLimit),
+	}
+	pcates, err := ctx.Server.Store.ListParentCategories(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ctx.Server.Store.ListParentCategories : %w", err)))
 		return
@@ -72,8 +111,17 @@ func ListCategories(ctx *app.AppContext) {
 		}
 	}
 
+	totalCount, err := ctx.Server.Store.CountParentCategories(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CountParentCategories : %w", err)))
+		return
+	}
+	totalPages := (totalCount + int64(ctx.Server.Config.CategoryFetchLimit-1)) / int64(ctx.Server.Config.CategoryFetchLimit)
+
 	ctx.JSON(http.StatusOK, listCategoriesResponse{
 		Categories: categories,
+		TotalPages: totalPages,
+		TotalCount: totalCount,
 	})
 }
 
@@ -126,6 +174,7 @@ func GetCategory(ctx *app.AppContext) {
 }
 
 type searchCategoriesRequest struct {
+	Page  int    `form:"p"`
 	Query string `form:"q"`
 }
 
@@ -173,8 +222,20 @@ func SearchCategories(ctx *app.AppContext) {
 		}
 	}
 
+	totalCount, err := ctx.Server.Store.CountSearchParentCategories(ctx, sql.NullString{
+		String: req.Query,
+		Valid:  true,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CountSearchParentCategories : %w", err)))
+		return
+	}
+	totalPages := (totalCount + int64(ctx.Server.Config.CategoryFetchLimit-1)) / int64(ctx.Server.Config.CategoryFetchLimit)
+
 	ctx.JSON(http.StatusOK, listCategoriesResponse{
 		Categories: categories,
+		TotalPages: totalPages,
+		TotalCount: totalCount,
 	})
 }
 

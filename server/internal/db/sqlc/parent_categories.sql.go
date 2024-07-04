@@ -11,6 +11,32 @@ import (
 	"time"
 )
 
+const countParentCategories = `-- name: CountParentCategories :one
+SELECT count(*)
+FROM parent_categories
+`
+
+func (q *Queries) CountParentCategories(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countParentCategories)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countSearchParentCategories = `-- name: CountSearchParentCategories :one
+SELECT DISTINCT count(*)
+FROM parent_categories
+WHERE name LIKE '%' || COALESCE($1) || '%'
+  OR filename LIKE '%' || COALESCE($1) || '%'
+`
+
+func (q *Queries) CountSearchParentCategories(ctx context.Context, query sql.NullString) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countSearchParentCategories, query)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createParentCategory = `-- name: CreateParentCategory :one
 INSERT INTO parent_categories (name, src, filename)
 VALUES ($1, $2, $3)
@@ -68,14 +94,56 @@ func (q *Queries) GetParentCategory(ctx context.Context, id int64) (ParentCatego
 	return i, err
 }
 
-const listParentCategories = `-- name: ListParentCategories :many
+const listAllParentCategories = `-- name: ListAllParentCategories :many
 SELECT id, name, src, updated_at, created_at, filename
 FROM parent_categories
 ORDER BY id DESC
 `
 
-func (q *Queries) ListParentCategories(ctx context.Context) ([]ParentCategory, error) {
-	rows, err := q.db.QueryContext(ctx, listParentCategories)
+func (q *Queries) ListAllParentCategories(ctx context.Context) ([]ParentCategory, error) {
+	rows, err := q.db.QueryContext(ctx, listAllParentCategories)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ParentCategory{}
+	for rows.Next() {
+		var i ParentCategory
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Src,
+			&i.UpdatedAt,
+			&i.CreatedAt,
+			&i.Filename,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listParentCategories = `-- name: ListParentCategories :many
+SELECT id, name, src, updated_at, created_at, filename
+FROM parent_categories
+ORDER BY id DESC
+LIMIT $1 OFFSET $2
+`
+
+type ListParentCategoriesParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListParentCategories(ctx context.Context, arg ListParentCategoriesParams) ([]ParentCategory, error) {
+	rows, err := q.db.QueryContext(ctx, listParentCategories, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

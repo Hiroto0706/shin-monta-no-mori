@@ -120,7 +120,7 @@ const Home = async () => {
       name: "イラストの依頼",
       description: "もんたがオリジナルイラストを描かせていただきます",
       src: "/top-request.png",
-      link: "https://coconala.com/services/3339432",
+      link: "https://forms.gle/gfvuc6GwiURxJNR68",
       color: "bg-blue-50",
     },
     {

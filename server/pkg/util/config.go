@@ -13,6 +13,7 @@ type Config struct {
 	Origin               string        `mapstructure:"ORIGIN"`
 	ImageFetchLimit      int           `mapstructure:"IMAGE_FETCH_LIMIT"`
 	CharacterFetchLimit  int           `mapstructure:"CHARACTER_FETCH_LIMIT"`
+	CategoryFetchLimit   int           `mapstructure:"CATEGORY_FETCH_LIMIT"`
 	DBDriver             string        `mapstructure:"DB_DRIVER"`
 	DBUser               string        `mapstructure:"DB_USER"`
 	DBPassword           string        `mapstructure:"DB_PASSWORD"`

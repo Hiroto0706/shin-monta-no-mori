@@ -29,7 +29,7 @@ func SetUserRouters(s *app.Server) {
 		categories := v1.Group("/categories")
 		{
 			categories.GET("/list", app.HandlerFuncWrapper(s, user.ListCategories))
-			categories.GET("/list/all", app.HandlerFuncWrapper(s, user.ListCategoriesAll))
+			categories.GET("/list/all", app.HandlerFuncWrapper(s, user.ListAllCategories))
 			child_categories := categories.Group("/child")
 			{
 				child_categories.GET("/:id", app.HandlerFuncWrapper(s, user.GetChildCategory))
@@ -74,6 +74,7 @@ func SetAdminRouters(s *app.Server) {
 		categories := adminGroup.Group("/categories")
 		{
 			categories.GET("/list", app.HandlerFuncWrapper(s, admin.ListCategories))
+			categories.GET("/list/all", app.HandlerFuncWrapper(s, admin.ListAllCategories))
 			categories.GET("/search", app.HandlerFuncWrapper(s, admin.SearchCategories))
 			categories.GET("/:id", app.HandlerFuncWrapper(s, admin.GetCategory))
 			parent_categories := categories.Group("/parent")

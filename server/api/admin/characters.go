@@ -48,7 +48,11 @@ func ListCharacters(ctx *app.AppContext) {
 		return
 	}
 
-	characters, err := ctx.Server.Store.ListAllCharacters(ctx)
+	arg := db.ListCharactersParams{
+		Limit:  int32(ctx.Server.Config.CharacterFetchLimit),
+		Offset: int32(int(req.Page) * ctx.Server.Config.CharacterFetchLimit),
+	}
+	characters, err := ctx.Server.Store.ListCharacters(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListAllCharacters : %w", err)))
 		return
@@ -130,8 +134,20 @@ func SearchCharacters(ctx *app.AppContext) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"characters": characters,
+	totalCount, err := ctx.Server.Store.CountSearchCharacters(ctx, sql.NullString{
+		String: req.Query,
+		Valid:  true,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CountSearchCharacters : %w", err)))
+		return
+	}
+	totalPages := (totalCount + int64(ctx.Server.Config.CharacterFetchLimit-1)) / int64(ctx.Server.Config.CharacterFetchLimit)
+
+	ctx.JSON(http.StatusOK, listCharactersResponse{
+		Characters: characters,
+		TotalPages: totalPages,
+		TotalCount: totalCount,
 	})
 }
 
