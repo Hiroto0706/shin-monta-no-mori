@@ -23,8 +23,8 @@ type Props = {
 const SidebarMain: React.FC<Props> = ({ links }) => {
   const [selectedLink, setSelectedLink] = useState<number>(
     Number(
-      localStorage.getItem("sidebar_status")
-        ? Number(localStorage.getItem("sidebar_status"))
+      localStorage.getItem("sidebar_status") != null
+        ? localStorage.getItem("sidebar_status")
         : 0
     )
   );
