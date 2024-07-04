@@ -26,7 +26,6 @@ const fetchCharacters = async (
             Authorization: SetBearerToken(accessToken),
           },
         });
-    console.log("charactersの長さ => ", response.data.characters.length);
     return response.data;
   } catch (error) {
     console.error(error);
