@@ -1,8 +1,16 @@
 import axios from "axios";
 import Image from "next/image";
-import { GetIllustrationAPI } from "@/api/user/illustration";
-import { GetIllustrationResponse } from "@/types/user/illustration";
+import {
+  FetchRandomIllustrationsAPI,
+  GetIllustrationAPI,
+} from "@/api/user/illustration";
+import {
+  FetchIllustrationsResponse,
+  GetIllustrationResponse,
+} from "@/types/user/illustration";
 import DetailImage from "@/components/user/illustrations/detail/detailImage";
+import IllustrationCard from "@/components/user/illustrations/illustrationCard";
+import RandomIllustrations from "@/components/user/illustrations/detail/RandomIllutrations";
 
 const getIllustration = async (
   id: number
@@ -41,7 +49,7 @@ const IllustrationDetailPage = async ({
           </div>
         )}
 
-        <section>
+        <section className="mb-20">
           <div className="lg:flex">
             <div className="w-full lg:w-1/2 h-28 md:h-40 lg:h-32 flex items-center justify-center my-2 lg:my-0 lg:mr-4">
               <div className="w-full max-w-[450px] md:max-w-[550px]">
@@ -78,9 +86,10 @@ const IllustrationDetailPage = async ({
           </div>
         </section>
 
-        {/* <section className="mb-20">
-          <h3 className="text-xl font-bold text-black">そのほかイラスト</h3>
-        </section> */}
+        <section className="mb-20">
+          <h2 className="text-xl font-bold text-black">そのほかイラスト</h2>
+          <RandomIllustrations exclusion_id={params.id} />
+        </section>
       </div>
     </>
   );

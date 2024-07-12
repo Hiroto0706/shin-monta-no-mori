@@ -157,7 +157,8 @@ func SearchIllustrations(ctx *app.AppContext) {
 }
 
 type listFetchRandomIllustrationsRequest struct {
-	Limit int64 `form:"limit"`
+	Limit       int64 `form:"limit"`
+	ExclusionID int64 `form:"exclusion_id"`
 }
 
 // FetchRandomIllustrations godoc
@@ -179,8 +180,11 @@ func FetchRandomIllustrations(ctx *app.AppContext) {
 	}
 
 	illustrations := []*model.Illustration{}
-
-	images, err := ctx.Server.Store.FetchRandomImage(ctx, int32(req.Limit))
+	arg := db.FetchRandomImageParams{
+		Limit: int32(req.Limit),
+		ID:    req.ExclusionID,
+	}
+	images, err := ctx.Server.Store.FetchRandomImage(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to FetchRandomImage : %w", err)))
 		return
@@ -192,7 +196,9 @@ func FetchRandomIllustrations(ctx *app.AppContext) {
 		illustrations = append(illustrations, il)
 	}
 
-	ctx.JSON(http.StatusOK, illustrations)
+	ctx.JSON(http.StatusOK, listIllustrationsResponse{
+		Illustrations: illustrations,
+	})
 }
 
 type listIllustrationsByCharacterIDRequest struct {
