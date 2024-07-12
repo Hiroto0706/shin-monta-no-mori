@@ -41,7 +41,7 @@ type Querier interface {
 	DeleteImageChildCategoryRelations(ctx context.Context, id int64) error
 	DeleteImageParentCategoryRelations(ctx context.Context, id int64) error
 	DeleteParentCategory(ctx context.Context, id int64) error
-	FetchRandomImage(ctx context.Context, limit int32) ([]Image, error)
+	FetchRandomImage(ctx context.Context, arg FetchRandomImageParams) ([]Image, error)
 	GetCharacter(ctx context.Context, id int64) (Character, error)
 	GetChildCategoriesByParentID(ctx context.Context, parentID int64) ([]ChildCategory, error)
 	GetChildCategory(ctx context.Context, id int64) (ChildCategory, error)

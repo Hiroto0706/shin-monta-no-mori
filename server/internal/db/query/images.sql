@@ -39,11 +39,12 @@ WHERE title LIKE '%' || COALESCE(sqlc.arg(query)) || '%'
 ORDER BY id DESC
 LIMIT $1 OFFSET $2;
 -- name: FetchRandomImage :many
-SELECT *
-FROM images
-WHERE id IN (
-    SELECT id
-    FROM images
+SELECT i.*
+FROM images i
+WHERE i.id IN (
+    SELECT i.id
+    FROM images i
+    WHERE i.id != $2
     ORDER BY RANDOM()
     LIMIT $1
   );

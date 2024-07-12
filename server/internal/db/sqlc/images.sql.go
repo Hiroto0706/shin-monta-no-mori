@@ -90,18 +90,24 @@ func (q *Queries) DeleteImage(ctx context.Context, id int64) error {
 }
 
 const fetchRandomImage = `-- name: FetchRandomImage :many
-SELECT id, title, original_src, simple_src, updated_at, created_at, original_filename, simple_filename
-FROM images
-WHERE id IN (
-    SELECT id
-    FROM images
+SELECT i.id, i.title, i.original_src, i.simple_src, i.updated_at, i.created_at, i.original_filename, i.simple_filename
+FROM images i
+WHERE i.id IN (
+    SELECT i.id
+    FROM images i
+    WHERE i.id != $2
     ORDER BY RANDOM()
     LIMIT $1
   )
 `
 
-func (q *Queries) FetchRandomImage(ctx context.Context, limit int32) ([]Image, error) {
-	rows, err := q.db.QueryContext(ctx, fetchRandomImage, limit)
+type FetchRandomImageParams struct {
+	Limit int32 `json:"limit"`
+	ID    int64 `json:"id"`
+}
+
+func (q *Queries) FetchRandomImage(ctx context.Context, arg FetchRandomImageParams) ([]Image, error) {
+	rows, err := q.db.QueryContext(ctx, fetchRandomImage, arg.Limit, arg.ID)
 	if err != nil {
 		return nil, err
 	}

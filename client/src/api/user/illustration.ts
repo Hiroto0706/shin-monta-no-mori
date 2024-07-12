@@ -42,3 +42,13 @@ export const FetchIllustrationsByCharacterAPI = (
 export const GetIllustrationAPI = (id: number): string => {
   return process.env.NEXT_PUBLIC_BASE_API + "illustrations/" + id;
 };
+
+export const FetchRandomIllustrationsAPI = (exclusion_id: number): string => {
+  return (
+    process.env.NEXT_PUBLIC_BASE_API +
+    "illustrations/random?limit=" +
+    process.env.NEXT_PUBLIC_IMAGE_RANDOM_FETCH_LIMIT +
+    "&exclusion_id=" +
+    exclusion_id
+  );
+};
