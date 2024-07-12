@@ -2,6 +2,7 @@ import axios from "axios";
 import { FetchIllustrationsResponse } from "@/types/user/illustration";
 import { FetchIllustrationsAPI } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
+export const fetchCache = 'force-no-store';
 
 const fetchIllustrations = async (
   page: number = 0

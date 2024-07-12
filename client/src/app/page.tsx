@@ -14,6 +14,7 @@ import {
 import TopHeader from "@/components/user/top/topHeader";
 import { FetchCharactersResponse } from "@/types/user/characters";
 import { FetchAllCharactersAPI } from "@/api/user/character";
+export const fetchCache = "force-no-store";
 
 export const dynamicParams = false;
 
