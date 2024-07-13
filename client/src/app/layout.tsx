@@ -16,7 +16,7 @@ export default function RootLayout({
     <html lang="jp" className="text-gray-600">
       <body className={inter.className}>
         <div>{children}</div>
-        <BackgroundImage />
+        {/* <BackgroundImage /> */}
       </body>
     </html>
   );

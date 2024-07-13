@@ -5,6 +5,7 @@ import Image from "next/image";
 import { saveAs } from "file-saver";
 import { Illustration } from "@/types/illustration";
 import { useState } from "react";
+import { UpdatedAtFormat } from "@/utils/text";
 
 type Props = {
   illustration: Illustration;
@@ -110,8 +111,22 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
           </div>
 
           <div className="w-full lg:w-3/5 mt-8 lg:mt-0 lg:ml-8">
-            <h2 className="text-2xl font-bold mb-4 text-black">
-              {illustration.Image.title}
+            <h2 className="mb-4">
+              <div className="text-2xl font-bold mb-1 text-black">
+                {illustration.Image.title}
+              </div>
+              <div className="flex items-center">
+                <Image
+                  className="mr-1"
+                  src="/icon/time.png"
+                  alt="timeアイコン"
+                  width={12}
+                  height={12}
+                />
+                <span className="text-xs text-gray-400">
+                  {UpdatedAtFormat(illustration.Image.updated_at)}
+                </span>
+              </div>
             </h2>
 
             <>
@@ -205,7 +220,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                       <a
                         key={c.Character.id}
                         href={`/illustrations/character/${c.Character.id}`}
-                        className="flex items-center rounded-full py-1 pl-1 pr-4 cursor-pointer hover:bg-gray-200 duration-200 m-1"
+                        className="flex items-center rounded-full py-1 pl-1 pr-4 cursor-pointer hover:bg-gray-200 hover:bg-opacity-70 duration-200 m-1"
                       >
                         <Image
                           className="border shadow border-gray-200 rounded-full bg-white"
@@ -260,7 +275,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                               <a
                                 key={cc.id}
                                 href={`/illustrations/category/${cc.id}`}
-                                className="my-1 ml-1 mr-2 py-1.5 px-2 cursor-pointer duration-200 hover:bg-gray-200 rounded-full"
+                                className="my-1 ml-1 mr-2 py-1.5 px-2 cursor-pointer duration-200 hover:bg-gray-200 hover:bg-opacity-70 rounded-full"
                               >
                                 # {cc.name}
                               </a>
