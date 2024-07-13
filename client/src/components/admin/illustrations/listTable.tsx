@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { FetchIllustrationsResponse } from "@/types/admin/illustration";
-import { formatDate, truncateText } from "@/utils/text";
+import { FormatDate, truncateText } from "@/utils/text";
 import Image from "next/image";
 
 type Props = {
@@ -102,10 +102,10 @@ const ListIllustrationsTable: React.FC<Props> = ({ illustrations }) => {
                 </div>
               </td>
               <td className="px-6 py-4">
-                {formatDate(illustration.Image.updated_at)}
+                {FormatDate(illustration.Image.updated_at)}
               </td>
               <td className="px-6 py-4">
-                {formatDate(illustration.Image.created_at)}
+                {FormatDate(illustration.Image.created_at)}
               </td>
             </tr>
           ))}

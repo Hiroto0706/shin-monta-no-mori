@@ -28,7 +28,7 @@ const IllustrationDetailPage = async ({
   return (
     <>
       <div className="w-full max-w-[1100px] m-auto">
-        {getIllustrationRes.illustration ? (
+        {getIllustrationRes.illustration != null ? (
           <DetailImage illustration={getIllustrationRes.illustration} />
         ) : (
           <div className="my-8">

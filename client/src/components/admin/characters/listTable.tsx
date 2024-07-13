@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { formatDate } from "@/utils/text";
+import { FormatDate } from "@/utils/text";
 import Image from "next/image";
 import { FetchCharactersResponse } from "@/types/admin/character";
 
@@ -45,8 +45,8 @@ const ListCharactersTable: React.FC<Props> = ({ characters }) => {
                 </div>
               </td>
               <td className="px-6 py-4">{character.filename.String}</td>
-              <td className="px-6 py-4">{formatDate(character.updated_at)}</td>
-              <td className="px-6 py-4">{formatDate(character.created_at)}</td>
+              <td className="px-6 py-4">{FormatDate(character.updated_at)}</td>
+              <td className="px-6 py-4">{FormatDate(character.created_at)}</td>
             </tr>
           ))}
         </tbody>
