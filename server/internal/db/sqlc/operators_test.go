@@ -3,6 +3,7 @@ package db_test
 import (
 	"context"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
+	"shin-monta-no-mori/server/pkg/lib/password"
 	"shin-monta-no-mori/server/pkg/util"
 	"testing"
 
@@ -10,7 +11,7 @@ import (
 )
 
 func TestCreateOperator(t *testing.T) {
-	hashedPassword, err := util.HashPassword("testtest")
+	hashedPassword, err := password.HashPassword("testtest")
 	require.NoError(t, err)
 	defer TearDown(t, testQueries)
 
@@ -80,7 +81,7 @@ func TestCreateOperator(t *testing.T) {
 }
 
 func TestGetOperator(t *testing.T) {
-	hashedPassword, err := util.HashPassword(util.RandomString(6))
+	hashedPassword, err := password.HashPassword(util.RandomString(6))
 	require.NoError(t, err)
 	SetUp(t, testQueries)
 	defer TearDown(t, testQueries)
@@ -138,7 +139,7 @@ func TestGetOperator(t *testing.T) {
 }
 
 func TestUpdateOperator(t *testing.T) {
-	hashedPassword, err := util.HashPassword(util.RandomString(6))
+	hashedPassword, err := password.HashPassword(util.RandomString(6))
 	require.NoError(t, err)
 	SetUp(t, testQueries)
 	defer TearDown(t, testQueries)

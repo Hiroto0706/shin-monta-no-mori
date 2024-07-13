@@ -15,6 +15,7 @@ import (
 	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
+	"shin-monta-no-mori/server/pkg/lib/password"
 	"shin-monta-no-mori/server/pkg/token"
 	"shin-monta-no-mori/server/pkg/util"
 	"testing"
@@ -894,8 +895,8 @@ func newTestServer(store *db.Store, config util.Config) (*app.AppContext, error)
 	return ctx, nil
 }
 
-func newTestUserCreation(ctx *app.AppContext, name, password, email string) (db.Operator, error) {
-	hashedPassword, err := util.HashPassword(password)
+func newTestUserCreation(ctx *app.AppContext, name, pw, email string) (db.Operator, error) {
+	hashedPassword, err := password.HashPassword(pw)
 	if err != nil {
 		return db.Operator{}, err
 	}

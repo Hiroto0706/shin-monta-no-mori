@@ -9,6 +9,7 @@ import (
 	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	"shin-monta-no-mori/server/internal/domains/service"
+	"shin-monta-no-mori/server/pkg/lib/binder"
 	"strconv"
 	"strings"
 	"time"
@@ -41,10 +42,8 @@ type listCharactersResponse struct {
 // @Failure 500   {object} request/JSONResponse{data=string} "Internal Server Error: Failed to list the characters"
 // @Router /api/v1/admin/characters/list [get]
 func ListCharacters(ctx *app.AppContext) {
-	// TODO: bind 周りの処理は関数化して共通化したほうがいい
 	var req listCharactersRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to c.ShouldBindQuery : %w", err)))
+	if err := binder.BindQuery(ctx.Context, &req); err != nil {
 		return
 	}
 

@@ -9,6 +9,7 @@ import (
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
 	"shin-monta-no-mori/server/internal/domains/service"
+	"shin-monta-no-mori/server/pkg/lib/binder"
 	"strconv"
 	"strings"
 	"time"
@@ -41,10 +42,8 @@ type listIllustrationsResponse struct {
 // @Failure 500 {object} request/JSONResponse{data=string} "Internal Server Error: An error occurred on the server which prevented the completion of the request."
 // @Router /api/v1/admin/illustrations/list [get]
 func ListIllustrations(ctx *app.AppContext) {
-	// TODO: bind 周りの処理は関数化して共通化したほうがいい
 	var req listIllustrationsRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
+	if err := binder.BindQuery(ctx.Context, &req); err != nil {
 		return
 	}
 

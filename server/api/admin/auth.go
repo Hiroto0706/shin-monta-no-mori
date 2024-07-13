@@ -7,7 +7,7 @@ import (
 
 	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
-	"shin-monta-no-mori/server/pkg/util"
+	"shin-monta-no-mori/server/pkg/lib/password"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,11 +40,11 @@ func Login(ctx *app.AppContext) {
 		return
 	}
 
-	if err = util.CheckPassword(req.Password, operator.HashedPassword); err != nil {
+	if err = password.CheckPassword(req.Password, operator.HashedPassword); err != nil {
 		ctx.JSON(http.StatusUnauthorized, app.ErrorResponse(err))
 		return
 	}
-	if err = util.CheckEmail(req.Email, operator.Email); err != nil {
+	if err = password.CheckEmail(req.Email, operator.Email); err != nil {
 		ctx.JSON(http.StatusUnauthorized, app.ErrorResponse(err))
 		return
 	}
