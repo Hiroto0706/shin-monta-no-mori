@@ -1,15 +1,8 @@
 import axios from "axios";
 import Image from "next/image";
-import {
-  FetchRandomIllustrationsAPI,
-  GetIllustrationAPI,
-} from "@/api/user/illustration";
-import {
-  FetchIllustrationsResponse,
-  GetIllustrationResponse,
-} from "@/types/user/illustration";
+import { GetIllustrationAPI } from "@/api/user/illustration";
+import { GetIllustrationResponse } from "@/types/user/illustration";
 import DetailImage from "@/components/user/illustrations/detail/detailImage";
-import IllustrationCard from "@/components/user/illustrations/illustrationCard";
 import RandomIllustrations from "@/components/user/illustrations/detail/RandomIllutrations";
 
 const getIllustration = async (
