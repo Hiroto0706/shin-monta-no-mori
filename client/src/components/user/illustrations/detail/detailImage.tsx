@@ -5,7 +5,7 @@ import Image from "next/image";
 import { saveAs } from "file-saver";
 import { Illustration } from "@/types/illustration";
 import { useState } from "react";
-import { UpdatedAtFormat } from "@/utils/text";
+import { CreationTimeFormat } from "@/utils/text";
 
 type Props = {
   illustration: Illustration;
@@ -124,7 +124,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                   height={12}
                 />
                 <span className="text-xs text-gray-400">
-                  {UpdatedAtFormat(illustration.Image.updated_at)}
+                  {CreationTimeFormat(illustration.Image.created_at)}
                 </span>
               </div>
             </h2>

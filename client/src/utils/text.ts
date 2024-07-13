@@ -31,7 +31,7 @@ export const FormatDate = (dateString: string): string => {
   return `${year}/${month}/${day} ${hours}:${minutes}`;
 };
 
-export const UpdatedAtFormat = (dateString: string): string => {
+export const CreationTimeFormat = (dateString: string): string => {
   const { year, month, day } = calcDate(dateString);
 
   return `${year}年${month}月${day}日`;

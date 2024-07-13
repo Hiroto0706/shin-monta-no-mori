@@ -1,7 +1,7 @@
 "use client";
 
 import { Illustration } from "@/types/illustration";
-import { UpdatedAtFormat } from "@/utils/text";
+import { CreationTimeFormat } from "@/utils/text";
 import Image from "next/image";
 
 interface Props {
@@ -53,7 +53,7 @@ const IllustrationCard: React.FC<Props> = ({ illustration }) => {
           width={12}
           height={12}
         />
-        <span>{UpdatedAtFormat(illustration.Image.updated_at)}</span>
+        <span>{CreationTimeFormat(illustration.Image.created_at)}</span>
       </div>
     </a>
   );
