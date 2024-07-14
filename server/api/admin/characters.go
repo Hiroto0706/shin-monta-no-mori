@@ -3,7 +3,6 @@ package admin
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"shin-monta-no-mori/server/internal/app"
@@ -274,8 +273,6 @@ func EditCharacter(ctx *app.AppContext) {
 		return
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
-
-	log.Println(req)
 
 	character, err := ctx.Server.Store.GetCharacter(ctx, int64(id))
 	if err != nil {

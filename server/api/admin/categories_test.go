@@ -97,7 +97,6 @@ func TestListCategories(t *testing.T) {
 				ignoreFields := map[string][]string{
 					"Other": {"CreatedAt", "UpdatedAt"},
 				}
-				log.Println("categoriesの長さ -> ", len(got.Categories))
 				for i, g := range got.Categories[:tt.arg.compareLimit] {
 					compareCategoriesObjects(t, g, tt.want[i], ignoreFields)
 				}
@@ -369,7 +368,6 @@ func TestSearchCategories(t *testing.T) {
 				ignoreFields := map[string][]string{
 					"Other": {"CreatedAt", "UpdatedAt"},
 				}
-				log.Println("categoriesの長さ -> ", len(got.Categories))
 				for i, g := range got.Categories[:tt.arg.compareLimit] {
 					compareCategoriesObjects(t, g, tt.want[i], ignoreFields)
 				}
