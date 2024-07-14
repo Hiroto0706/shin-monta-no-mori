@@ -5,7 +5,6 @@ import {
   SearchIllustrationsAPI,
 } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
-export const runtime = 'edge';
 
 const fetchIllustrations = async (
   query: string,
@@ -72,3 +71,4 @@ const SearchIllustrationsPage = async ({
 };
 
 export default SearchIllustrationsPage;
+export const revalidate = 0;

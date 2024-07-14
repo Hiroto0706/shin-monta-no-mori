@@ -2,7 +2,6 @@ import axios from "axios";
 import { FetchIllustrationsResponse } from "@/types/user/illustration";
 import { FetchIllustrationsAPI } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
-export const runtime = 'edge';
 
 const fetchIllustrations = async (
   page: number = 0
@@ -53,3 +52,4 @@ const AllIllustrationsPage = async () => {
 };
 
 export default AllIllustrationsPage;
+export const revalidate = 0;
