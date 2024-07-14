@@ -35,14 +35,14 @@ const IllustrationCard: React.FC<Props> = ({ illustration }) => {
         )}
         <div className="absolute inset-0 m-4">
           <Image
-            className="md:group-hover:scale-110 duration-200 absolute top-0 left-0 w-full h-full object-cover"
+            className="lg:group-hover:scale-110 duration-200 absolute top-0 left-0 w-full h-full object-cover"
             src={illustration.Image.original_src}
             alt={illustration.Image.title}
             fill
           />
         </div>
       </div>
-      <div className="break-words md:group-hover:text-green-600 duration-200 mb-1">
+      <div className="break-words lg:group-hover:text-green-600 duration-200 mb-1">
         {illustration.Image.title}
       </div>
       <div className="text-gray-400 text-xs flex items-center justify-center">
