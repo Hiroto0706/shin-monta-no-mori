@@ -5,7 +5,7 @@ import {
   SearchIllustrationsAPI,
 } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
-export const fetchCache = "force-no-store";
+export const runtime = 'edge';
 
 const fetchIllustrations = async (
   query: string,

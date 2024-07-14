@@ -4,7 +4,7 @@ import { FetchIllustrationsByCategoryAPI } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
 import { GetChildCategoryResponse } from "@/types/user/categories";
 import { GetChildCategoryAPI } from "@/api/user/category";
-export const fetchCache = "force-no-store";
+export const runtime = 'edge';
 
 const fetchIllustrationsByCategoryID = async (
   category_id: number,

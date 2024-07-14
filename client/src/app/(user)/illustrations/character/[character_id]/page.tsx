@@ -4,7 +4,7 @@ import { FetchIllustrationsByCharacterAPI } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
 import { GetCharacterAPI } from "@/api/user/character";
 import { GetCharacterResponse } from "@/types/user/characters";
-export const fetchCache = "force-no-store";
+export const runtime = 'edge';
 
 const fetchIllustrationsByCharacterID = async (
   character_id: number,

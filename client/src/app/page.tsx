@@ -15,7 +15,7 @@ import TopHeader from "@/components/user/top/topHeader";
 import { FetchCharactersResponse } from "@/types/user/characters";
 import { FetchAllCharactersAPI } from "@/api/user/character";
 import IllustrationCard from "@/components/user/illustrations/illustrationCard";
-export const fetchCache = "force-no-store";
+export const runtime = 'edge';
 
 export const dynamicParams = false;
 
