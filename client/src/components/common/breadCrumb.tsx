@@ -45,7 +45,7 @@ const Breadcrumb: React.FC<Props> = ({ customString }) => {
             />
             <span className="underline font-bold">Home</span>
           </Link>
-          {pathArray.length > 0 && <span className="mx-2 text-sm">＞</span>}
+          {pathArray.length > 0 && <span className="mx-1 text-sm">＞</span>}
         </li>
         {pathArray.map((path, index) => {
           const href = generateHref(index);
@@ -60,7 +60,7 @@ const Breadcrumb: React.FC<Props> = ({ customString }) => {
                   : customString ?? decodeURIComponent(path)}
               </Link>
               {index < pathArray.length - 1 && (
-                <span className="mx-2 text-sm">＞</span>
+                <span className="mx-1 text-sm">＞</span>
               )}
             </li>
           );
