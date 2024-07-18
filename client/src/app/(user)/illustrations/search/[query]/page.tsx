@@ -5,6 +5,7 @@ import {
   SearchIllustrationsAPI,
 } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
+import Breadcrumb from "@/components/common/breadCrumb";
 
 const fetchIllustrations = async (
   query: string,
@@ -46,6 +47,8 @@ const SearchIllustrationsPage = async ({
 
   return (
     <>
+      <Breadcrumb customString={query} />
+
       <div className="w-full max-w-[1100px] 2xl:max-w-[1600px] m-auto">
         <h1 className="text-xl font-bold mb-6">『{query}』で検索</h1>
 

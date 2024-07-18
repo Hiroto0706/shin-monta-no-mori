@@ -4,6 +4,7 @@ import { FetchIllustrationsByCharacterAPI } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
 import { GetCharacterAPI } from "@/api/user/character";
 import { GetCharacterResponse } from "@/types/user/characters";
+import Breadcrumb from "@/components/common/breadCrumb";
 
 const fetchIllustrationsByCharacterID = async (
   character_id: number,
@@ -56,6 +57,8 @@ const FetchIllustrationsByCategoryID = async ({
 
   return (
     <>
+      <Breadcrumb customString={getCharacterRes.character?.name} />
+
       <div className="w-full max-w-[1100px]  2xl:max-w-[1600px] m-auto">
         <h1 className="text-xl font-bold mb-6">
           {getCharacterRes.character != null ? (

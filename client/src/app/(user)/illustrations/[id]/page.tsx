@@ -4,6 +4,7 @@ import { GetIllustrationAPI } from "@/api/user/illustration";
 import { GetIllustrationResponse } from "@/types/user/illustration";
 import DetailImage from "@/components/user/illustrations/detail/detailImage";
 import RandomIllustrations from "@/components/user/illustrations/detail/RandomIllutrations";
+import Breadcrumb from "@/components/common/breadCrumb";
 
 const getIllustration = async (
   id: number
@@ -28,6 +29,10 @@ const IllustrationDetailPage = async ({
   return (
     <>
       <div className="w-full max-w-[1100px] m-auto">
+        <Breadcrumb
+          customString={getIllustrationRes.illustration?.Image.title}
+        />
+
         {getIllustrationRes.illustration != null ? (
           <DetailImage illustration={getIllustrationRes.illustration} />
         ) : (

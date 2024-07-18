@@ -2,6 +2,7 @@ import axios from "axios";
 import { FetchIllustrationsResponse } from "@/types/user/illustration";
 import { FetchIllustrationsAPI } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
+import Breadcrumb from "@/components/common/breadCrumb";
 
 const fetchIllustrations = async (
   page: number = 0
@@ -27,6 +28,8 @@ const AllIllustrationsPage = async () => {
 
   return (
     <>
+      <Breadcrumb />
+
       <div className="w-full max-w-[1100px] 2xl:max-w-[1600px] m-auto">
         <h1 className="text-xl font-bold mb-6">すべてのイラスト</h1>
 
