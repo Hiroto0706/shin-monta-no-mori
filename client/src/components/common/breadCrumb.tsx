@@ -34,14 +34,14 @@ const Breadcrumb: React.FC<Props> = ({ customString }) => {
         <li className="flex items-center">
           <Link
             href="/"
-            className="flex items-center hover:opacity-70 duration-200"
+            className="flex items-center text-sm hover:opacity-70 duration-200"
           >
             <Image
               className="mr-1"
               src="/icon/breadCrumb/home.png"
               alt="homeアイコン"
-              width={20}
-              height={20}
+              width={16}
+              height={16}
             />
             <span className="underline font-bold">Home</span>
           </Link>
@@ -53,7 +53,7 @@ const Breadcrumb: React.FC<Props> = ({ customString }) => {
             <li key={index} className="flex items-center">
               <Link
                 href={href}
-                className="underline font-bold hover:opacity-70 duration-200"
+                className="underline font-bold text-sm hover:opacity-70 duration-200"
               >
                 {index < pathArray.length - 1
                   ? decodeURIComponent(path)
