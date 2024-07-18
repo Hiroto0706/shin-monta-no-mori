@@ -4,6 +4,7 @@ import { FetchIllustrationsByCategoryAPI } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
 import { GetChildCategoryResponse } from "@/types/user/categories";
 import { GetChildCategoryAPI } from "@/api/user/category";
+import Breadcrumb from "@/components/common/breadCrumb";
 
 const fetchIllustrationsByCategoryID = async (
   category_id: number,
@@ -56,6 +57,8 @@ const FetchIllustrationsByCategoryID = async ({
 
   return (
     <>
+      <Breadcrumb customString={getChildCategoryRes.child_category?.name} />
+
       <div className="w-full max-w-[1100px]  2xl:max-w-[1600px] m-auto">
         <h1 className="text-xl font-bold mb-6">
           {getChildCategoryRes.child_category != null ? (
