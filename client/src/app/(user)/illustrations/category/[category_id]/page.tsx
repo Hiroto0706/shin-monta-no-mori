@@ -57,9 +57,8 @@ const FetchIllustrationsByCategoryID = async ({
 
   return (
     <>
-      <Breadcrumb customString={getChildCategoryRes.child_category?.name} />
-
       <div className="w-full max-w-[1100px]  2xl:max-w-[1600px] m-auto">
+        <Breadcrumb customString={getChildCategoryRes.child_category?.name} />
         <h1 className="text-xl font-bold mb-6">
           {getChildCategoryRes.child_category != null ? (
             <>

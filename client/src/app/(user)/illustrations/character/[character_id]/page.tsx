@@ -57,9 +57,8 @@ const FetchIllustrationsByCategoryID = async ({
 
   return (
     <>
-      <Breadcrumb customString={getCharacterRes.character?.name} />
-
       <div className="w-full max-w-[1100px]  2xl:max-w-[1600px] m-auto">
+        <Breadcrumb customString={getCharacterRes.character?.name} />
         <h1 className="text-xl font-bold mb-6">
           {getCharacterRes.character != null ? (
             <>{`『${getCharacterRes.character.name}』でキャラクター検索`}</>

@@ -47,9 +47,8 @@ const SearchIllustrationsPage = async ({
 
   return (
     <>
-      <Breadcrumb customString={query} />
-
       <div className="w-full max-w-[1100px] 2xl:max-w-[1600px] m-auto">
+        <Breadcrumb customString={query} />
         <h1 className="text-xl font-bold mb-6">『{query}』で検索</h1>
 
         {fetchIllustrationsRes.illustrations.length > 0 ? (

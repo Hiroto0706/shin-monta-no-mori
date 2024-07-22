@@ -28,9 +28,8 @@ const AllIllustrationsPage = async () => {
 
   return (
     <>
-      <Breadcrumb />
-
       <div className="w-full max-w-[1100px] 2xl:max-w-[1600px] m-auto">
+        <Breadcrumb />
         <h1 className="text-xl font-bold mb-6">すべてのイラスト</h1>
 
         {fetchIllustrationsRes.illustrations.length > 0 ? (
