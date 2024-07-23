@@ -54,9 +54,9 @@ const SidebarSub: React.FC<Props> = ({
                             <a
                               key={childCategory.id}
                               href={`/illustrations/category/${childCategory.id}`}
-                              className="text-md py-1 px-2 hover:bg-gray-200 duration-200 rounded-full cursor-pointer block mb-1"
+                              className="text-sm py-1 px-2 hover:bg-gray-200 duration-200 rounded-full cursor-pointer block mb-1"
                             >
-                              <span># {childCategory.name}</span>
+                              # {childCategory.name}
                             </a>
                           ))}
                         </div>
