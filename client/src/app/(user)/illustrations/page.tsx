@@ -54,4 +54,4 @@ const AllIllustrationsPage = async () => {
 };
 
 export default AllIllustrationsPage;
-export const revalidate = 0;
+// export const revalidate = 0;

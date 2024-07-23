@@ -73,4 +73,4 @@ const SearchIllustrationsPage = async ({
 };
 
 export default SearchIllustrationsPage;
-export const revalidate = 0;
+// export const revalidate = 0;
