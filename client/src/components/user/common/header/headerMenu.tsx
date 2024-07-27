@@ -3,6 +3,7 @@
 import { Category } from "@/types/category";
 import { Character } from "@/types/character";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 type Props = {
@@ -19,18 +20,18 @@ const HeaderMenu: React.FC<Props> = ({ characters, categories }) => {
       <div className="fixed inset-0 bg-green-600 z-30 text-white overflow-y-scroll">
         <nav className="mt-20 mb-8 mx-4">
           <div className="border-b-2 border-white mb-4">
-            <a
+            <Link
               href="/"
               className="text-lg py-2 px-1 mb-2 block cursor-pointer hover:bg-white hover:bg-opacity-30 rounded-lg duration-200"
             >
               TOP
-            </a>
-            <a
+            </Link>
+            <Link
               href="/illustrations"
               className="text-lg py-2 px-1 mb-2 block cursor-pointer hover:bg-white hover:bg-opacity-30 rounded-lg duration-200"
             >
               すべてのイラスト
-            </a>
+            </Link>
           </div>
 
           <div className="mb-2">
@@ -68,17 +69,19 @@ const HeaderMenu: React.FC<Props> = ({ characters, categories }) => {
                         width={24}
                         height={24}
                       />
-                      <span className="ml-2">{category.ParentCategory.name}</span>
+                      <span className="ml-2">
+                        {category.ParentCategory.name}
+                      </span>
                     </div>
                     <div className="flex flex-wrap mb-4">
                       {category.ChildCategory.map((cc) => (
-                        <a
+                        <Link
                           key={cc.id}
                           href={`/illustrations/category/${cc.id}`}
                           className="text-sm ml-1 mr-2 py-1 px-2 cursor-pointer hover:bg-white hover:bg-opacity-30 rounded-full duration-200"
                         >
                           # {cc.name}
-                        </a>
+                        </Link>
                       ))}
                     </div>
                   </div>
@@ -114,7 +117,7 @@ const HeaderMenu: React.FC<Props> = ({ characters, categories }) => {
             {isCharacterOpen && (
               <ul className="ml-2 pl-4 border-l-2 border-white">
                 {characters.map((character) => (
-                  <a
+                  <Link
                     key={character.id}
                     href={`/illustrations/character/${character.id}`}
                     className="flex items-center py-1 pl-1 pr-2 mb-2 cursor-pointer hover:bg-white hover:bg-opacity-30 duration-200 rounded-full"
@@ -127,7 +130,7 @@ const HeaderMenu: React.FC<Props> = ({ characters, categories }) => {
                       height={32}
                     />
                     <span className="ml-2">{character.name}</span>
-                  </a>
+                  </Link>
                 ))}
               </ul>
             )}

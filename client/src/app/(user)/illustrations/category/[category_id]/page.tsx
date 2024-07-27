@@ -5,6 +5,7 @@ import ListIllustrations from "@/components/user/illustrations/listIllustrations
 import { GetChildCategoryResponse } from "@/types/user/categories";
 import { GetChildCategoryAPI } from "@/api/user/category";
 import Breadcrumb from "@/components/common/breadCrumb";
+import Link from "next/link";
 
 const fetchIllustrationsByCategoryID = async (
   category_id: number,
@@ -80,12 +81,12 @@ const FetchIllustrationsByCategoryID = async ({
         ) : (
           <div>
             イラストが見つかりませんでした{" "}
-            <a
+            <Link
               href="/"
               className="text-sm ml-4 underline border-blue-600 text-blue-600 cursor-pointer hover:text-blue-700 duration-200"
             >
               ホームに戻る
-            </a>
+            </Link>
           </div>
         )}
       </div>

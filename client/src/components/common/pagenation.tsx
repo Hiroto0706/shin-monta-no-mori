@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 type Props = {
@@ -47,7 +48,7 @@ const Pagination = ({
 
   return (
     <div className="flex items-center space-x-2">
-      <a href={buildUrl(currentPage - 1)} aria-label="Previous Page">
+      <Link href={buildUrl(currentPage - 1)} aria-label="Previous Page">
         <button
           className={`px-3 py-1 border rounded ${
             currentPage === 0 || count < limit
@@ -58,9 +59,9 @@ const Pagination = ({
         >
           ＜
         </button>
-      </a>
+      </Link>
       {pageNumbers.map((number) => (
-        <a key={number} href={buildUrl(number)}>
+        <Link key={number} href={buildUrl(number)}>
           <button
             className={`px-3 py-1 border rounded ${
               currentPage === number
@@ -70,9 +71,9 @@ const Pagination = ({
           >
             {number + 1}
           </button>
-        </a>
+        </Link>
       ))}
-      <a href={buildUrl(currentPage + 1)} aria-label="Next Page">
+      <Link href={buildUrl(currentPage + 1)} aria-label="Next Page">
         <button
           className={`px-3 py-1 border rounded ${
             currentPage === totalPages - 1 || count < limit
@@ -83,7 +84,7 @@ const Pagination = ({
         >
           ＞
         </button>
-      </a>
+      </Link>
     </div>
   );
 };

@@ -15,6 +15,8 @@ import TopHeader from "@/components/user/top/topHeader";
 import { FetchCharactersResponse } from "@/types/user/characters";
 import { FetchAllCharactersAPI } from "@/api/user/character";
 import IllustrationCard from "@/components/user/illustrations/illustrationCard";
+import Link from "next/link";
+import Footer from "@/components/user/common/footer/footer";
 
 export const dynamicParams = false;
 
@@ -180,12 +182,12 @@ const Home = async () => {
             )}
           </div>
 
-          <a
+          <Link
             href="/illustrations"
             className="bg-green-600 py-4 text-white font-bold rounded-xl border-2 border-green-600 flex justify-center hover:bg-white hover:text-green-600 duration-200 cursor-pointer"
           >
             もっとみる
-          </a>
+          </Link>
         </section>
 
         <section className="mb-40">
@@ -278,7 +280,7 @@ const Home = async () => {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             {others.map((other, i) => (
-              <a
+              <Link
                 key={i}
                 href={other.link}
                 target="_blank"
@@ -301,14 +303,14 @@ const Home = async () => {
                   </h4>
                   <p className="text-sm">{other.description}</p>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
 
           <div className="lg:flex">
             <div className="w-full lg:w-1/2 h-28 md:h-40 lg:h-32 flex items-center justify-center my-2 lg:my-0 lg:mr-4">
               <div className="w-full max-w-[450px] md:max-w-[550px]">
-                <a
+                <Link
                   href="https://store.line.me/stickershop/author/2887587/ja"
                   target="_blank"
                   className="cursor-pointer hover:opacity-70 duration-200"
@@ -319,12 +321,12 @@ const Home = async () => {
                     alt="もんたの森のLINEはこちら"
                     fill
                   />
-                </a>
+                </Link>
               </div>
             </div>
             <div className="w-full lg:w-1/2 h-28 md:h-40 lg:h-32 flex items-center justify-center my-2 lg:my-0 lg:ml-4">
               <div className="w-full max-w-[450px] md:max-w-[550px]">
-                <a
+                <Link
                   href="https://www.instagram.com/yoshida_mandanda/"
                   target="_blank"
                   className="cursor-pointer hover:opacity-70 duration-200"
@@ -335,7 +337,7 @@ const Home = async () => {
                     alt="もんたの森のInstagramはこちら"
                     fill
                   />
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -367,13 +369,13 @@ const Home = async () => {
 
                   <div className="flex flex-wrap">
                     {category.ChildCategory.map((cc) => (
-                      <a
+                      <Link
                         key={cc.id}
                         href={`/illustrations/category/${cc.id}`}
                         className="mr-4 hover:bg-gray-200 duration-200 py-2 px-4 cursor-pointer rounded-full"
                       >
                         # {cc.name}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -383,42 +385,7 @@ const Home = async () => {
         </section>
       </div>
 
-      <footer>
-        <div className="max-w-[1100px] m-auto px-4 md:px-12">
-          <div className="border-t border-gray-200 py-12 flex flex-wrap">
-            {sns.map((s, index) => (
-              <a
-                key={index}
-                href={s.link}
-                target="_blank"
-                className="flex items-center my-2 cursor-pointer block w-40 group"
-              >
-                <div className="w-8 h-8 relative">
-                  <Image
-                    className="absolute w-full h-full mx-1 group-hover:opacity-70"
-                    alt={s.name}
-                    src={s.src}
-                    fill
-                  />
-                </div>
-                <span className="text-lg border-b border-gray-600 group-hover:opacity-70 duration-200 ml-2">
-                  {s.name}
-                </span>
-              </a>
-            ))}
-          </div>
-
-          <div className="py-12 border-t border-gray-200 flex">
-            <span>&copy;もんたの森 2024</span>
-            <a
-              href="/terms-of-service"
-              className="ml-8 underline cursor-pointer"
-            >
-              ご利用規約
-            </a>
-          </div>
-        </div>
-      </footer>
+      <Footer sns={sns} />
     </>
   );
 };

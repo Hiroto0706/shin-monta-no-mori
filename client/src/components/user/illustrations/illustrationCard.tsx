@@ -3,6 +3,7 @@
 import { Illustration } from "@/types/illustration";
 import { CreationTimeFormat } from "@/utils/text";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Props {
   illustration: Illustration;
@@ -19,7 +20,7 @@ const IllustrationCard: React.FC<Props> = ({ illustration }) => {
   };
 
   return (
-    <a
+    <Link
       key={illustration.Image.id}
       href={`/illustrations/${illustration.Image.id}`}
       className="group cursor-pointer"
@@ -55,7 +56,7 @@ const IllustrationCard: React.FC<Props> = ({ illustration }) => {
         />
         <span>{CreationTimeFormat(illustration.Image.created_at)}</span>
       </div>
-    </a>
+    </Link>
   );
 };
 

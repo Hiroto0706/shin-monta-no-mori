@@ -7,6 +7,7 @@ import HeaderMenu from "./headerMenu";
 import { usePathname } from "next/navigation";
 import { Category } from "@/types/category";
 import { Character } from "@/types/character";
+import Link from "next/link";
 
 type Props = {
   characters: Character[];
@@ -49,7 +50,7 @@ const UserHeader: React.FC<Props> = ({ characters, categories }) => {
     <>
       <div className="bg-green-600 text-white h-16 flex items-center fixed inset-0 z-40">
         <nav className="w-full h-16 flex justify-between items-center py-2 px-4">
-          <a href="/" className="flex items-end mr-4">
+          <Link href="/" className="flex items-end mr-4">
             <Image
               src="/monta-no-mori-logo.svg"
               alt="もんたの森のロゴ"
@@ -57,7 +58,7 @@ const UserHeader: React.FC<Props> = ({ characters, categories }) => {
               width={110}
               style={{ height: "auto", objectFit: "contain" }}
             />
-          </a>
+          </Link>
 
           <SearchBox
             query={query}
@@ -79,12 +80,12 @@ const UserHeader: React.FC<Props> = ({ characters, categories }) => {
 
           {/* sm以外ではすべてのイラストを表示 */}
           <div className="hidden md:block">
-            <a
+            <Link
               href="/illustrations"
               className="text-sm py-2 px-4 rounded-lg hover:bg-white hover:bg-opacity-30 duration-200 cursor-pointer"
             >
               すべてのイラスト
-            </a>
+            </Link>
           </div>
         </nav>
       </div>

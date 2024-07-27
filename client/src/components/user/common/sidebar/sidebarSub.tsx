@@ -4,6 +4,7 @@ import Loader from "@/components/common/loader";
 import { Category } from "@/types/category";
 import { Character } from "@/types/character";
 import Image from "next/image";
+import Link from "next/link";
 
 type Props = {
   links: {
@@ -51,13 +52,13 @@ const SidebarSub: React.FC<Props> = ({
                             </span>
                           </div>
                           {category.ChildCategory.map((childCategory) => (
-                            <a
+                            <Link
                               key={childCategory.id}
                               href={`/illustrations/category/${childCategory.id}`}
                               className="text-sm py-1 px-2 hover:bg-gray-200 duration-200 rounded-full cursor-pointer block mb-1"
                             >
                               # {childCategory.name}
-                            </a>
+                            </Link>
                           ))}
                         </div>
                       ))}
@@ -78,7 +79,7 @@ const SidebarSub: React.FC<Props> = ({
                   {characters.length > 0 ? (
                     <>
                       {characters.map((character) => (
-                        <a
+                        <Link
                           key={character.id}
                           href={`/illustrations/character/${character.id}`}
                           className="flex items-center mb-2 hover:bg-gray-200 duration-200 p-1 rounded-full cursor-pointer"
@@ -91,7 +92,7 @@ const SidebarSub: React.FC<Props> = ({
                             height={36}
                           />
                           <span className="ml-2 text-sm">{character.name}</span>
-                        </a>
+                        </Link>
                       ))}
                     </>
                   ) : (

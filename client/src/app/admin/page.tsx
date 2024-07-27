@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 
 const links = [
   {
@@ -30,7 +31,7 @@ export default function TOP() {
               p-2 border-2 border-gray-200 rounded-xl min-w-[220px] bg-white hover:scale-105 duration-200 cursor-pointer
               "
             >
-              <a href={link.href} className="flex items-center">
+              <Link href={link.href} className="flex items-center">
                 <Image
                   src={link.icon}
                   alt={`${link.text}アイコン`}
@@ -38,7 +39,7 @@ export default function TOP() {
                   width={40}
                 />
                 <span className="ml-4 text-xl">{link.text}</span>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>

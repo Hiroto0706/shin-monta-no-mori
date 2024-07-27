@@ -6,6 +6,7 @@ import { Category, ChildCategory } from "@/types/category";
 import HeaderMenu from "../common/header/headerMenu";
 import { Character } from "@/types/character";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 type Props = {
   child_categories: ChildCategory[];
@@ -49,7 +50,7 @@ const TopHeader: React.FC<Props> = ({
             !isMobile ? "absolute" : "fixed"
           }`}
         >
-          <a href="/" className="flex items-end">
+          <Link href="/" className="flex items-end">
             <Image
               src="/monta-no-mori-logo.svg"
               alt="もんたの森のロゴ"
@@ -57,7 +58,7 @@ const TopHeader: React.FC<Props> = ({
               width={110}
               style={{ height: "auto", objectFit: "contain" }}
             />
-          </a>
+          </Link>
 
           {/* smではハンバーガーメニューを表示 */}
           <div className="block md:hidden">
@@ -73,12 +74,12 @@ const TopHeader: React.FC<Props> = ({
 
           {/* sm以外ではすべてのイラストを表示 */}
           <div className="hidden md:block">
-            <a
+            <Link
               href="/illustrations"
               className="text-sm py-2 px-4 rounded-lg hover:bg-white hover:bg-opacity-30 duration-200 cursor-pointer"
             >
               すべてのイラスト
-            </a>
+            </Link>
           </div>
         </nav>
 

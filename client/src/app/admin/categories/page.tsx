@@ -6,6 +6,7 @@ import { FetchCategoriesAPI, SearchCategoriesAPI } from "@/api/admin/category";
 import { getServerAccessToken } from "@/utils/accessToken/server";
 import ListCategoriesTable from "@/components/admin/categories/listTable";
 import Pagination from "@/components/common/pagenation";
+import Link from "next/link";
 
 const fetchCategories = async (
   page: number = 0,
@@ -50,12 +51,12 @@ export default async function CategoriesListPage({
 
   return (
     <>
-      <a
+      <Link
         href="categories/parent/new"
         className="flex items-center bg-white hover:bg-green-600 border-2 border-green-600 text-green-600 hover:text-white rounded-lg py-2 font-bold mb-6 ml-auto w-full lg:w-44 justify-center duration-200"
       >
         + 親カテゴリ追加
-      </a>
+      </Link>
 
       <CategoriesSearchForm />
 

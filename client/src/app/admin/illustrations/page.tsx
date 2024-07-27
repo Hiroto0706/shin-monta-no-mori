@@ -10,9 +10,10 @@ import {
   SearchIllustrationsAPI,
 } from "@/api/admin/illustration";
 import { FetchAllCharactersAPI } from "@/api/admin/character";
-import { FetchAllCategoriesAPI, FetchCategoriesAPI } from "@/api/admin/category";
+import { FetchAllCategoriesAPI } from "@/api/admin/category";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { getServerAccessToken } from "@/utils/accessToken/server";
+import Link from "next/link";
 
 const fetchIllustrations = async (
   page: number = 0,
@@ -109,12 +110,12 @@ export default async function IllustrationsListPage({
 
   return (
     <>
-      <a
+      <Link
         href="illustrations/new"
         className="flex items-center bg-white hover:bg-green-600 border-2 border-green-600 text-green-600 hover:text-white rounded-lg py-2 font-bold mb-6 ml-auto w-full lg:w-36 justify-center duration-200"
       >
         + イラスト追加
-      </a>
+      </Link>
 
       <SearchForm characters={characters} categories={categories} />
 

@@ -6,6 +6,7 @@ import { getServerAccessToken } from "@/utils/accessToken/server";
 import ListCharactersTable from "@/components/admin/characters/listTable";
 import Pagination from "@/components/common/pagenation";
 import CharactersSearchForm from "@/components/admin/characters/searchForm";
+import Link from "next/link";
 
 const fetchCharacters = async (
   page: number = 0,
@@ -50,12 +51,12 @@ export default async function CharactersListPage({
 
   return (
     <>
-      <a
+      <Link
         href="characters/new"
         className="flex items-center bg-white hover:bg-green-600 border-2 border-green-600 text-green-600 hover:text-white rounded-lg py-2 font-bold mb-6 ml-auto w-full lg:w-44 justify-center duration-200"
       >
         + キャラクター追加
-      </a>
+      </Link>
 
       <CharactersSearchForm />
 

@@ -33,7 +33,6 @@ const TermsOfService = () => {
         <ul className="my-4 bg-red-50 py-6 px-12 rounded-lg list-disc">
           <li>画像の再販売や無断配布</li>
           <li>違法行為や他人の権利侵害に使用</li>
-          <li>著作権表示なしでの使用</li>
         </ul>
       </div>
     </>

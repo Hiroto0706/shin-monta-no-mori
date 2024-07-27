@@ -6,6 +6,7 @@ import { saveAs } from "file-saver";
 import { Illustration } from "@/types/illustration";
 import { useState } from "react";
 import { CreationTimeFormat } from "@/utils/text";
+import Link from "next/link";
 
 type Props = {
   illustration: Illustration;
@@ -180,7 +181,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                   </button>
                 </div>
                 {/* spの時の画像保存ボタン */}
-                <a
+                <Link
                   href={
                     !isSimpleImg
                       ? illustration.Image.original_src
@@ -195,15 +196,22 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                     width={24}
                     height={24}
                   />
-                </a>
+                </Link>
                 <p className="text-sm">
                   ダウンロードボタンをクリックすると、
-                  <a
+                  <Link
                     href="/terms-of-service"
                     className="text-blue-600 underline border-blue-600 text-blue-600 cursor-pointer hover:text-blue-700 duration-200"
                   >
                     利用規約
-                  </a>
+                  </Link>
+                  および
+                  <Link
+                    href="/privacy-policy"
+                    className="text-blue-600 underline border-blue-600 text-blue-600 cursor-pointer hover:text-blue-700 duration-200"
+                  >
+                    プライバシーポリシー
+                  </Link>
                   に同意したものとみなされます。
                 </p>
               </div>
@@ -217,7 +225,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                   </h3>
                   <div className="flex flex-wrap">
                     {illustration.Characters.map((c, index) => (
-                      <a
+                      <Link
                         key={c.Character.id}
                         href={`/illustrations/character/${c.Character.id}`}
                         className="flex items-center rounded-full py-1 pl-1 pr-4 cursor-pointer hover:bg-gray-200 hover:bg-opacity-70 duration-200 m-1"
@@ -230,7 +238,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                           height={40}
                         />
                         <span className="ml-2">{c.Character.name}</span>
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -272,13 +280,13 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                         {illustration.Categories.map((category) => (
                           <>
                             {category.ChildCategory.map((cc) => (
-                              <a
+                              <Link
                                 key={cc.id}
                                 href={`/illustrations/category/${cc.id}`}
                                 className="my-1 ml-1 mr-2 py-1.5 px-2 cursor-pointer duration-200 hover:bg-gray-200 hover:bg-opacity-70 rounded-full"
                               >
                                 # {cc.name}
-                              </a>
+                              </Link>
                             ))}
                           </>
                         ))}
@@ -292,7 +300,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
         </div>
 
         <div className="mt-8 flex justify-start sm:justify-end">
-          <a
+          <Link
             href={`http://twitter.com/share?url=${siteUrl}illustrations/${illustration.Image.id}&text=${illustration.Image.title}の画像`}
             target="_blank"
             className="pl-1 pr-2 flex items-center border bg-[#1F1F1F] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
@@ -304,8 +312,8 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
               height={28}
             />
             <span className="text-sm">でシェア</span>
-          </a>
-          <a
+          </Link>
+          <Link
             href={`https://www.facebook.com/share.php?u=${siteUrl}illustrations/${illustration.Image.id}`}
             target="_blank"
             className="ml-1 pl-1 pr-2 flex items-center border bg-[#3F50B6] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
@@ -317,8 +325,8 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
               height={28}
             />
             <span className="text-sm">でシェア</span>
-          </a>
-          <a
+          </Link>
+          <Link
             href={`https://social-plugins.line.me/lineit/share?url=${siteUrl}illustrations/${illustration.Image.id}`}
             target="_blank"
             className="ml-1 pl-1 pr-2 flex items-center border bg-[#01C400] rounded-lg text-white duration-200 cursor-pointer hover:opacity-70"
@@ -331,7 +339,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
               height={28}
             />
             <span className="text-sm">でシェア</span>
-          </a>
+          </Link>
         </div>
       </section>
     </>

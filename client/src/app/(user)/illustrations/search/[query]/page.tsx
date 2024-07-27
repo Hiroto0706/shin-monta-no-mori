@@ -6,6 +6,7 @@ import {
 } from "@/api/user/illustration";
 import ListIllustrations from "@/components/user/illustrations/listIllustrations";
 import Breadcrumb from "@/components/common/breadCrumb";
+import Link from "next/link";
 
 const fetchIllustrations = async (
   query: string,
@@ -59,12 +60,12 @@ const SearchIllustrationsPage = async ({
         ) : (
           <div>
             イラストが見つかりませんでした
-            <a
+            <Link
               href="/"
               className="text-sm ml-4 underline border-blue-600 text-blue-600 cursor-pointer hover:text-blue-700 duration-200"
             >
               ホームに戻る
-            </a>
+            </Link>
           </div>
         )}
       </div>

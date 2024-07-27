@@ -2,6 +2,7 @@
 
 import { Category } from "@/types/category";
 import Image from "next/image";
+import Link from "next/link";
 
 type Props = {
   categories: Category[];
@@ -30,7 +31,7 @@ const ListCategoriesTable: React.FC<Props> = ({ categories }) => {
                 </span>
               </div>
 
-              <a
+              <Link
                 href={`categories/parent/${category.ParentCategory.id}`}
                 className="flex items-center justify-center cursor-pointer hover:bg-gray-300 duration-200 py-2 px-4 rounded-lg"
               >
@@ -41,26 +42,26 @@ const ListCategoriesTable: React.FC<Props> = ({ categories }) => {
                   height={20}
                 />
                 <span className="ml-1 mt-0.5">編集</span>
-              </a>
+              </Link>
             </div>
           </div>
 
           <div className="pt-4 pb-2 px-4 flex flex-wrap">
             {category.ChildCategory.map((cc) => (
-              <a
+              <Link
                 key={cc.id}
                 href={`categories/child/${cc.id}`}
                 className="flex items-center text-lg mr-4 cursor-pointer py-2 px-4 mb-2 rounded-full hover:bg-gray-100 duration-200"
               >
                 # {cc.name}
-              </a>
+              </Link>
             ))}
-            <a
+            <Link
               href={`categories/child/new?parent_id=${category.ParentCategory.id}`}
               className="flex items-center border-2 mb-2 py-2 px-4 cursor-pointer rounded-full hover:bg-gray-100 duration-200"
             >
               + 子カテゴリ追加
-            </a>
+            </Link>
           </div>
         </div>
       ))}

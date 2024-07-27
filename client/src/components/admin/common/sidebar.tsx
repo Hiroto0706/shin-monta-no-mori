@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const links = [
@@ -77,7 +78,7 @@ function AdminSidebar() {
                   }`}
                   key={index}
                 >
-                  <a href={link.href} className="flex flex-col items-center">
+                  <Link href={link.href} className="flex flex-col items-center">
                     <Image
                       src={isActive ? link.icon_active : link.icon}
                       alt={`${link.text}アイコン`}
@@ -91,7 +92,7 @@ function AdminSidebar() {
                     >
                       {link.text}
                     </span>
-                  </a>
+                  </Link>
                 </li>
               );
             })}

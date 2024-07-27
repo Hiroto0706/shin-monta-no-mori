@@ -1,6 +1,7 @@
 import Header from "@/components/user/common/header/handleHeader";
 import UserSidebar from "@/components/user/common/sidebar/sidebar";
 import Image from "next/image";
+import Link from "next/link";
 
 const NotFoundPage = () => {
   return (
@@ -20,12 +21,12 @@ const NotFoundPage = () => {
             <span className="flex justify-center text-lg mb-4">
               お探しのページは見つかりませんでした
             </span>
-            <a
+            <Link
               href="/"
               className="flex justify-center underline border-blue-600 text-blue-600 cursor-pointer hover:text-blue-700 duration-200"
             >
               ホームに戻る
-            </a>
+            </Link>
           </div>
         </div>
       </body>
