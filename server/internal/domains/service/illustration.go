@@ -2,14 +2,16 @@ package service
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"strings"
+
 	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
 	"shin-monta-no-mori/server/pkg/util"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -108,7 +110,7 @@ func UploadImageSrc(c *gin.Context, config *util.Config, formKey string, filenam
 
 	ext := strings.ToLower(filepath.Ext(f.Filename))
 	if ext != ".png" {
-		return "", fmt.Errorf("please upload only png extension image")
+		return "", errors.New("please upload only png extension image")
 	}
 
 	storageService := &GCSStorageService{
