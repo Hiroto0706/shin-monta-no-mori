@@ -10,11 +10,12 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"testing"
+
 	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	model "shin-monta-no-mori/server/internal/domains/models"
 	"shin-monta-no-mori/server/pkg/util"
-	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -78,7 +79,7 @@ func TestListCategories(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/admin/categories/list", nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/admin/categories/list", nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
 			ctx.Server.Router.ServeHTTP(w, req)
@@ -201,7 +202,7 @@ func TestGetCategory(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/admin/categories/"+tt.arg.id, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/admin/categories/"+tt.arg.id, nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
 			ctx.Server.Router.ServeHTTP(w, req)
@@ -349,7 +350,7 @@ func TestSearchCategories(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/admin/categories/search?q="+tt.arg.q, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/admin/categories/search?q="+tt.arg.q, nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
 			ctx.Server.Router.ServeHTTP(w, req)
@@ -467,7 +468,7 @@ func TestEditParentCategory(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			body, contentType := tt.prepare()
-			req, _ := http.NewRequest("PUT", "/api/v1/admin/categories/parent/"+tt.arg.ID, body)
+			req, _ := http.NewRequest(http.MethodPut, "/api/v1/admin/categories/parent/"+tt.arg.ID, body)
 			req.Header.Set("Content-Type", contentType)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
@@ -586,7 +587,7 @@ func TestEditChildCategory(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			body, contentType := tt.prepare()
-			req, _ := http.NewRequest("PUT", "/api/v1/admin/categories/child/"+tt.arg.ID, body)
+			req, _ := http.NewRequest(http.MethodPut, "/api/v1/admin/categories/child/"+tt.arg.ID, body)
 			req.Header.Set("Content-Type", contentType)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
@@ -612,6 +613,7 @@ func TestEditChildCategory(t *testing.T) {
 		})
 	}
 }
+
 func TestDeleteChildCategory(t *testing.T) {
 	config, err := util.LoadConfig(AppEnvPath)
 	if err != nil {
@@ -679,7 +681,7 @@ func TestDeleteChildCategory(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("DELETE", "/api/v1/admin/categories/child/"+tt.arg.ID, nil)
+			req, _ := http.NewRequest(http.MethodDelete, "/api/v1/admin/categories/child/"+tt.arg.ID, nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
 			ctx.Server.Router.ServeHTTP(w, req)
@@ -717,6 +719,7 @@ func compareParentCategoryObjects(t *testing.T, got db.ParentCategory, want db.P
 		t.Errorf("differs: (-got +want)\n%s", d)
 	}
 }
+
 func compareChildCategoryObjects(t *testing.T, got db.ChildCategory, want db.ChildCategory, ignoreFieldsMap map[string][]string) {
 	if d := cmp.Diff(got, want, cmpopts.IgnoreFields(got, ignoreFieldsMap["Other"]...)); len(d) != 0 {
 		t.Errorf("differs: (-got +want)\n%s", d)

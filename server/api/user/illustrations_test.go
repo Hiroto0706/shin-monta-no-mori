@@ -170,7 +170,7 @@ func TestListIllustrations(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// 取得するイメージの数を1にする
 			c.Server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
-			req, _ := http.NewRequest("GET", "/api/v1/illustrations/list?p="+tt.arg.page, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/illustrations/list?p="+tt.arg.page, nil)
 
 			w := httptest.NewRecorder()
 			c.Server.Router.ServeHTTP(w, req)
@@ -284,7 +284,7 @@ func TestGetIllustration(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/illustrations/"+tt.arg.id, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/illustrations/"+tt.arg.id, nil)
 
 			c.Server.Router.ServeHTTP(w, req)
 
@@ -430,7 +430,7 @@ func TestSearchIllustrations(t *testing.T) {
 			// 取得するイメージの数を1にする
 			c.Server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/illustrations/search?p="+tt.arg.p+"&q="+tt.arg.q, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/illustrations/search?p="+tt.arg.p+"&q="+tt.arg.q, nil)
 
 			c.Server.Router.ServeHTTP(w, req)
 
@@ -567,7 +567,7 @@ func TestListIllustrationsByParentCategoryID(t *testing.T) {
 			// 取得するイメージの数を1にする
 			c.Server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/illustrations/category/parent/"+tt.arg.id+"?p="+tt.arg.p, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/illustrations/category/parent/"+tt.arg.id+"?p="+tt.arg.p, nil)
 
 			c.Server.Router.ServeHTTP(w, req)
 
@@ -700,7 +700,7 @@ func TestListIllustrationsByCharacterID(t *testing.T) {
 			// 取得するイメージの数を1にする
 			c.Server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/illustrations/character/"+tt.arg.id+"?p="+tt.arg.p, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/illustrations/character/"+tt.arg.id+"?p="+tt.arg.p, nil)
 
 			c.Server.Router.ServeHTTP(w, req)
 
@@ -836,7 +836,7 @@ func TestListIllustrationsByChildCategoryID(t *testing.T) {
 			// 取得するイメージの数を1にする
 			c.Server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/illustrations/category/child/"+tt.arg.id+"?p="+tt.arg.p, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/illustrations/category/child/"+tt.arg.id+"?p="+tt.arg.p, nil)
 
 			c.Server.Router.ServeHTTP(w, req)
 

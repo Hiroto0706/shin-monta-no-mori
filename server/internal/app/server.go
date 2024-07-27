@@ -2,6 +2,8 @@ package app
 
 import (
 	"fmt"
+	"net/http"
+
 	db "shin-monta-no-mori/server/internal/db/sqlc"
 	"shin-monta-no-mori/server/pkg/token"
 	"shin-monta-no-mori/server/pkg/util"
@@ -41,7 +43,7 @@ func CORSMiddleware(config util.Config) gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 
-		if c.Request.Method == "OPTIONS" {
+		if c.Request.Method == http.MethodOptions {
 			c.AbortWithStatus(204)
 			return
 		}

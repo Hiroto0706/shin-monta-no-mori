@@ -73,7 +73,7 @@ func TestListCategories(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/categories/list", nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/categories/list", nil)
 
 			ctx.Server.Router.ServeHTTP(w, req)
 
