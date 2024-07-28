@@ -16,6 +16,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	pngExtension = ".png"
+)
+
 // FetchRelationInfoForIllustrations はimageと関連するcharacterやcategoryを取得する処理
 func FetchRelationInfoForIllustrations(c *gin.Context, store *db.Store, i db.Image) *model.Illustration {
 	// キャラクターの取得
@@ -109,7 +113,7 @@ func UploadImageSrc(c *gin.Context, config *util.Config, formKey string, filenam
 	defer file.Close()
 
 	ext := strings.ToLower(filepath.Ext(f.Filename))
-	if ext != ".png" {
+	if ext != pngExtension {
 		return "", errors.New("please upload only png extension image")
 	}
 
