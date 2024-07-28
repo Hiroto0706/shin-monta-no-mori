@@ -92,7 +92,7 @@ func TestListCharacters(t *testing.T) {
 			// 取得するイメージの数を1にする
 			ctx.Server.Config.CharacterFetchLimit = tt.arg.fetchLimit
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/characters/list?p="+tt.arg.page, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/characters/list?p="+tt.arg.page, nil)
 
 			ctx.Server.Router.ServeHTTP(w, req)
 

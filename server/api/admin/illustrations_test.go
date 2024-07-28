@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"testing"
+
 	"shin-monta-no-mori/server/api"
 	"shin-monta-no-mori/server/internal/app"
 	db "shin-monta-no-mori/server/internal/db/sqlc"
@@ -18,7 +20,6 @@ import (
 	"shin-monta-no-mori/server/pkg/lib/password"
 	"shin-monta-no-mori/server/pkg/token"
 	"shin-monta-no-mori/server/pkg/util"
-	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
@@ -176,7 +177,7 @@ func TestListIllustrations(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// 取得するイメージの数を1にする
 			c.Server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
-			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/list?p="+tt.arg.page, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/admin/illustrations/list?p="+tt.arg.page, nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
 			w := httptest.NewRecorder()
@@ -296,7 +297,7 @@ func TestGetIllustration(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/"+tt.arg.id, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/admin/illustrations/"+tt.arg.id, nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
 			c.Server.Router.ServeHTTP(w, req)
@@ -446,7 +447,7 @@ func TestSearchIllustrations(t *testing.T) {
 			// 取得するイメージの数を1にする
 			c.Server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/admin/illustrations/search?p="+tt.arg.p+"&q="+tt.arg.q, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/admin/illustrations/search?p="+tt.arg.p+"&q="+tt.arg.q, nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
 			c.Server.Router.ServeHTTP(w, req)
@@ -807,7 +808,7 @@ func TestEditIllustration(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, contentType := tt.prepare()
-			req := httptest.NewRequest("PUT", "/api/v1/admin/illustrations/"+tt.arg, body)
+			req := httptest.NewRequest(http.MethodPut, "/api/v1/admin/illustrations/"+tt.arg, body)
 			req.Header.Set("Content-Type", contentType)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 

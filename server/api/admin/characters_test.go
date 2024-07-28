@@ -69,7 +69,7 @@ func TestListCharacters(t *testing.T) {
 			// 取得するイメージの数を1にする
 			ctx.Server.Config.CharacterFetchLimit = tt.arg.fetchLimit
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/admin/characters/list", nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/admin/characters/list", nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
 			ctx.Server.Router.ServeHTTP(w, req)
@@ -189,7 +189,7 @@ func TestSearchCharacters(t *testing.T) {
 			// 取得するイメージの数を1にする
 			ctx.Server.Config.CharacterFetchLimit = tt.arg.fetchLimit
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/admin/characters/search?p="+tt.arg.page+"&q="+tt.arg.query, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/admin/characters/search?p="+tt.arg.page+"&q="+tt.arg.query, nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
 			ctx.Server.Router.ServeHTTP(w, req)
@@ -274,7 +274,7 @@ func TestGetCharacter(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/admin/characters/"+tt.arg.id, nil)
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/admin/characters/"+tt.arg.id, nil)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
 			ctx.Server.Router.ServeHTTP(w, req)
@@ -406,7 +406,7 @@ func TestEditCharacter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			body, contentType := tt.prepare()
-			req, _ := http.NewRequest("PUT", "/api/v1/admin/characters/"+tt.arg.ID, body)
+			req, _ := http.NewRequest(http.MethodPut, "/api/v1/admin/characters/"+tt.arg.ID, body)
 			req.Header.Set("Content-Type", contentType)
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 
