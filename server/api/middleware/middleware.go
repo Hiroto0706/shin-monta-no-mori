@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"shin-monta-no-mori/server/internal/app"
-	"shin-monta-no-mori/server/pkg/token"
+	"shin-monta-no-mori/internal/app"
+	"shin-monta-no-mori/pkg/token"
 	"strings"
 
 	"github.com/gin-gonic/gin"

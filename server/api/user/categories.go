@@ -3,10 +3,10 @@ package user
 import (
 	"fmt"
 	"net/http"
-	"shin-monta-no-mori/server/internal/app"
-	db "shin-monta-no-mori/server/internal/db/sqlc"
-	model "shin-monta-no-mori/server/internal/domains/models"
-	"shin-monta-no-mori/server/pkg/lib/binder"
+	"shin-monta-no-mori/internal/app"
+	db "shin-monta-no-mori/internal/db/sqlc"
+	model "shin-monta-no-mori/internal/domains/models"
+	"shin-monta-no-mori/pkg/lib/binder"
 	"strconv"
 )
 

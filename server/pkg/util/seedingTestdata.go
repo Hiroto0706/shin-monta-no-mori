@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	db "shin-monta-no-mori/server/internal/db/sqlc"
+	db "shin-monta-no-mori/internal/db/sqlc"
 
 	"github.com/lib/pq"
 )

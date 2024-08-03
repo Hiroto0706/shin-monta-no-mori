@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
-	"shin-monta-no-mori/server/pkg/util"
+	"shin-monta-no-mori/pkg/util"
 	"strings"
 	"time"
 

@@ -1,6 +1,6 @@
 package model
 
-import db "shin-monta-no-mori/server/internal/db/sqlc"
+import db "shin-monta-no-mori/internal/db/sqlc"
 
 type (
 	Character struct {

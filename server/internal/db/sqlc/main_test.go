@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 	"os"
-	db "shin-monta-no-mori/server/internal/db/sqlc"
-	"shin-monta-no-mori/server/pkg/util"
+	db "shin-monta-no-mori/internal/db/sqlc"
+	"shin-monta-no-mori/pkg/util"
 	"testing"
 
 	_ "github.com/lib/pq"

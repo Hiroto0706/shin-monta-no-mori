@@ -8,9 +8,9 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"shin-monta-no-mori/server/internal/app"
-	db "shin-monta-no-mori/server/internal/db/sqlc"
-	"shin-monta-no-mori/server/pkg/util"
+	"shin-monta-no-mori/internal/app"
+	db "shin-monta-no-mori/internal/db/sqlc"
+	"shin-monta-no-mori/pkg/util"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"

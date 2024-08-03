@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	db "shin-monta-no-mori/server/internal/db/sqlc"
-	"shin-monta-no-mori/server/pkg/token"
-	"shin-monta-no-mori/server/pkg/util"
+	db "shin-monta-no-mori/internal/db/sqlc"
+	"shin-monta-no-mori/pkg/token"
+	"shin-monta-no-mori/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )

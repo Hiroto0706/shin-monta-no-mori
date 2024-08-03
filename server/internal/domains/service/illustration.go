@@ -8,10 +8,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"shin-monta-no-mori/server/internal/app"
-	db "shin-monta-no-mori/server/internal/db/sqlc"
-	model "shin-monta-no-mori/server/internal/domains/models"
-	"shin-monta-no-mori/server/pkg/util"
+	"shin-monta-no-mori/internal/app"
+	db "shin-monta-no-mori/internal/db/sqlc"
+	model "shin-monta-no-mori/internal/domains/models"
+	"shin-monta-no-mori/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )

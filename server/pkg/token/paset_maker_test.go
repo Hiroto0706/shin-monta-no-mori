@@ -3,8 +3,8 @@ package token_test
 import (
 	"errors"
 	"log"
-	"shin-monta-no-mori/server/pkg/token"
-	"shin-monta-no-mori/server/pkg/util"
+	"shin-monta-no-mori/pkg/token"
+	"shin-monta-no-mori/pkg/util"
 	"testing"
 	"time"
 

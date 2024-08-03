@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"shin-monta-no-mori/server/api/middleware"
-	"shin-monta-no-mori/server/pkg/token"
-	"shin-monta-no-mori/server/pkg/util"
+	"shin-monta-no-mori/api/middleware"
+	"shin-monta-no-mori/pkg/token"
+	"shin-monta-no-mori/pkg/util"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"

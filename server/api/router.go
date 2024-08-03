@@ -1,10 +1,10 @@
 package api
 
 import (
-	"shin-monta-no-mori/server/api/admin"
-	"shin-monta-no-mori/server/api/middleware"
-	"shin-monta-no-mori/server/api/user"
-	"shin-monta-no-mori/server/internal/app"
+	"shin-monta-no-mori/api/admin"
+	"shin-monta-no-mori/api/middleware"
+	"shin-monta-no-mori/api/user"
+	"shin-monta-no-mori/internal/app"
 )
 
 func SetUserRouters(s *app.Server) {

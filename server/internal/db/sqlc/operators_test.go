@@ -2,9 +2,9 @@ package db_test
 
 import (
 	"context"
-	db "shin-monta-no-mori/server/internal/db/sqlc"
-	"shin-monta-no-mori/server/pkg/lib/password"
-	"shin-monta-no-mori/server/pkg/util"
+	db "shin-monta-no-mori/internal/db/sqlc"
+	"shin-monta-no-mori/pkg/lib/password"
+	"shin-monta-no-mori/pkg/util"
 	"testing"
 
 	"github.com/stretchr/testify/require"

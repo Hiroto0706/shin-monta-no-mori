@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"shin-monta-no-mori/server/internal/app"
-	db "shin-monta-no-mori/server/internal/db/sqlc"
-	"shin-monta-no-mori/server/pkg/lib/binder"
+	"shin-monta-no-mori/internal/app"
+	db "shin-monta-no-mori/internal/db/sqlc"
+	"shin-monta-no-mori/pkg/lib/binder"
 	"strconv"
 
 	"github.com/gin-gonic/gin"

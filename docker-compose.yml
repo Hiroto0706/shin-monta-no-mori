@@ -3,9 +3,7 @@ version: '3.9'
 services:
   server:
     container_name: shin-monta-no-mori-server
-    build:
-      context: .
-      dockerfile: ./server/Dockerfile
+    build: ./server
     volumes:
       - ./server:/app
     ports:

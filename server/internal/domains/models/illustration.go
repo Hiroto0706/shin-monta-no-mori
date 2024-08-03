@@ -1,7 +1,7 @@
 package model
 
 import (
-	db "shin-monta-no-mori/server/internal/db/sqlc"
+	db "shin-monta-no-mori/internal/db/sqlc"
 )
 
 type (

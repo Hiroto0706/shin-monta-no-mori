@@ -3,7 +3,7 @@ package binder
 import (
 	"fmt"
 	"net/http"
-	"shin-monta-no-mori/server/internal/app"
+	"shin-monta-no-mori/internal/app"
 
 	"github.com/gin-gonic/gin"
 )

@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	"shin-monta-no-mori/server/internal/app"
-	db "shin-monta-no-mori/server/internal/db/sqlc"
-	"shin-monta-no-mori/server/pkg/lib/password"
+	"shin-monta-no-mori/internal/app"
+	db "shin-monta-no-mori/internal/db/sqlc"
+	"shin-monta-no-mori/pkg/lib/password"
 
 	"github.com/gin-gonic/gin"
 )
