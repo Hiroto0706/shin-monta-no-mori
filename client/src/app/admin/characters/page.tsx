@@ -61,18 +61,19 @@ export default async function CharactersListPage({
       <CharactersSearchForm />
 
       {characters.characters.length > 0 ? (
-        <ListCharactersTable characters={characters} />
+        <>
+          <ListCharactersTable characters={characters} />
+          <Pagination
+            currentPage={page}
+            count={totalCount}
+            totalPages={totalPages}
+            path="/admin/characters"
+            query={query}
+          />
+        </>
       ) : (
         <p className="mb-6">キャラクターは見つかりませんでした</p>
       )}
-
-      <Pagination
-        currentPage={page}
-        count={totalCount}
-        totalPages={totalPages}
-        path="/admin/characters"
-        query={query}
-      />
     </>
   );
 }

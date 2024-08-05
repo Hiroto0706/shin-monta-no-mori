@@ -61,18 +61,19 @@ export default async function CategoriesListPage({
       <CategoriesSearchForm />
 
       {categoriesRes.categories.length > 0 ? (
-        <ListCategoriesTable categories={categoriesRes.categories} />
+        <>
+          <ListCategoriesTable categories={categoriesRes.categories} />
+          <Pagination
+            currentPage={page}
+            count={totalCount}
+            totalPages={totalPages}
+            path="/admin/categories"
+            query={query}
+          />
+        </>
       ) : (
-        <>カテゴリは見つかりませんでした</>
+        <p className="mb-6">カテゴリは見つかりませんでした</p>
       )}
-
-      <Pagination
-        currentPage={page}
-        count={totalCount}
-        totalPages={totalPages}
-        path="/admin/categories"
-        query={query}
-      />
     </>
   );
 }

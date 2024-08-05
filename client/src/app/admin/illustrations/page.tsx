@@ -119,17 +119,22 @@ export default async function IllustrationsListPage({
 
       <SearchForm characters={characters} categories={categories} />
 
-      <ListTable illustrations={illustrations} />
-
-      <Pagination
-        currentPage={page}
-        count={totalCount}
-        totalPages={totalPages}
-        path="/admin/illustrations"
-        query={query}
-        charactersParams={charactersParams}
-        categoriesParams={categoriesParams}
-      />
+      {illustrations.illustrations.length > 0 ? (
+        <>
+          <ListTable illustrations={illustrations} />
+          <Pagination
+            currentPage={page}
+            count={totalCount}
+            totalPages={totalPages}
+            path="/admin/illustrations"
+            query={query}
+            charactersParams={charactersParams}
+            categoriesParams={categoriesParams}
+          />
+        </>
+      ) : (
+        <p className="mb-6">イラストは見つかりませんでした</p>
+      )}
     </>
   );
 }

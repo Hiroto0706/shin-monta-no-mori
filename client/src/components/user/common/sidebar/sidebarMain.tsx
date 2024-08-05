@@ -22,8 +22,12 @@ type Props = {
 
 const SidebarMain: React.FC<Props> = ({ links }) => {
   const [selectedLink, setSelectedLink] = useState<number | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [characters, setCharacters] = useState<Character[]>([]);
+  const [categories, setCategories] = useState<Category[] | undefined>(
+    undefined
+  );
+  const [characters, setCharacters] = useState<Character[] | undefined>(
+    undefined
+  );
 
   const setSidebarStatus = (id: number) => {
     setSelectedLink(id);

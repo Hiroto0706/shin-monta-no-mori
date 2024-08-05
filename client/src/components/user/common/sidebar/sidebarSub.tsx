@@ -15,8 +15,8 @@ type Props = {
     text: string;
   }[];
   selectedLink: number | null;
-  characters: Character[];
-  categories: Category[];
+  characters: Character[] | undefined;
+  categories: Category[] | undefined;
 };
 
 const SidebarSub: React.FC<Props> = ({
@@ -36,7 +36,7 @@ const SidebarSub: React.FC<Props> = ({
               {/* カテゴリーサイドバー */}
               {selectedLinkObj.text === "カテゴリ" && (
                 <>
-                  {categories.length > 0 ? (
+                  {categories != undefined && categories.length >= 0 ? (
                     <>
                       {categories.map((category) => (
                         <div key={category.ParentCategory.id} className="mb-4">
@@ -76,7 +76,7 @@ const SidebarSub: React.FC<Props> = ({
               {/* キャラクターサイドバー */}
               {selectedLinkObj.text === "キャラ" && (
                 <>
-                  {characters.length > 0 ? (
+                  {characters != undefined && characters.length >= 0 ? (
                     <>
                       {characters.map((character) => (
                         <Link
