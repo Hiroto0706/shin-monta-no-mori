@@ -11,7 +11,10 @@ WORKDIR /app
 COPY --from=builder /build/main /usr/local/bin/main
 COPY ./app.env /app/app.env
 COPY ./internal/db/migration /app/internal/db/migration
-COPY ./credential.json /credential.json
+COPY ./credential.json /app/credential.json
+
+# 環境変数を読み込み
+ENV CREDENTIAL_FILE_PATH=/app/credential.json
 
 EXPOSE 8080
 CMD [ "/usr/local/bin/main" ]

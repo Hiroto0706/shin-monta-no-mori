@@ -98,5 +98,6 @@ test-reset:
 update-cors-setting:
 	cd client/ && gsutil cors set cors-config.json gs://shin-monta-no-mori
 
-deply-server:
+.PHONY: deploy-server
+deploy-server:
 	cd server/ && flyctl deploy
