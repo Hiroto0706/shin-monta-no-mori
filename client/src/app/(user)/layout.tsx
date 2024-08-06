@@ -1,4 +1,3 @@
-import BreadCrumb from "@/components/common/breadCrumb";
 import Header from "@/components/user/common/header/handleHeader";
 import UserSidebar from "@/components/user/common/sidebar/sidebar";
 export default function UserLayout({
