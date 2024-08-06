@@ -104,7 +104,7 @@ const SidebarMain: React.FC<Props> = ({ links }) => {
           />
         )
       }
-      <div className="absolute text-xl text-gray-600 inset-y-1/2 left-72 transform -translate-y-1/2 duration-200 cursor-pointer hover:text-black" onClick={() => setShowSidebarSub(!showSidebarSub)}>
+      <div className="absolute text-xl text-gray-300 inset-y-1/2 left-72 transform -translate-y-1/2 duration-200 cursor-pointer hover:text-gray-600 hover:font-bold" onClick={() => setShowSidebarSub(!showSidebarSub)}>
         {showSidebarSub ? <>&lang;</> : <>&rang;</>}
       </div>
     </>
