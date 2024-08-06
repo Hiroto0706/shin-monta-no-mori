@@ -5,6 +5,7 @@ import { Category } from "@/types/category";
 import { Character } from "@/types/character";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 type Props = {
   links: {
@@ -26,86 +27,97 @@ const SidebarSub: React.FC<Props> = ({
   categories,
 }) => {
   const selectedLinkObj = links.find((link) => selectedLink === link.id);
+  const [showSidebarSub, setShowSidebarSub] = useState(true);
 
   return (
     <>
-      <div className="w-72 h-full overflow-y-scroll bg-gray-50 border-r border-gray-200 fixed top-0 left-0 pl-16 pt-16">
-        <div className="p-4">
-          {selectedLinkObj && (
-            <>
-              {/* カテゴリーサイドバー */}
-              {selectedLinkObj.text === "カテゴリ" && (
-                <>
-                  {categories != undefined && categories.length >= 0 ? (
-                    <>
-                      {categories.map((category) => (
-                        <div key={category.ParentCategory.id} className="mb-4">
-                          <div className="flex items-center my-2">
-                            <Image
-                              src={category.ParentCategory.src}
-                              alt={category.ParentCategory.filename.String}
-                              width={24}
-                              height={24}
-                            />
-                            <span className="font-bold text-md text-black ml-2">
-                              {category.ParentCategory.name}
-                            </span>
+      <div
+        className={`fixed top-0 left-0 h-full w-72 bg-white transform duration-200 ${showSidebarSub ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        <div className="w-72 h-full overflow-y-scroll bg-gray-50 border-r border-gray-200 fixed top-0 left-0 pl-16 pt-16">
+          <div className="p-4">
+            {selectedLinkObj && (
+              <>
+                {/* カテゴリーサイドバー */}
+                {selectedLinkObj.text === "カテゴリ" && (
+                  <>
+                    {categories != undefined && categories.length >= 0 ? (
+                      <>
+                        {categories.map((category) => (
+                          <div key={category.ParentCategory.id} className="mb-4">
+                            <div className="flex items-center my-2">
+                              <Image
+                                src={category.ParentCategory.src}
+                                alt={category.ParentCategory.filename.String}
+                                width={24}
+                                height={24}
+                              />
+                              <span className="font-bold text-md text-black ml-2">
+                                {category.ParentCategory.name}
+                              </span>
+                            </div>
+                            {category.ChildCategory.map((childCategory) => (
+                              <Link
+                                key={childCategory.id}
+                                href={`/illustrations/category/${childCategory.id}`}
+                                className="text-sm py-1 px-2 hover:bg-gray-200 duration-200 rounded-full cursor-pointer block mb-1"
+                              >
+                                # {childCategory.name}
+                              </Link>
+                            ))}
                           </div>
-                          {category.ChildCategory.map((childCategory) => (
-                            <Link
-                              key={childCategory.id}
-                              href={`/illustrations/category/${childCategory.id}`}
-                              className="text-sm py-1 px-2 hover:bg-gray-200 duration-200 rounded-full cursor-pointer block mb-1"
-                            >
-                              # {childCategory.name}
-                            </Link>
-                          ))}
-                        </div>
-                      ))}
-                    </>
-                  ) : (
-                    <>
+                        ))}
+                      </>
+                    ) : (
+                      <>
+                        <>
+                          <Loader height="h-[86vh]" size={30} />
+                        </>
+                      </>
+                    )}
+                  </>
+                )}
+
+                {/* キャラクターサイドバー */}
+                {selectedLinkObj.text === "キャラ" && (
+                  <>
+                    {characters != undefined && characters.length >= 0 ? (
+                      <>
+                        {characters.map((character) => (
+                          <Link
+                            key={character.id}
+                            href={`/illustrations/character/${character.id}`}
+                            className="flex items-center mb-2 hover:bg-gray-200 duration-200 p-1 rounded-full cursor-pointer"
+                          >
+                            <Image
+                              className="border border-gray-200 rounded-full bg-white shadow"
+                              src={character.src}
+                              alt={character.filename.String}
+                              width={36}
+                              height={36}
+                            />
+                            <span className="ml-2 text-sm">{character.name}</span>
+                          </Link>
+                        ))}
+                      </>
+                    ) : (
                       <>
                         <Loader height="h-[86vh]" size={30} />
                       </>
-                    </>
-                  )}
-                </>
-              )}
-
-              {/* キャラクターサイドバー */}
-              {selectedLinkObj.text === "キャラ" && (
-                <>
-                  {characters != undefined && characters.length >= 0 ? (
-                    <>
-                      {characters.map((character) => (
-                        <Link
-                          key={character.id}
-                          href={`/illustrations/character/${character.id}`}
-                          className="flex items-center mb-2 hover:bg-gray-200 duration-200 p-1 rounded-full cursor-pointer"
-                        >
-                          <Image
-                            className="border border-gray-200 rounded-full bg-white shadow"
-                            src={character.src}
-                            alt={character.filename.String}
-                            width={36}
-                            height={36}
-                          />
-                          <span className="ml-2 text-sm">{character.name}</span>
-                        </Link>
-                      ))}
-                    </>
-                  ) : (
-                    <>
-                      <Loader height="h-[86vh]" size={30} />
-                    </>
-                  )}
-                </>
-              )}
-            </>
-          )}
+                    )}
+                  </>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
+
+      <div
+        className={`text-xl text-gray-300 transform -translate-y-1/2 duration-200 cursor-pointer hover:text-gray-600 hover:font-bold absolute inset-y-1/2 ${showSidebarSub ? "left-72" : "left-20"}`}
+        onClick={() => setShowSidebarSub(!showSidebarSub)}>
+        {showSidebarSub ? <>&lang;</> : <>&rang;</>}
+      </div >
     </>
   );
 };

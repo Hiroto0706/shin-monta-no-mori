@@ -28,7 +28,6 @@ const SidebarMain: React.FC<Props> = ({ links }) => {
   const [characters, setCharacters] = useState<Character[] | undefined>(
     undefined
   );
-  const [showSidebarSub, setShowSidebarSub] = useState(true);
 
   const setSidebarStatus = (id: number) => {
     setSelectedLink(id);
@@ -94,19 +93,12 @@ const SidebarMain: React.FC<Props> = ({ links }) => {
         </div>
       </div>
 
-      {
-        showSidebarSub && (
-          <SidebarSub
-            links={links}
-            selectedLink={selectedLink}
-            characters={characters}
-            categories={categories}
-          />
-        )
-      }
-      <div className="absolute text-xl text-gray-300 inset-y-1/2 left-72 transform -translate-y-1/2 duration-200 cursor-pointer hover:text-gray-600 hover:font-bold" onClick={() => setShowSidebarSub(!showSidebarSub)}>
-        {showSidebarSub ? <>&lang;</> : <>&rang;</>}
-      </div>
+      <SidebarSub
+        links={links}
+        selectedLink={selectedLink}
+        characters={characters}
+        categories={categories}
+      />
     </>
   );
 };
