@@ -40,7 +40,7 @@ func (q *Queries) CountSearchCharacters(ctx context.Context, query sql.NullStrin
 const createCharacter = `-- name: CreateCharacter :one
 INSERT INTO characters (name, src, filename)
 VALUES ($1, $2, $3)
-RETURNING id, name, src, updated_at, created_at, filename
+RETURNING id, name, src, updated_at, created_at, filename, priority_level
 `
 
 type CreateCharacterParams struct {
@@ -59,6 +59,7 @@ func (q *Queries) CreateCharacter(ctx context.Context, arg CreateCharacterParams
 		&i.UpdatedAt,
 		&i.CreatedAt,
 		&i.Filename,
+		&i.PriorityLevel,
 	)
 	return i, err
 }
@@ -74,7 +75,7 @@ func (q *Queries) DeleteCharacter(ctx context.Context, id int64) error {
 }
 
 const getCharacter = `-- name: GetCharacter :one
-SELECT id, name, src, updated_at, created_at, filename
+SELECT id, name, src, updated_at, created_at, filename, priority_level
 FROM characters
 WHERE id = $1
 LIMIT 1
@@ -90,12 +91,13 @@ func (q *Queries) GetCharacter(ctx context.Context, id int64) (Character, error)
 		&i.UpdatedAt,
 		&i.CreatedAt,
 		&i.Filename,
+		&i.PriorityLevel,
 	)
 	return i, err
 }
 
 const listAllCharacters = `-- name: ListAllCharacters :many
-SELECT id, name, src, updated_at, created_at, filename
+SELECT id, name, src, updated_at, created_at, filename, priority_level
 FROM characters
 ORDER BY id DESC
 `
@@ -116,6 +118,7 @@ func (q *Queries) ListAllCharacters(ctx context.Context) ([]Character, error) {
 			&i.UpdatedAt,
 			&i.CreatedAt,
 			&i.Filename,
+			&i.PriorityLevel,
 		); err != nil {
 			return nil, err
 		}
@@ -131,7 +134,7 @@ func (q *Queries) ListAllCharacters(ctx context.Context) ([]Character, error) {
 }
 
 const listCharacters = `-- name: ListCharacters :many
-SELECT id, name, src, updated_at, created_at, filename
+SELECT id, name, src, updated_at, created_at, filename, priority_level
 FROM characters
 ORDER BY id DESC
 LIMIT $1 OFFSET $2
@@ -158,6 +161,7 @@ func (q *Queries) ListCharacters(ctx context.Context, arg ListCharactersParams) 
 			&i.UpdatedAt,
 			&i.CreatedAt,
 			&i.Filename,
+			&i.PriorityLevel,
 		); err != nil {
 			return nil, err
 		}
@@ -173,7 +177,7 @@ func (q *Queries) ListCharacters(ctx context.Context, arg ListCharactersParams) 
 }
 
 const searchCharacters = `-- name: SearchCharacters :many
-SELECT DISTINCT id, name, src, updated_at, created_at, filename
+SELECT DISTINCT id, name, src, updated_at, created_at, filename, priority_level
 FROM characters
 WHERE name LIKE '%' || COALESCE($3) || '%'
   OR filename LIKE '%' || COALESCE($3) || '%'
@@ -203,6 +207,7 @@ func (q *Queries) SearchCharacters(ctx context.Context, arg SearchCharactersPara
 			&i.UpdatedAt,
 			&i.CreatedAt,
 			&i.Filename,
+			&i.PriorityLevel,
 		); err != nil {
 			return nil, err
 		}
@@ -224,7 +229,7 @@ SET name = $2,
   filename = $4,
   updated_at = $5
 WHERE id = $1
-RETURNING id, name, src, updated_at, created_at, filename
+RETURNING id, name, src, updated_at, created_at, filename, priority_level
 `
 
 type UpdateCharacterParams struct {
@@ -251,6 +256,7 @@ func (q *Queries) UpdateCharacter(ctx context.Context, arg UpdateCharacterParams
 		&i.UpdatedAt,
 		&i.CreatedAt,
 		&i.Filename,
+		&i.PriorityLevel,
 	)
 	return i, err
 }

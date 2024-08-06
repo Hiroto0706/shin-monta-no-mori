@@ -13,7 +13,7 @@ import (
 const createChildCategory = `-- name: CreateChildCategory :one
 INSERT INTO child_categories (name, parent_id)
 VALUES ($1, $2)
-RETURNING id, name, parent_id, updated_at, created_at
+RETURNING id, name, parent_id, updated_at, created_at, priority_level
 `
 
 type CreateChildCategoryParams struct {
@@ -30,6 +30,7 @@ func (q *Queries) CreateChildCategory(ctx context.Context, arg CreateChildCatego
 		&i.ParentID,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.PriorityLevel,
 	)
 	return i, err
 }
@@ -55,7 +56,7 @@ func (q *Queries) DeleteChildCategory(ctx context.Context, id int64) error {
 }
 
 const getChildCategoriesByParentID = `-- name: GetChildCategoriesByParentID :many
-SELECT id, name, parent_id, updated_at, created_at
+SELECT id, name, parent_id, updated_at, created_at, priority_level
 FROM child_categories
 WHERE parent_id = $1
 `
@@ -75,6 +76,7 @@ func (q *Queries) GetChildCategoriesByParentID(ctx context.Context, parentID int
 			&i.ParentID,
 			&i.UpdatedAt,
 			&i.CreatedAt,
+			&i.PriorityLevel,
 		); err != nil {
 			return nil, err
 		}
@@ -90,7 +92,7 @@ func (q *Queries) GetChildCategoriesByParentID(ctx context.Context, parentID int
 }
 
 const getChildCategory = `-- name: GetChildCategory :one
-SELECT id, name, parent_id, updated_at, created_at
+SELECT id, name, parent_id, updated_at, created_at, priority_level
 FROM child_categories
 WHERE id = $1
 LIMIT 1
@@ -105,12 +107,13 @@ func (q *Queries) GetChildCategory(ctx context.Context, id int64) (ChildCategory
 		&i.ParentID,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.PriorityLevel,
 	)
 	return i, err
 }
 
 const listChildCategories = `-- name: ListChildCategories :many
-SELECT id, name, parent_id, updated_at, created_at
+SELECT id, name, parent_id, updated_at, created_at, priority_level
 FROM child_categories
 ORDER BY id DESC
 LIMIT $1 OFFSET $2
@@ -136,6 +139,7 @@ func (q *Queries) ListChildCategories(ctx context.Context, arg ListChildCategori
 			&i.ParentID,
 			&i.UpdatedAt,
 			&i.CreatedAt,
+			&i.PriorityLevel,
 		); err != nil {
 			return nil, err
 		}
@@ -156,7 +160,7 @@ SET name = $2,
   parent_id = $3,
   updated_at = $4
 WHERE id = $1
-RETURNING id, name, parent_id, updated_at, created_at
+RETURNING id, name, parent_id, updated_at, created_at, priority_level
 `
 
 type UpdateChildCategoryParams struct {
@@ -180,6 +184,7 @@ func (q *Queries) UpdateChildCategory(ctx context.Context, arg UpdateChildCatego
 		&i.ParentID,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.PriorityLevel,
 	)
 	return i, err
 }

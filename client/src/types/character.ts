@@ -6,6 +6,7 @@ export interface Character {
     String: string;
     Valid: boolean;
   };
+priority_level: number;
   created_at: string;
   updated_at: string;
 }
