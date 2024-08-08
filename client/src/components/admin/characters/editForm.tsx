@@ -24,7 +24,7 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageSrc, setImageSrc] = useState<string | null>(character.src);
 
-  const [checkedPriorityLevel, setCheckedPriorityLevel] = useState<number>(
+  const [checkedPriorityLevel, setCheckedPriorityLevel] = useState(
     character.priority_level
   );
   const [showPriorityLevelModal, setShowPriorityLevelModal] = useState(false);
@@ -32,6 +32,8 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
   const togglePriorityLevelModal = (status: boolean) => {
     setShowPriorityLevelModal(status);
   };
+
+  console.log(character)
 
   const onFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -182,7 +184,7 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
           </div>
 
           <div className="mb-16">
-            <label className="text-xl">優先度</label>
+            <label className="text-xl">優先度 priority_level:{character.priority_level}</label>
             <div className="relative">
               <div
                 onClick={() =>
@@ -192,9 +194,8 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
               >
                 <div>{PriorityLevel[checkedPriorityLevel]}</div>
                 <Image
-                  className={`duration-100 ${
-                    !showPriorityLevelModal ? "rotate-90" : "-rotate-90"
-                  }`}
+                  className={`duration-100 ${!showPriorityLevelModal ? "rotate-90" : "-rotate-90"
+                    }`}
                   src="/icon/arrow.png"
                   alt="arrowアイコン"
                   width={20}

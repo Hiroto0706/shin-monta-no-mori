@@ -149,6 +149,10 @@ func SearchCharacters(ctx *app.AppContext) {
 	})
 }
 
+type getCharacterResponse struct {
+	Character db.Character `json:"character"`
+}
+
 // GetCharacter godoc
 // @Summary Retrieve a character
 // @Description Retrieves a single character by its ID.
@@ -168,6 +172,7 @@ func GetCharacter(ctx *app.AppContext) {
 	}
 
 	character, err := ctx.Server.Store.GetCharacter(ctx, int64(id))
+	log.Println("character", character)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetCharacter: %w", err)))
@@ -178,8 +183,8 @@ func GetCharacter(ctx *app.AppContext) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"character": character,
+	ctx.JSON(http.StatusOK, getCharacterResponse{
+		Character: character,
 	})
 }
 
