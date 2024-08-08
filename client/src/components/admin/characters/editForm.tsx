@@ -4,7 +4,7 @@ import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Character } from "@/types/character";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { DeleteCharacterAPI, EditCharacterAPI } from "@/api/admin/character";
 import { PriorityLevel } from "@/types/admin/priorityLevel";
@@ -32,8 +32,6 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
   const togglePriorityLevelModal = (status: boolean) => {
     setShowPriorityLevelModal(status);
   };
-
-  console.log(character)
 
   const onFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -107,6 +105,23 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
       alert("キャラクターの削除に失敗しました");
     }
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        (event.target as HTMLElement).closest(".priority-modal") === null &&
+        (event.target as HTMLElement).closest(".priority-modal-content") ===
+        null
+      ) {
+        setShowPriorityLevelModal(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
@@ -184,13 +199,13 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
           </div>
 
           <div className="mb-16">
-            <label className="text-xl">優先度 priority_level:{character.priority_level}</label>
+            <label className="text-xl">優先度</label>
             <div className="relative">
               <div
                 onClick={() =>
                   togglePriorityLevelModal(!showPriorityLevelModal)
                 }
-                className="border-2 border-gray-200 mt-4 py-4 px-4 rounded bg-white flex justify-between flex-nowrap cursor-pointer character-modal"
+                className="border-2 border-gray-200 mt-4 py-4 px-4 rounded bg-white flex justify-between flex-nowrap cursor-pointer priority-modal"
               >
                 <div>{PriorityLevel[checkedPriorityLevel]}</div>
                 <Image
@@ -203,7 +218,7 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
                 />
               </div>
               {showPriorityLevelModal && (
-                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full max-h-60 overflow-y-auto z-10 shadow-md character-modal-content">
+                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full max-h-60 overflow-y-auto z-10 shadow-md priority-modal-content">
                   {PriorityLevel.map((level, i) => (
                     <div
                       key={i}
