@@ -114,7 +114,7 @@ const SidebarSub: React.FC<Props> = ({
       </div>
 
       <div
-        className={`text-xl text-gray-300 transform -translate-y-1/2 duration-200 cursor-pointer hover:text-gray-600 hover:font-bold absolute inset-y-1/2 ${showSidebarSub ? "left-72" : "left-20"}`}
+        className={`text-xl text-gray-300 transform -translate-y-1/2 duration-200 cursor-pointer hover:text-gray-600 hover:font-bold fixed inset-y-1/2 ${showSidebarSub ? "left-72" : "left-20"}`}
         onClick={() => setShowSidebarSub(!showSidebarSub)}>
         {showSidebarSub ? <>&lang;</> : <>&rang;</>}
       </div >
