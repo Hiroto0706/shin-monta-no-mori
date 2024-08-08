@@ -172,7 +172,7 @@ func GetCharacter(ctx *app.AppContext) {
 	}
 
 	character, err := ctx.Server.Store.GetCharacter(ctx, int64(id))
-	log.Println("character", character)
+	fmt.Println("character", character)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetCharacter: %w", err)))
@@ -247,9 +247,10 @@ func CreateCharacter(ctx *app.AppContext) {
 }
 
 type editCharacterRequest struct {
-	Name      string               `form:"name"`
-	Filename  string               `form:"filename"`
-	ImageFile multipart.FileHeader `form:"image_file"`
+	Name          string               `form:"name"`
+	Filename      string               `form:"filename"`
+	ImageFile     multipart.FileHeader `form:"image_file"`
+	PriorityLevel int                  `form:"priority_level"`
 }
 
 // EditCharacter godoc
@@ -279,6 +280,8 @@ func EditCharacter(ctx *app.AppContext) {
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
 
+	fmt.Println("priority_level", req.PriorityLevel)
+
 	character, err := ctx.Server.Store.GetCharacter(ctx, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -304,11 +307,12 @@ func EditCharacter(ctx *app.AppContext) {
 		}
 
 		arg := db.UpdateCharacterParams{
-			ID:        character.ID,
-			Name:      req.Name,
-			Src:       src,
-			Filename:  sql.NullString{String: character.Filename.String, Valid: true},
-			UpdatedAt: time.Now(),
+			ID:            character.ID,
+			Name:          req.Name,
+			Src:           src,
+			Filename:      sql.NullString{String: character.Filename.String, Valid: true},
+			PriorityLevel: int16(req.PriorityLevel),
+			UpdatedAt:     time.Now(),
 		}
 		if character.Filename.String != req.Filename {
 			arg.Filename = sql.NullString{String: req.Filename, Valid: true}

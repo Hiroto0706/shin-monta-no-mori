@@ -21,7 +21,8 @@ UPDATE characters
 SET name = $2,
   src = $3,
   filename = $4,
-  updated_at = $5
+  updated_at = $5,
+  priority_level = $6
 WHERE id = $1
 RETURNING *;
 -- name: DeleteCharacter :exec

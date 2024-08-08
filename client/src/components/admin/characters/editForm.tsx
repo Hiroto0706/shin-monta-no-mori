@@ -67,6 +67,7 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
     if (imageFile) {
       formData.append("image_file", imageFile);
     }
+    formData.append("priority_level", checkedPriorityLevel.toString());
 
     try {
       const response = await axios.put(EditCharacterAPI(id), formData, {
