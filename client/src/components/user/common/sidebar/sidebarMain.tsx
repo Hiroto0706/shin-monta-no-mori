@@ -78,11 +78,10 @@ const SidebarMain: React.FC<Props> = ({ links }) => {
                       width={28}
                     />
                     <span
-                      className={`text-xs text-gray-600 ${
-                        selectedLink == link.id
-                          ? "text-green-600 font-bold"
-                          : ""
-                      }`}
+                      className={`text-xs text-gray-600 ${selectedLink == link.id
+                        ? "text-green-600 font-bold"
+                        : ""
+                        }`}
                     >
                       {link.text}
                     </span>
