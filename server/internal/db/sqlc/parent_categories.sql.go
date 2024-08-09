@@ -38,19 +38,25 @@ func (q *Queries) CountSearchParentCategories(ctx context.Context, query sql.Nul
 }
 
 const createParentCategory = `-- name: CreateParentCategory :one
-INSERT INTO parent_categories (name, src, filename)
-VALUES ($1, $2, $3)
+INSERT INTO parent_categories (name, src, filename, priority_level)
+VALUES ($1, $2, $3, $4)
 RETURNING id, name, src, updated_at, created_at, filename, priority_level
 `
 
 type CreateParentCategoryParams struct {
-	Name     string         `json:"name"`
-	Src      string         `json:"src"`
-	Filename sql.NullString `json:"filename"`
+	Name          string         `json:"name"`
+	Src           string         `json:"src"`
+	Filename      sql.NullString `json:"filename"`
+	PriorityLevel int16          `json:"priority_level"`
 }
 
 func (q *Queries) CreateParentCategory(ctx context.Context, arg CreateParentCategoryParams) (ParentCategory, error) {
-	row := q.db.QueryRowContext(ctx, createParentCategory, arg.Name, arg.Src, arg.Filename)
+	row := q.db.QueryRowContext(ctx, createParentCategory,
+		arg.Name,
+		arg.Src,
+		arg.Filename,
+		arg.PriorityLevel,
+	)
 	var i ParentCategory
 	err := row.Scan(
 		&i.ID,
@@ -220,17 +226,19 @@ UPDATE parent_categories
 SET name = $2,
   src = $3,
   filename = $4,
-  updated_at = $5
+  updated_at = $5,
+  priority_level = $6
 WHERE id = $1
 RETURNING id, name, src, updated_at, created_at, filename, priority_level
 `
 
 type UpdateParentCategoryParams struct {
-	ID        int64          `json:"id"`
-	Name      string         `json:"name"`
-	Src       string         `json:"src"`
-	Filename  sql.NullString `json:"filename"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	ID            int64          `json:"id"`
+	Name          string         `json:"name"`
+	Src           string         `json:"src"`
+	Filename      sql.NullString `json:"filename"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	PriorityLevel int16          `json:"priority_level"`
 }
 
 func (q *Queries) UpdateParentCategory(ctx context.Context, arg UpdateParentCategoryParams) (ParentCategory, error) {
@@ -240,6 +248,7 @@ func (q *Queries) UpdateParentCategory(ctx context.Context, arg UpdateParentCate
 		arg.Src,
 		arg.Filename,
 		arg.UpdatedAt,
+		arg.PriorityLevel,
 	)
 	var i ParentCategory
 	err := row.Scan(

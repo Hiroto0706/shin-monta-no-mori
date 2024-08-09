@@ -8,6 +8,8 @@ import { CreateChildCategoryAPI } from "@/api/admin/category";
 import { Category } from "@/types/category";
 import Image from "next/image";
 import { truncateText } from "@/utils/text";
+import usePriorityLevel from "@/hooks/priorityLevel";
+import { PriorityLevel } from "@/types/admin/priorityLevel";
 
 type Props = {
   parentID: number;
@@ -30,12 +32,21 @@ const CreateChildCategory: React.FC<Props> = ({
     setShowCategoryModal(status);
   };
 
+  const DefaultPLevel = 2;
+  const {
+    checkedPriorityLevel,
+    setCheckedPriorityLevel,
+    showPriorityLevelModal,
+    togglePriorityLevelModal,
+  } = usePriorityLevel(DefaultPLevel);
+
   const createIllustration = async (event: React.FormEvent) => {
     event.preventDefault();
 
     const formData = new FormData();
     formData.append("name", name);
     formData.append("parent_id", checkedParentCategoryID.toString());
+    formData.append("priority_level", checkedPriorityLevel.toString());
 
     try {
       const response = await axios.post(CreateChildCategoryAPI(), formData, {
@@ -134,6 +145,53 @@ const CreateChildCategory: React.FC<Props> = ({
                         className="cursor-pointer w-full py-1"
                       >
                         {truncateText(cate.name, 30)}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mb-16">
+            <label className="text-xl">優先度</label>
+            <div className="relative">
+              <div
+                onClick={() =>
+                  togglePriorityLevelModal(!showPriorityLevelModal)
+                }
+                className="border-2 border-gray-200 mt-4 py-4 px-4 rounded bg-white flex justify-between flex-nowrap cursor-pointer priority-modal"
+              >
+                <div>{PriorityLevel[checkedPriorityLevel]}</div>
+                <Image
+                  className={`duration-100 ${
+                    !showPriorityLevelModal ? "rotate-90" : "-rotate-90"
+                  }`}
+                  src="/icon/arrow.png"
+                  alt="arrowアイコン"
+                  width={20}
+                  height={20}
+                />
+              </div>
+              {showPriorityLevelModal && (
+                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full max-h-60 overflow-y-auto z-10 shadow-md priority-modal-content">
+                  {PriorityLevel.map((level, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center rounded hover:bg-gray-200 cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        checked={checkedPriorityLevel === i}
+                        onChange={() => setCheckedPriorityLevel(i)}
+                        className="mx-2 cursor-pointer"
+                        id={`character-${i}`}
+                      />
+                      <label
+                        htmlFor={`character-${i}`}
+                        className="cursor-pointer w-full py-1"
+                      >
+                        {level}
                       </label>
                     </div>
                   ))}

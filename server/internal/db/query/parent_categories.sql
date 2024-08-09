@@ -1,6 +1,6 @@
 -- name: CreateParentCategory :one
-INSERT INTO parent_categories (name, src, filename)
-VALUES ($1, $2, $3)
+INSERT INTO parent_categories (name, src, filename, priority_level)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 -- name: GetParentCategory :one
 SELECT *
@@ -21,7 +21,8 @@ UPDATE parent_categories
 SET name = $2,
   src = $3,
   filename = $4,
-  updated_at = $5
+  updated_at = $5,
+  priority_level = $6
 WHERE id = $1
 RETURNING *;
 -- name: DeleteParentCategory :exec

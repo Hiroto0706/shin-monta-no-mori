@@ -1,6 +1,6 @@
 -- name: CreateChildCategory :one
-INSERT INTO child_categories (name, parent_id)
-VALUES ($1, $2)
+INSERT INTO child_categories (name, parent_id, priority_level)
+VALUES ($1, $2, $3)
 RETURNING *;
 -- name: GetChildCategory :one
 SELECT *
@@ -20,7 +20,8 @@ LIMIT $1 OFFSET $2;
 UPDATE child_categories
 SET name = $2,
   parent_id = $3,
-  updated_at = $4
+  updated_at = $4,
+  priority_level = $5
 WHERE id = $1
 RETURNING *;
 -- name: DeleteChildCategory :exec

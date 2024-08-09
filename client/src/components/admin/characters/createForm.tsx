@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { CreateCharacterAPI } from "@/api/admin/character";
 import { PriorityLevel } from "@/types/admin/priorityLevel";
+import usePriorityLevel from "@/hooks/priorityLevel";
 
 type Props = {
   accessToken: string | undefined;
@@ -22,12 +23,12 @@ const CreateCharacter: React.FC<Props> = ({ accessToken }) => {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
 
   const DefaultPLevel = 2;
-  const [checkedPriorityLevel, setCheckedPriorityLevel] =
-    useState(DefaultPLevel);
-  const [showPriorityLevelModal, setShowPriorityLevelModal] = useState(false);
-  const togglePriorityLevelModal = (status: boolean) => {
-    setShowPriorityLevelModal(status);
-  };
+  const {
+    checkedPriorityLevel,
+    setCheckedPriorityLevel,
+    showPriorityLevelModal,
+    togglePriorityLevelModal,
+  } = usePriorityLevel(DefaultPLevel);
 
   const onFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -76,23 +77,6 @@ const CreateCharacter: React.FC<Props> = ({ accessToken }) => {
       alert("キャラクターの作成に失敗しました");
     }
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        (event.target as HTMLElement).closest(".priority-modal") === null &&
-        (event.target as HTMLElement).closest(".priority-modal-content") ===
-          null
-      ) {
-        setShowPriorityLevelModal(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   return (
     <>

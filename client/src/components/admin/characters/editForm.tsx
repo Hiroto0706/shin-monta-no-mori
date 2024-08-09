@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { DeleteCharacterAPI, EditCharacterAPI } from "@/api/admin/character";
 import { PriorityLevel } from "@/types/admin/priorityLevel";
+import usePriorityLevel from "@/hooks/priorityLevel";
 
 type Props = {
   id: number;
@@ -24,13 +25,12 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageSrc, setImageSrc] = useState<string | null>(character.src);
 
-  const [checkedPriorityLevel, setCheckedPriorityLevel] = useState(
-    character.priority_level
-  );
-  const [showPriorityLevelModal, setShowPriorityLevelModal] = useState(false);
-  const togglePriorityLevelModal = (status: boolean) => {
-    setShowPriorityLevelModal(status);
-  };
+  const {
+    checkedPriorityLevel,
+    setCheckedPriorityLevel,
+    showPriorityLevelModal,
+    togglePriorityLevelModal,
+  } = usePriorityLevel(character.priority_level);
 
   const onFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -105,23 +105,6 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
       alert("キャラクターの削除に失敗しました");
     }
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        (event.target as HTMLElement).closest(".priority-modal") === null &&
-        (event.target as HTMLElement).closest(".priority-modal-content") ===
-        null
-      ) {
-        setShowPriorityLevelModal(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   return (
     <>
@@ -209,8 +192,9 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
               >
                 <div>{PriorityLevel[checkedPriorityLevel]}</div>
                 <Image
-                  className={`duration-100 ${!showPriorityLevelModal ? "rotate-90" : "-rotate-90"
-                    }`}
+                  className={`duration-100 ${
+                    !showPriorityLevelModal ? "rotate-90" : "-rotate-90"
+                  }`}
                   src="/icon/arrow.png"
                   alt="arrowアイコン"
                   width={20}
