@@ -239,9 +239,10 @@ func SearchCategories(ctx *app.AppContext) {
 }
 
 type createParentCategoryRequest struct {
-	Name      string               `form:"name" binding:"required"`
-	Filename  string               `form:"filename" binding:"required"`
-	ImageFile multipart.FileHeader `form:"image_file" binding:"required"`
+	Name          string               `form:"name" binding:"required"`
+	Filename      string               `form:"filename" binding:"required"`
+	ImageFile     multipart.FileHeader `form:"image_file" binding:"required"`
+	PriorityLevel int16                `form:"priority_level" binding:"required"`
 }
 
 type createParentCategoryResponse struct {
@@ -283,6 +284,7 @@ func CreateParentCategory(ctx *app.AppContext) {
 				String: req.Filename,
 				Valid:  true,
 			},
+			PriorityLevel: req.PriorityLevel,
 		}
 
 		parentCategory, err = ctx.Server.Store.CreateParentCategory(ctx, arg)
@@ -305,9 +307,10 @@ func CreateParentCategory(ctx *app.AppContext) {
 }
 
 type editParentCategoryRequest struct {
-	Name      string               `form:"name"`
-	Filename  string               `form:"filename"`
-	ImageFile multipart.FileHeader `form:"image_file"`
+	Name          string               `form:"name"`
+	Filename      string               `form:"filename"`
+	ImageFile     multipart.FileHeader `form:"image_file"`
+	PriorityLevel int16                `form:"priority_level"`
 }
 
 type editParentCategoryResponse struct {
@@ -367,11 +370,12 @@ func EditParentCategory(ctx *app.AppContext) {
 		}
 
 		arg := db.UpdateParentCategoryParams{
-			ID:        pcate.ID,
-			Name:      req.Name,
-			Src:       src,
-			Filename:  sql.NullString{String: pcate.Filename.String, Valid: true},
-			UpdatedAt: time.Now(),
+			ID:            pcate.ID,
+			Name:          req.Name,
+			Src:           src,
+			Filename:      sql.NullString{String: pcate.Filename.String, Valid: true},
+			PriorityLevel: req.PriorityLevel,
+			UpdatedAt:     time.Now(),
 		}
 		if pcate.Filename.String != req.Filename {
 			arg.Filename = sql.NullString{String: req.Filename, Valid: true}
@@ -509,8 +513,9 @@ func GetChildCategory(ctx *app.AppContext) {
 }
 
 type createChildCategoryRequest struct {
-	Name     string `form:"name" binding:"required"`
-	ParentID int    `form:"parent_id" binding:"required"`
+	Name          string `form:"name" binding:"required"`
+	ParentID      int    `form:"parent_id" binding:"required"`
+	PriorityLevel int16  `form:"priority_level" binding:"required"`
 }
 
 type createChildCategoryResponse struct {
@@ -537,8 +542,9 @@ func CreateChildCategory(ctx *app.AppContext) {
 	}
 
 	arg := db.CreateChildCategoryParams{
-		Name:     req.Name,
-		ParentID: int64(req.ParentID),
+		Name:          req.Name,
+		ParentID:      int64(req.ParentID),
+		PriorityLevel: req.PriorityLevel,
 	}
 	childCategory, err := ctx.Server.Store.CreateChildCategory(ctx, arg)
 	if err != nil {
@@ -553,8 +559,14 @@ func CreateChildCategory(ctx *app.AppContext) {
 }
 
 type editChildCategoryRequest struct {
-	Name     string `form:"name"`
-	ParentID int    `form:"parent_id"`
+	Name          string `form:"name"`
+	ParentID      int    `form:"parent_id"`
+	PriorityLevel int16  `form:"priority_level"`
+}
+
+type editChildCategoryResponse struct {
+	ChildCategory db.ChildCategory `json:"child_category"`
+	Message       string           `json:"message"`
 }
 
 // EditChildCategory godoc
@@ -594,10 +606,11 @@ func EditChildCategory(ctx *app.AppContext) {
 
 	txErr := ctx.Server.Store.ExecTx(ctx.Request.Context(), func(q *db.Queries) error {
 		arg := db.UpdateChildCategoryParams{
-			ID:        ccate.ID,
-			Name:      req.Name,
-			ParentID:  int64(req.ParentID),
-			UpdatedAt: time.Now(),
+			ID:            ccate.ID,
+			Name:          req.Name,
+			ParentID:      int64(req.ParentID),
+			PriorityLevel: req.PriorityLevel,
+			UpdatedAt:     time.Now(),
 		}
 
 		ccate, err = ctx.Server.Store.UpdateChildCategory(ctx, arg)
@@ -613,9 +626,9 @@ func EditChildCategory(ctx *app.AppContext) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"child_category": ccate,
-		"message":        "child_categoryの編集に成功しました",
+	ctx.JSON(http.StatusOK, editChildCategoryResponse{
+		ChildCategory: ccate,
+		Message:       "child_categoryの編集に成功しました",
 	})
 }
 

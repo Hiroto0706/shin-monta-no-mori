@@ -38,19 +38,25 @@ func (q *Queries) CountSearchParentCategories(ctx context.Context, query sql.Nul
 }
 
 const createParentCategory = `-- name: CreateParentCategory :one
-INSERT INTO parent_categories (name, src, filename)
-VALUES ($1, $2, $3)
-RETURNING id, name, src, updated_at, created_at, filename
+INSERT INTO parent_categories (name, src, filename, priority_level)
+VALUES ($1, $2, $3, $4)
+RETURNING id, name, src, updated_at, created_at, filename, priority_level
 `
 
 type CreateParentCategoryParams struct {
-	Name     string         `json:"name"`
-	Src      string         `json:"src"`
-	Filename sql.NullString `json:"filename"`
+	Name          string         `json:"name"`
+	Src           string         `json:"src"`
+	Filename      sql.NullString `json:"filename"`
+	PriorityLevel int16          `json:"priority_level"`
 }
 
 func (q *Queries) CreateParentCategory(ctx context.Context, arg CreateParentCategoryParams) (ParentCategory, error) {
-	row := q.db.QueryRowContext(ctx, createParentCategory, arg.Name, arg.Src, arg.Filename)
+	row := q.db.QueryRowContext(ctx, createParentCategory,
+		arg.Name,
+		arg.Src,
+		arg.Filename,
+		arg.PriorityLevel,
+	)
 	var i ParentCategory
 	err := row.Scan(
 		&i.ID,
@@ -59,6 +65,7 @@ func (q *Queries) CreateParentCategory(ctx context.Context, arg CreateParentCate
 		&i.UpdatedAt,
 		&i.CreatedAt,
 		&i.Filename,
+		&i.PriorityLevel,
 	)
 	return i, err
 }
@@ -74,7 +81,7 @@ func (q *Queries) DeleteParentCategory(ctx context.Context, id int64) error {
 }
 
 const getParentCategory = `-- name: GetParentCategory :one
-SELECT id, name, src, updated_at, created_at, filename
+SELECT id, name, src, updated_at, created_at, filename, priority_level
 FROM parent_categories
 WHERE id = $1
 LIMIT 1
@@ -90,14 +97,16 @@ func (q *Queries) GetParentCategory(ctx context.Context, id int64) (ParentCatego
 		&i.UpdatedAt,
 		&i.CreatedAt,
 		&i.Filename,
+		&i.PriorityLevel,
 	)
 	return i, err
 }
 
 const listAllParentCategories = `-- name: ListAllParentCategories :many
-SELECT id, name, src, updated_at, created_at, filename
+SELECT id, name, src, updated_at, created_at, filename, priority_level
 FROM parent_categories
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 `
 
 func (q *Queries) ListAllParentCategories(ctx context.Context) ([]ParentCategory, error) {
@@ -116,6 +125,7 @@ func (q *Queries) ListAllParentCategories(ctx context.Context) ([]ParentCategory
 			&i.UpdatedAt,
 			&i.CreatedAt,
 			&i.Filename,
+			&i.PriorityLevel,
 		); err != nil {
 			return nil, err
 		}
@@ -131,9 +141,10 @@ func (q *Queries) ListAllParentCategories(ctx context.Context) ([]ParentCategory
 }
 
 const listParentCategories = `-- name: ListParentCategories :many
-SELECT id, name, src, updated_at, created_at, filename
+SELECT id, name, src, updated_at, created_at, filename, priority_level
 FROM parent_categories
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 LIMIT $1 OFFSET $2
 `
 
@@ -158,6 +169,7 @@ func (q *Queries) ListParentCategories(ctx context.Context, arg ListParentCatego
 			&i.UpdatedAt,
 			&i.CreatedAt,
 			&i.Filename,
+			&i.PriorityLevel,
 		); err != nil {
 			return nil, err
 		}
@@ -173,11 +185,12 @@ func (q *Queries) ListParentCategories(ctx context.Context, arg ListParentCatego
 }
 
 const searchParentCategories = `-- name: SearchParentCategories :many
-SELECT DISTINCT id, name, src, updated_at, created_at, filename
+SELECT DISTINCT id, name, src, updated_at, created_at, filename, priority_level
 FROM parent_categories
 WHERE name LIKE '%' || COALESCE($1) || '%'
   OR filename LIKE '%' || COALESCE($1) || '%'
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 `
 
 func (q *Queries) SearchParentCategories(ctx context.Context, query sql.NullString) ([]ParentCategory, error) {
@@ -196,6 +209,7 @@ func (q *Queries) SearchParentCategories(ctx context.Context, query sql.NullStri
 			&i.UpdatedAt,
 			&i.CreatedAt,
 			&i.Filename,
+			&i.PriorityLevel,
 		); err != nil {
 			return nil, err
 		}
@@ -215,17 +229,19 @@ UPDATE parent_categories
 SET name = $2,
   src = $3,
   filename = $4,
-  updated_at = $5
+  updated_at = $5,
+  priority_level = $6
 WHERE id = $1
-RETURNING id, name, src, updated_at, created_at, filename
+RETURNING id, name, src, updated_at, created_at, filename, priority_level
 `
 
 type UpdateParentCategoryParams struct {
-	ID        int64          `json:"id"`
-	Name      string         `json:"name"`
-	Src       string         `json:"src"`
-	Filename  sql.NullString `json:"filename"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	ID            int64          `json:"id"`
+	Name          string         `json:"name"`
+	Src           string         `json:"src"`
+	Filename      sql.NullString `json:"filename"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	PriorityLevel int16          `json:"priority_level"`
 }
 
 func (q *Queries) UpdateParentCategory(ctx context.Context, arg UpdateParentCategoryParams) (ParentCategory, error) {
@@ -235,6 +251,7 @@ func (q *Queries) UpdateParentCategory(ctx context.Context, arg UpdateParentCate
 		arg.Src,
 		arg.Filename,
 		arg.UpdatedAt,
+		arg.PriorityLevel,
 	)
 	var i ParentCategory
 	err := row.Scan(
@@ -244,6 +261,7 @@ func (q *Queries) UpdateParentCategory(ctx context.Context, arg UpdateParentCate
 		&i.UpdatedAt,
 		&i.CreatedAt,
 		&i.Filename,
+		&i.PriorityLevel,
 	)
 	return i, err
 }

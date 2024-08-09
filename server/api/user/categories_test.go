@@ -56,12 +56,14 @@ func TestListCategories(t *testing.T) {
 							String: "test_parent_category_filename_99998",
 							Valid:  true,
 						},
+						PriorityLevel: 2,
 					},
 					ChildCategory: []db.ChildCategory{
 						{
-							ID:       99998,
-							Name:     "test_child_category_name_99998",
-							ParentID: 99998,
+							ID:            99998,
+							Name:          "test_child_category_name_99998",
+							ParentID:      99998,
+							PriorityLevel: 2,
 						},
 					},
 				},

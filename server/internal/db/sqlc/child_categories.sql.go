@@ -11,18 +11,19 @@ import (
 )
 
 const createChildCategory = `-- name: CreateChildCategory :one
-INSERT INTO child_categories (name, parent_id)
-VALUES ($1, $2)
-RETURNING id, name, parent_id, updated_at, created_at
+INSERT INTO child_categories (name, parent_id, priority_level)
+VALUES ($1, $2, $3)
+RETURNING id, name, parent_id, updated_at, created_at, priority_level
 `
 
 type CreateChildCategoryParams struct {
-	Name     string `json:"name"`
-	ParentID int64  `json:"parent_id"`
+	Name          string `json:"name"`
+	ParentID      int64  `json:"parent_id"`
+	PriorityLevel int16  `json:"priority_level"`
 }
 
 func (q *Queries) CreateChildCategory(ctx context.Context, arg CreateChildCategoryParams) (ChildCategory, error) {
-	row := q.db.QueryRowContext(ctx, createChildCategory, arg.Name, arg.ParentID)
+	row := q.db.QueryRowContext(ctx, createChildCategory, arg.Name, arg.ParentID, arg.PriorityLevel)
 	var i ChildCategory
 	err := row.Scan(
 		&i.ID,
@@ -30,6 +31,7 @@ func (q *Queries) CreateChildCategory(ctx context.Context, arg CreateChildCatego
 		&i.ParentID,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.PriorityLevel,
 	)
 	return i, err
 }
@@ -55,7 +57,7 @@ func (q *Queries) DeleteChildCategory(ctx context.Context, id int64) error {
 }
 
 const getChildCategoriesByParentID = `-- name: GetChildCategoriesByParentID :many
-SELECT id, name, parent_id, updated_at, created_at
+SELECT id, name, parent_id, updated_at, created_at, priority_level
 FROM child_categories
 WHERE parent_id = $1
 `
@@ -75,6 +77,7 @@ func (q *Queries) GetChildCategoriesByParentID(ctx context.Context, parentID int
 			&i.ParentID,
 			&i.UpdatedAt,
 			&i.CreatedAt,
+			&i.PriorityLevel,
 		); err != nil {
 			return nil, err
 		}
@@ -90,7 +93,7 @@ func (q *Queries) GetChildCategoriesByParentID(ctx context.Context, parentID int
 }
 
 const getChildCategory = `-- name: GetChildCategory :one
-SELECT id, name, parent_id, updated_at, created_at
+SELECT id, name, parent_id, updated_at, created_at, priority_level
 FROM child_categories
 WHERE id = $1
 LIMIT 1
@@ -105,14 +108,16 @@ func (q *Queries) GetChildCategory(ctx context.Context, id int64) (ChildCategory
 		&i.ParentID,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.PriorityLevel,
 	)
 	return i, err
 }
 
 const listChildCategories = `-- name: ListChildCategories :many
-SELECT id, name, parent_id, updated_at, created_at
+SELECT id, name, parent_id, updated_at, created_at, priority_level
 FROM child_categories
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 LIMIT $1 OFFSET $2
 `
 
@@ -136,6 +141,7 @@ func (q *Queries) ListChildCategories(ctx context.Context, arg ListChildCategori
 			&i.ParentID,
 			&i.UpdatedAt,
 			&i.CreatedAt,
+			&i.PriorityLevel,
 		); err != nil {
 			return nil, err
 		}
@@ -154,16 +160,18 @@ const updateChildCategory = `-- name: UpdateChildCategory :one
 UPDATE child_categories
 SET name = $2,
   parent_id = $3,
-  updated_at = $4
+  updated_at = $4,
+  priority_level = $5
 WHERE id = $1
-RETURNING id, name, parent_id, updated_at, created_at
+RETURNING id, name, parent_id, updated_at, created_at, priority_level
 `
 
 type UpdateChildCategoryParams struct {
-	ID        int64     `json:"id"`
-	Name      string    `json:"name"`
-	ParentID  int64     `json:"parent_id"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID            int64     `json:"id"`
+	Name          string    `json:"name"`
+	ParentID      int64     `json:"parent_id"`
+	UpdatedAt     time.Time `json:"updated_at"`
+	PriorityLevel int16     `json:"priority_level"`
 }
 
 func (q *Queries) UpdateChildCategory(ctx context.Context, arg UpdateChildCategoryParams) (ChildCategory, error) {
@@ -172,6 +180,7 @@ func (q *Queries) UpdateChildCategory(ctx context.Context, arg UpdateChildCatego
 		arg.Name,
 		arg.ParentID,
 		arg.UpdatedAt,
+		arg.PriorityLevel,
 	)
 	var i ChildCategory
 	err := row.Scan(
@@ -180,6 +189,7 @@ func (q *Queries) UpdateChildCategory(ctx context.Context, arg UpdateChildCatego
 		&i.ParentID,
 		&i.UpdatedAt,
 		&i.CreatedAt,
+		&i.PriorityLevel,
 	)
 	return i, err
 }

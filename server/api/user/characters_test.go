@@ -51,10 +51,11 @@ func TestListCharacters(t *testing.T) {
 			},
 			want: []db.Character{
 				{
-					ID:       29999,
-					Name:     "test_character_name_29999",
-					Src:      "test_character_src_29999.com",
-					Filename: sql.NullString{String: "test_character_filename_29999", Valid: true},
+					ID:            29999,
+					Name:          "test_character_name_29999",
+					Src:           "test_character_src_29999.com",
+					Filename:      sql.NullString{String: "test_character_filename_29999", Valid: true},
+					PriorityLevel: 2,
 				},
 			},
 			wantErr:      false,

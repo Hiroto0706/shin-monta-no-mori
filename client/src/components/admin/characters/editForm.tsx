@@ -4,9 +4,11 @@ import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Character } from "@/types/character";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { DeleteCharacterAPI, EditCharacterAPI } from "@/api/admin/character";
+import { PriorityLevel } from "@/types/admin/priorityLevel";
+import usePriorityLevel from "@/hooks/priorityLevel";
 
 type Props = {
   id: number;
@@ -22,6 +24,13 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageSrc, setImageSrc] = useState<string | null>(character.src);
+
+  const {
+    checkedPriorityLevel,
+    setCheckedPriorityLevel,
+    showPriorityLevelModal,
+    togglePriorityLevelModal,
+  } = usePriorityLevel(character.priority_level);
 
   const onFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -57,6 +66,7 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
     if (imageFile) {
       formData.append("image_file", imageFile);
     }
+    formData.append("priority_level", checkedPriorityLevel.toString());
 
     try {
       const response = await axios.put(EditCharacterAPI(id), formData, {
@@ -169,6 +179,53 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
               />
             </div>
             <p className="text-sm">※ png形式の画像をアップロードしてください</p>
+          </div>
+
+          <div className="mb-16">
+            <label className="text-xl">優先度</label>
+            <div className="relative">
+              <div
+                onClick={() =>
+                  togglePriorityLevelModal(!showPriorityLevelModal)
+                }
+                className="border-2 border-gray-200 mt-4 py-4 px-4 rounded bg-white flex justify-between flex-nowrap cursor-pointer priority-modal"
+              >
+                <div>{PriorityLevel[checkedPriorityLevel]}</div>
+                <Image
+                  className={`duration-100 ${
+                    !showPriorityLevelModal ? "rotate-90" : "-rotate-90"
+                  }`}
+                  src="/icon/arrow.png"
+                  alt="arrowアイコン"
+                  width={20}
+                  height={20}
+                />
+              </div>
+              {showPriorityLevelModal && (
+                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full max-h-60 overflow-y-auto z-10 shadow-md priority-modal-content">
+                  {PriorityLevel.map((level, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center rounded hover:bg-gray-200 cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        checked={checkedPriorityLevel === i}
+                        onChange={() => setCheckedPriorityLevel(i)}
+                        className="mx-2 cursor-pointer"
+                        id={`character-${i}`}
+                      />
+                      <label
+                        htmlFor={`character-${i}`}
+                        className="cursor-pointer w-full py-1"
+                      >
+                        {level}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <button className="py-3 bg-green-600 text-white font-bold text-lg rounded-lg w-full hover:bg-white hover:text-green-600 border-2 border-green-600 duration-200">
