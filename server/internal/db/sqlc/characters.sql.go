@@ -38,19 +38,25 @@ func (q *Queries) CountSearchCharacters(ctx context.Context, query sql.NullStrin
 }
 
 const createCharacter = `-- name: CreateCharacter :one
-INSERT INTO characters (name, src, filename)
-VALUES ($1, $2, $3)
+INSERT INTO characters (name, src, filename, priority_level)
+VALUES ($1, $2, $3, $4)
 RETURNING id, name, src, updated_at, created_at, filename, priority_level
 `
 
 type CreateCharacterParams struct {
-	Name     string         `json:"name"`
-	Src      string         `json:"src"`
-	Filename sql.NullString `json:"filename"`
+	Name          string         `json:"name"`
+	Src           string         `json:"src"`
+	Filename      sql.NullString `json:"filename"`
+	PriorityLevel int16          `json:"priority_level"`
 }
 
 func (q *Queries) CreateCharacter(ctx context.Context, arg CreateCharacterParams) (Character, error) {
-	row := q.db.QueryRowContext(ctx, createCharacter, arg.Name, arg.Src, arg.Filename)
+	row := q.db.QueryRowContext(ctx, createCharacter,
+		arg.Name,
+		arg.Src,
+		arg.Filename,
+		arg.PriorityLevel,
+	)
 	var i Character
 	err := row.Scan(
 		&i.ID,
@@ -227,17 +233,19 @@ UPDATE characters
 SET name = $2,
   src = $3,
   filename = $4,
-  updated_at = $5
+  updated_at = $5,
+  priority_level = $6
 WHERE id = $1
 RETURNING id, name, src, updated_at, created_at, filename, priority_level
 `
 
 type UpdateCharacterParams struct {
-	ID        int64          `json:"id"`
-	Name      string         `json:"name"`
-	Src       string         `json:"src"`
-	Filename  sql.NullString `json:"filename"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	ID            int64          `json:"id"`
+	Name          string         `json:"name"`
+	Src           string         `json:"src"`
+	Filename      sql.NullString `json:"filename"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	PriorityLevel int16          `json:"priority_level"`
 }
 
 func (q *Queries) UpdateCharacter(ctx context.Context, arg UpdateCharacterParams) (Character, error) {
@@ -247,6 +255,7 @@ func (q *Queries) UpdateCharacter(ctx context.Context, arg UpdateCharacterParams
 		arg.Src,
 		arg.Filename,
 		arg.UpdatedAt,
+		arg.PriorityLevel,
 	)
 	var i Character
 	err := row.Scan(

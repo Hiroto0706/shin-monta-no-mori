@@ -3,9 +3,10 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SetBearerToken } from "@/utils/accessToken/accessToken";
 import { CreateCharacterAPI } from "@/api/admin/character";
+import { PriorityLevel } from "@/types/admin/priorityLevel";
 
 type Props = {
   accessToken: string | undefined;
@@ -19,6 +20,14 @@ const CreateCharacter: React.FC<Props> = ({ accessToken }) => {
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
+
+  const DefaultPLevel = 2;
+  const [checkedPriorityLevel, setCheckedPriorityLevel] =
+    useState(DefaultPLevel);
+  const [showPriorityLevelModal, setShowPriorityLevelModal] = useState(false);
+  const togglePriorityLevelModal = (status: boolean) => {
+    setShowPriorityLevelModal(status);
+  };
 
   const onFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -49,6 +58,7 @@ const CreateCharacter: React.FC<Props> = ({ accessToken }) => {
     if (imageFile) {
       formData.append("image_file", imageFile);
     }
+    formData.append("priority_level", checkedPriorityLevel.toString());
 
     try {
       const response = await axios.post(CreateCharacterAPI(), formData, {
@@ -66,6 +76,23 @@ const CreateCharacter: React.FC<Props> = ({ accessToken }) => {
       alert("キャラクターの作成に失敗しました");
     }
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        (event.target as HTMLElement).closest(".priority-modal") === null &&
+        (event.target as HTMLElement).closest(".priority-modal-content") ===
+          null
+      ) {
+        setShowPriorityLevelModal(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
@@ -126,6 +153,53 @@ const CreateCharacter: React.FC<Props> = ({ accessToken }) => {
               />
             </div>
             <p className="text-sm">※ png形式の画像をアップロードしてください</p>
+          </div>
+
+          <div className="mb-16">
+            <label className="text-xl">優先度</label>
+            <div className="relative">
+              <div
+                onClick={() =>
+                  togglePriorityLevelModal(!showPriorityLevelModal)
+                }
+                className="border-2 border-gray-200 mt-4 py-4 px-4 rounded bg-white flex justify-between flex-nowrap cursor-pointer priority-modal"
+              >
+                <div>{PriorityLevel[checkedPriorityLevel]}</div>
+                <Image
+                  className={`duration-100 ${
+                    !showPriorityLevelModal ? "rotate-90" : "-rotate-90"
+                  }`}
+                  src="/icon/arrow.png"
+                  alt="arrowアイコン"
+                  width={20}
+                  height={20}
+                />
+              </div>
+              {showPriorityLevelModal && (
+                <div className="absolute left-0 bg-white border-2 border-gray-300 p-4 rounded w-full max-h-60 overflow-y-auto z-10 shadow-md priority-modal-content">
+                  {PriorityLevel.map((level, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center rounded hover:bg-gray-200 cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        checked={checkedPriorityLevel === i}
+                        onChange={() => setCheckedPriorityLevel(i)}
+                        className="mx-2 cursor-pointer"
+                        id={`character-${i}`}
+                      />
+                      <label
+                        htmlFor={`character-${i}`}
+                        className="cursor-pointer w-full py-1"
+                      >
+                        {level}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <button className="py-3 bg-green-600 text-white font-bold text-lg rounded-lg w-full hover:bg-white hover:text-green-600 border-2 border-green-600 duration-200">

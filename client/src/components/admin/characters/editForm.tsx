@@ -28,7 +28,6 @@ const EditCharacter: React.FC<Props> = ({ id, character, accessToken }) => {
     character.priority_level
   );
   const [showPriorityLevelModal, setShowPriorityLevelModal] = useState(false);
-
   const togglePriorityLevelModal = (status: boolean) => {
     setShowPriorityLevelModal(status);
   };

@@ -172,7 +172,6 @@ func GetCharacter(ctx *app.AppContext) {
 	}
 
 	character, err := ctx.Server.Store.GetCharacter(ctx, int64(id))
-	fmt.Println("character", character)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetCharacter: %w", err)))
@@ -189,9 +188,10 @@ func GetCharacter(ctx *app.AppContext) {
 }
 
 type createCharacterRequest struct {
-	Name      string               `form:"name" binding:"required"`
-	Filename  string               `form:"filename" binding:"required"`
-	ImageFile multipart.FileHeader `form:"image_file" binding:"required"`
+	Name          string               `form:"name" binding:"required"`
+	Filename      string               `form:"filename" binding:"required"`
+	ImageFile     multipart.FileHeader `form:"image_file" binding:"required"`
+	PriorityLevel int16                `form:"priority_level" binding:"required"`
 }
 
 // CreateCharacter godoc
@@ -223,9 +223,10 @@ func CreateCharacter(ctx *app.AppContext) {
 		}
 
 		arg := db.CreateCharacterParams{
-			Name:     req.Name,
-			Src:      src,
-			Filename: sql.NullString{String: req.Filename, Valid: true},
+			Name:          req.Name,
+			Src:           src,
+			Filename:      sql.NullString{String: req.Filename, Valid: true},
+			PriorityLevel: req.PriorityLevel,
 		}
 		character, err = ctx.Server.Store.CreateCharacter(ctx, arg)
 		if err != nil {
@@ -250,7 +251,7 @@ type editCharacterRequest struct {
 	Name          string               `form:"name"`
 	Filename      string               `form:"filename"`
 	ImageFile     multipart.FileHeader `form:"image_file"`
-	PriorityLevel int                  `form:"priority_level"`
+	PriorityLevel int16                `form:"priority_level"`
 }
 
 // EditCharacter godoc
@@ -279,8 +280,6 @@ func EditCharacter(ctx *app.AppContext) {
 		return
 	}
 	req.Filename = strings.ReplaceAll(req.Filename, " ", "-")
-
-	fmt.Println("priority_level", req.PriorityLevel)
 
 	character, err := ctx.Server.Store.GetCharacter(ctx, int64(id))
 	if err != nil {
@@ -311,7 +310,7 @@ func EditCharacter(ctx *app.AppContext) {
 			Name:          req.Name,
 			Src:           src,
 			Filename:      sql.NullString{String: character.Filename.String, Valid: true},
-			PriorityLevel: int16(req.PriorityLevel),
+			PriorityLevel: req.PriorityLevel,
 			UpdatedAt:     time.Now(),
 		}
 		if character.Filename.String != req.Filename {

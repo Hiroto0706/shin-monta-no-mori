@@ -1,6 +1,6 @@
 -- name: CreateCharacter :one
-INSERT INTO characters (name, src, filename)
-VALUES ($1, $2, $3)
+INSERT INTO characters (name, src, filename, priority_level)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 -- name: GetCharacter :one
 SELECT *
