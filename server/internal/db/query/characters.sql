@@ -15,7 +15,8 @@ LIMIT $1 OFFSET $2;
 -- name: ListAllCharacters :many
 SELECT *
 FROM characters
-ORDER BY id DESC;
+ORDER BY priority_level DESC,
+  id DESC;
 -- name: UpdateCharacter :one
 UPDATE characters
 SET name = $2,
@@ -33,7 +34,8 @@ SELECT DISTINCT *
 FROM characters
 WHERE name LIKE '%' || COALESCE(sqlc.arg(query)) || '%'
   OR filename LIKE '%' || COALESCE(sqlc.arg(query)) || '%'
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 LIMIT $1 OFFSET $2;
 -- name: CountCharacters :one
 SELECT count(*)

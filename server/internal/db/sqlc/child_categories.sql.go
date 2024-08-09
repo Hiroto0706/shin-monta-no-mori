@@ -116,7 +116,8 @@ func (q *Queries) GetChildCategory(ctx context.Context, id int64) (ChildCategory
 const listChildCategories = `-- name: ListChildCategories :many
 SELECT id, name, parent_id, updated_at, created_at, priority_level
 FROM child_categories
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 LIMIT $1 OFFSET $2
 `
 

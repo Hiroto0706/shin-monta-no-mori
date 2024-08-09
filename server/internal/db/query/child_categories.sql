@@ -14,7 +14,8 @@ WHERE parent_id = $1;
 -- name: ListChildCategories :many
 SELECT *
 FROM child_categories
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 LIMIT $1 OFFSET $2;
 -- name: UpdateChildCategory :one
 UPDATE child_categories

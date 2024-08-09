@@ -105,7 +105,8 @@ func (q *Queries) GetCharacter(ctx context.Context, id int64) (Character, error)
 const listAllCharacters = `-- name: ListAllCharacters :many
 SELECT id, name, src, updated_at, created_at, filename, priority_level
 FROM characters
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 `
 
 func (q *Queries) ListAllCharacters(ctx context.Context) ([]Character, error) {
@@ -187,7 +188,8 @@ SELECT DISTINCT id, name, src, updated_at, created_at, filename, priority_level
 FROM characters
 WHERE name LIKE '%' || COALESCE($3) || '%'
   OR filename LIKE '%' || COALESCE($3) || '%'
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 LIMIT $1 OFFSET $2
 `
 

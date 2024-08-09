@@ -105,7 +105,8 @@ func (q *Queries) GetParentCategory(ctx context.Context, id int64) (ParentCatego
 const listAllParentCategories = `-- name: ListAllParentCategories :many
 SELECT id, name, src, updated_at, created_at, filename, priority_level
 FROM parent_categories
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 `
 
 func (q *Queries) ListAllParentCategories(ctx context.Context) ([]ParentCategory, error) {
@@ -142,7 +143,8 @@ func (q *Queries) ListAllParentCategories(ctx context.Context) ([]ParentCategory
 const listParentCategories = `-- name: ListParentCategories :many
 SELECT id, name, src, updated_at, created_at, filename, priority_level
 FROM parent_categories
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 LIMIT $1 OFFSET $2
 `
 
@@ -187,7 +189,8 @@ SELECT DISTINCT id, name, src, updated_at, created_at, filename, priority_level
 FROM parent_categories
 WHERE name LIKE '%' || COALESCE($1) || '%'
   OR filename LIKE '%' || COALESCE($1) || '%'
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 `
 
 func (q *Queries) SearchParentCategories(ctx context.Context, query sql.NullString) ([]ParentCategory, error) {

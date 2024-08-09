@@ -10,12 +10,14 @@ LIMIT 1;
 -- name: ListParentCategories :many
 SELECT *
 FROM parent_categories
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 LIMIT $1 OFFSET $2;
 -- name: ListAllParentCategories :many
 SELECT *
 FROM parent_categories
-ORDER BY id DESC;
+ORDER BY priority_level DESC,
+  id DESC;
 -- name: UpdateParentCategory :one
 UPDATE parent_categories
 SET name = $2,
@@ -33,7 +35,8 @@ SELECT DISTINCT *
 FROM parent_categories
 WHERE name LIKE '%' || COALESCE(sqlc.arg(query)) || '%'
   OR filename LIKE '%' || COALESCE(sqlc.arg(query)) || '%'
-ORDER BY id DESC;
+ORDER BY priority_level DESC,
+  id DESC;
 -- name: CountParentCategories :one
 SELECT count(*)
 FROM parent_categories;
