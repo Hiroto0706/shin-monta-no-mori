@@ -25,6 +25,7 @@ func TestListCharacters(t *testing.T) {
 	if err != nil {
 		log.Fatal("cannot load config :", err)
 	}
+
 	c := charactersTest{}
 	ctx := c.setUp(t, config)
 	defer c.tearDown(t, config)
