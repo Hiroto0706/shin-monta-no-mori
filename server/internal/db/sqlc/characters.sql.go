@@ -38,19 +38,25 @@ func (q *Queries) CountSearchCharacters(ctx context.Context, query sql.NullStrin
 }
 
 const createCharacter = `-- name: CreateCharacter :one
-INSERT INTO characters (name, src, filename)
-VALUES ($1, $2, $3)
-RETURNING id, name, src, updated_at, created_at, filename
+INSERT INTO characters (name, src, filename, priority_level)
+VALUES ($1, $2, $3, $4)
+RETURNING id, name, src, updated_at, created_at, filename, priority_level
 `
 
 type CreateCharacterParams struct {
-	Name     string         `json:"name"`
-	Src      string         `json:"src"`
-	Filename sql.NullString `json:"filename"`
+	Name          string         `json:"name"`
+	Src           string         `json:"src"`
+	Filename      sql.NullString `json:"filename"`
+	PriorityLevel int16          `json:"priority_level"`
 }
 
 func (q *Queries) CreateCharacter(ctx context.Context, arg CreateCharacterParams) (Character, error) {
-	row := q.db.QueryRowContext(ctx, createCharacter, arg.Name, arg.Src, arg.Filename)
+	row := q.db.QueryRowContext(ctx, createCharacter,
+		arg.Name,
+		arg.Src,
+		arg.Filename,
+		arg.PriorityLevel,
+	)
 	var i Character
 	err := row.Scan(
 		&i.ID,
@@ -59,6 +65,7 @@ func (q *Queries) CreateCharacter(ctx context.Context, arg CreateCharacterParams
 		&i.UpdatedAt,
 		&i.CreatedAt,
 		&i.Filename,
+		&i.PriorityLevel,
 	)
 	return i, err
 }
@@ -74,7 +81,7 @@ func (q *Queries) DeleteCharacter(ctx context.Context, id int64) error {
 }
 
 const getCharacter = `-- name: GetCharacter :one
-SELECT id, name, src, updated_at, created_at, filename
+SELECT id, name, src, updated_at, created_at, filename, priority_level
 FROM characters
 WHERE id = $1
 LIMIT 1
@@ -90,14 +97,16 @@ func (q *Queries) GetCharacter(ctx context.Context, id int64) (Character, error)
 		&i.UpdatedAt,
 		&i.CreatedAt,
 		&i.Filename,
+		&i.PriorityLevel,
 	)
 	return i, err
 }
 
 const listAllCharacters = `-- name: ListAllCharacters :many
-SELECT id, name, src, updated_at, created_at, filename
+SELECT id, name, src, updated_at, created_at, filename, priority_level
 FROM characters
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 `
 
 func (q *Queries) ListAllCharacters(ctx context.Context) ([]Character, error) {
@@ -116,6 +125,7 @@ func (q *Queries) ListAllCharacters(ctx context.Context) ([]Character, error) {
 			&i.UpdatedAt,
 			&i.CreatedAt,
 			&i.Filename,
+			&i.PriorityLevel,
 		); err != nil {
 			return nil, err
 		}
@@ -131,7 +141,7 @@ func (q *Queries) ListAllCharacters(ctx context.Context) ([]Character, error) {
 }
 
 const listCharacters = `-- name: ListCharacters :many
-SELECT id, name, src, updated_at, created_at, filename
+SELECT id, name, src, updated_at, created_at, filename, priority_level
 FROM characters
 ORDER BY id DESC
 LIMIT $1 OFFSET $2
@@ -158,6 +168,7 @@ func (q *Queries) ListCharacters(ctx context.Context, arg ListCharactersParams) 
 			&i.UpdatedAt,
 			&i.CreatedAt,
 			&i.Filename,
+			&i.PriorityLevel,
 		); err != nil {
 			return nil, err
 		}
@@ -173,11 +184,12 @@ func (q *Queries) ListCharacters(ctx context.Context, arg ListCharactersParams) 
 }
 
 const searchCharacters = `-- name: SearchCharacters :many
-SELECT DISTINCT id, name, src, updated_at, created_at, filename
+SELECT DISTINCT id, name, src, updated_at, created_at, filename, priority_level
 FROM characters
 WHERE name LIKE '%' || COALESCE($3) || '%'
   OR filename LIKE '%' || COALESCE($3) || '%'
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 LIMIT $1 OFFSET $2
 `
 
@@ -203,6 +215,7 @@ func (q *Queries) SearchCharacters(ctx context.Context, arg SearchCharactersPara
 			&i.UpdatedAt,
 			&i.CreatedAt,
 			&i.Filename,
+			&i.PriorityLevel,
 		); err != nil {
 			return nil, err
 		}
@@ -222,17 +235,19 @@ UPDATE characters
 SET name = $2,
   src = $3,
   filename = $4,
-  updated_at = $5
+  updated_at = $5,
+  priority_level = $6
 WHERE id = $1
-RETURNING id, name, src, updated_at, created_at, filename
+RETURNING id, name, src, updated_at, created_at, filename, priority_level
 `
 
 type UpdateCharacterParams struct {
-	ID        int64          `json:"id"`
-	Name      string         `json:"name"`
-	Src       string         `json:"src"`
-	Filename  sql.NullString `json:"filename"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	ID            int64          `json:"id"`
+	Name          string         `json:"name"`
+	Src           string         `json:"src"`
+	Filename      sql.NullString `json:"filename"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	PriorityLevel int16          `json:"priority_level"`
 }
 
 func (q *Queries) UpdateCharacter(ctx context.Context, arg UpdateCharacterParams) (Character, error) {
@@ -242,6 +257,7 @@ func (q *Queries) UpdateCharacter(ctx context.Context, arg UpdateCharacterParams
 		arg.Src,
 		arg.Filename,
 		arg.UpdatedAt,
+		arg.PriorityLevel,
 	)
 	var i Character
 	err := row.Scan(
@@ -251,6 +267,7 @@ func (q *Queries) UpdateCharacter(ctx context.Context, arg UpdateCharacterParams
 		&i.UpdatedAt,
 		&i.CreatedAt,
 		&i.Filename,
+		&i.PriorityLevel,
 	)
 	return i, err
 }

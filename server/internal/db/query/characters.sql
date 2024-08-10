@@ -1,6 +1,6 @@
 -- name: CreateCharacter :one
-INSERT INTO characters (name, src, filename)
-VALUES ($1, $2, $3)
+INSERT INTO characters (name, src, filename, priority_level)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 -- name: GetCharacter :one
 SELECT *
@@ -15,13 +15,15 @@ LIMIT $1 OFFSET $2;
 -- name: ListAllCharacters :many
 SELECT *
 FROM characters
-ORDER BY id DESC;
+ORDER BY priority_level DESC,
+  id DESC;
 -- name: UpdateCharacter :one
 UPDATE characters
 SET name = $2,
   src = $3,
   filename = $4,
-  updated_at = $5
+  updated_at = $5,
+  priority_level = $6
 WHERE id = $1
 RETURNING *;
 -- name: DeleteCharacter :exec
@@ -32,7 +34,8 @@ SELECT DISTINCT *
 FROM characters
 WHERE name LIKE '%' || COALESCE(sqlc.arg(query)) || '%'
   OR filename LIKE '%' || COALESCE(sqlc.arg(query)) || '%'
-ORDER BY id DESC
+ORDER BY priority_level DESC,
+  id DESC
 LIMIT $1 OFFSET $2;
 -- name: CountCharacters :one
 SELECT count(*)

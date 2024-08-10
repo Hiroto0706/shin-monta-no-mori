@@ -12,20 +12,22 @@ import (
 )
 
 type Character struct {
-	ID        int64          `json:"id"`
-	Name      string         `json:"name"`
-	Src       string         `json:"src"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	CreatedAt time.Time      `json:"created_at"`
-	Filename  sql.NullString `json:"filename"`
+	ID            int64          `json:"id"`
+	Name          string         `json:"name"`
+	Src           string         `json:"src"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	CreatedAt     time.Time      `json:"created_at"`
+	Filename      sql.NullString `json:"filename"`
+	PriorityLevel int16          `json:"priority_level"`
 }
 
 type ChildCategory struct {
-	ID        int64     `json:"id"`
-	Name      string    `json:"name"`
-	ParentID  int64     `json:"parent_id"`
-	UpdatedAt time.Time `json:"updated_at"`
-	CreatedAt time.Time `json:"created_at"`
+	ID            int64     `json:"id"`
+	Name          string    `json:"name"`
+	ParentID      int64     `json:"parent_id"`
+	UpdatedAt     time.Time `json:"updated_at"`
+	CreatedAt     time.Time `json:"created_at"`
+	PriorityLevel int16     `json:"priority_level"`
 }
 
 type Image struct {
@@ -68,12 +70,13 @@ type Operator struct {
 }
 
 type ParentCategory struct {
-	ID        int64          `json:"id"`
-	Name      string         `json:"name"`
-	Src       string         `json:"src"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	CreatedAt time.Time      `json:"created_at"`
-	Filename  sql.NullString `json:"filename"`
+	ID            int64          `json:"id"`
+	Name          string         `json:"name"`
+	Src           string         `json:"src"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	CreatedAt     time.Time      `json:"created_at"`
+	Filename      sql.NullString `json:"filename"`
+	PriorityLevel int16          `json:"priority_level"`
 }
 
 type Session struct {

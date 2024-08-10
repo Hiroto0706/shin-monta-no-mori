@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FormatDate } from "@/utils/text";
 import Image from "next/image";
 import { FetchCharactersResponse } from "@/types/admin/character";
+import { PriorityLevel } from "@/types/admin/priorityLevel";
 
 type Props = {
   characters: FetchCharactersResponse;
@@ -20,6 +21,7 @@ const ListCharactersTable: React.FC<Props> = ({ characters }) => {
             <th className="px-6 py-4">タイトル</th>
             <th className="px-6 py-4">イメージ</th>
             <th className="px-6 py-4">ファイル名</th>
+            <th className="px-6 py-4">優先度</th>
             <th className="px-6 py-4">最終更新日時</th>
             <th className="px-6 py-4">作成日時</th>
           </tr>
@@ -45,6 +47,11 @@ const ListCharactersTable: React.FC<Props> = ({ characters }) => {
                 </div>
               </td>
               <td className="px-6 py-4">{character.filename.String}</td>
+              <td className="px-6 py-4">
+                <span className="bg-gray-200 py-2 px-4 rounded-full">
+                  {PriorityLevel[character.priority_level]}
+                </span>
+              </td>
               <td className="px-6 py-4">{FormatDate(character.updated_at)}</td>
               <td className="px-6 py-4">{FormatDate(character.created_at)}</td>
             </tr>

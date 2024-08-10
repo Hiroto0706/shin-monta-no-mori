@@ -149,6 +149,10 @@ func SearchCharacters(ctx *app.AppContext) {
 	})
 }
 
+type getCharacterResponse struct {
+	Character db.Character `json:"character"`
+}
+
 // GetCharacter godoc
 // @Summary Retrieve a character
 // @Description Retrieves a single character by its ID.
@@ -178,15 +182,16 @@ func GetCharacter(ctx *app.AppContext) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"character": character,
+	ctx.JSON(http.StatusOK, getCharacterResponse{
+		Character: character,
 	})
 }
 
 type createCharacterRequest struct {
-	Name      string               `form:"name" binding:"required"`
-	Filename  string               `form:"filename" binding:"required"`
-	ImageFile multipart.FileHeader `form:"image_file" binding:"required"`
+	Name          string               `form:"name" binding:"required"`
+	Filename      string               `form:"filename" binding:"required"`
+	ImageFile     multipart.FileHeader `form:"image_file" binding:"required"`
+	PriorityLevel int16                `form:"priority_level" binding:"required"`
 }
 
 // CreateCharacter godoc
@@ -218,9 +223,10 @@ func CreateCharacter(ctx *app.AppContext) {
 		}
 
 		arg := db.CreateCharacterParams{
-			Name:     req.Name,
-			Src:      src,
-			Filename: sql.NullString{String: req.Filename, Valid: true},
+			Name:          req.Name,
+			Src:           src,
+			Filename:      sql.NullString{String: req.Filename, Valid: true},
+			PriorityLevel: req.PriorityLevel,
 		}
 		character, err = ctx.Server.Store.CreateCharacter(ctx, arg)
 		if err != nil {
@@ -242,9 +248,10 @@ func CreateCharacter(ctx *app.AppContext) {
 }
 
 type editCharacterRequest struct {
-	Name      string               `form:"name"`
-	Filename  string               `form:"filename"`
-	ImageFile multipart.FileHeader `form:"image_file"`
+	Name          string               `form:"name"`
+	Filename      string               `form:"filename"`
+	ImageFile     multipart.FileHeader `form:"image_file"`
+	PriorityLevel int16                `form:"priority_level"`
 }
 
 // EditCharacter godoc
@@ -299,11 +306,12 @@ func EditCharacter(ctx *app.AppContext) {
 		}
 
 		arg := db.UpdateCharacterParams{
-			ID:        character.ID,
-			Name:      req.Name,
-			Src:       src,
-			Filename:  sql.NullString{String: character.Filename.String, Valid: true},
-			UpdatedAt: time.Now(),
+			ID:            character.ID,
+			Name:          req.Name,
+			Src:           src,
+			Filename:      sql.NullString{String: character.Filename.String, Valid: true},
+			PriorityLevel: req.PriorityLevel,
+			UpdatedAt:     time.Now(),
 		}
 		if character.Filename.String != req.Filename {
 			arg.Filename = sql.NullString{String: req.Filename, Valid: true}

@@ -1,6 +1,4 @@
 # flyctl launch added from .gitignore
 # デプロイ時必要要件：credential.jsonとapp.envが.gitignoreに記述されているとcloud buildできないのでデプロイ時は削除するようにする
-# credential.json
-# app.env
 
 fly.toml

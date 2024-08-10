@@ -63,29 +63,29 @@ test:
 	docker exec shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
 	docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
 	migrate -path server/internal/db/migration -database "$(TEST_DATABASE_URL)" -verbose up
-	mkdir -p coverage
+	mkdir -p ./server/coverage
 
 	# 各サブディレクトリのテストを実行し、個別のカバレッジファイルを生成
-	go test ./server/api/admin/... -coverprofile=./coverage/api_admin.out
-	go test ./server/api/user/... -coverprofile=./coverage/api_user.out
-	go test ./server/api/middleware/... -coverprofile=./coverage/api_middleware.out
-	go test ./server/pkg/... -coverprofile=./coverage/pkg.out
-	go test ./server/internal/db/... -coverprofile=./coverage/db.out
-	go test ./server/internal/domains/... -coverprofile=./coverage/domains.out
+	cd server && go test ./api/admin/... -coverprofile=./coverage/api_admin.out
+	cd server && go test ./api/user/... -coverprofile=./coverage/api_user.out
+	cd server && go test ./api/middleware/... -coverprofile=./coverage/api_middleware.out
+	cd server && go test ./pkg/... -coverprofile=./coverage/pkg.out
+	cd server && go test ./internal/db/... -coverprofile=./coverage/db.out
+	cd server && go test ./internal/domains/... -coverprofile=./coverage/domains.out
 
 	# カバレッジファイルの結合
-	echo "mode: set" > ./coverage/coverage.out
-	tail -n +2 ./coverage/api_admin.out >> ./coverage/coverage.out
-	tail -n +2 ./coverage/api_user.out >> ./coverage/coverage.out
-	tail -n +2 ./coverage/api_middleware.out >> ./coverage/coverage.out
-	tail -n +2 ./coverage/pkg.out >> ./coverage/coverage.out
-	tail -n +2 ./coverage/db.out >> ./coverage/coverage.out
-	tail -n +2 ./coverage/domains.out >> ./coverage/coverage.out
+	echo "mode: set" > ./server/coverage/coverage.out
+	tail -n +2 ./server/coverage/api_admin.out >> ./server/coverage/coverage.out
+	tail -n +2 ./server/coverage/api_user.out >> ./server/coverage/coverage.out
+	tail -n +2 ./server/coverage/api_middleware.out >> ./server/coverage/coverage.out
+	tail -n +2 ./server/coverage/pkg.out >> ./server/coverage/coverage.out
+	tail -n +2 ./server/coverage/db.out >> ./server/coverage/coverage.out
+	tail -n +2 ./server/coverage/domains.out >> ./server/coverage/coverage.out
 
 	# テスト結果の集計・出力
-	go tool cover -func=./coverage/coverage.out > ./coverage/report.txt
-	go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
-	./tools/aggregate_coverage.sh ./coverage/report.txt
+	cd server && go tool cover -func=./coverage/coverage.out > ./coverage/report.txt
+	cd server && go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
+	./tools/aggregate_coverage.sh ./server/coverage/report.txt
 
 # テストが途中で失敗したなどの理由でテスト環境が汚れてしまった時に使う
 .PHONY: test-reset

@@ -1,2 +1,4 @@
 /tmp
 /pkg/util/seedingPrddata.go
+/coverage
+fly.toml
