@@ -6,7 +6,7 @@ import DetailImage from "./detailImage";
 import Breadcrumb from "@/components/common/breadCrumb";
 import { Illustration } from "@/types/illustration";
 import useSidebarStore from "@/store/sidebar";
-import RandomIllustrations from "./randomIllutrations";
+import RandomIllustrations from "./randomIllustrations"
 
 interface Props {
   id: number;

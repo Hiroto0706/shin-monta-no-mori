@@ -1,5 +1,4 @@
 import axios from "axios";
-import Image from "next/image";
 import { GetIllustrationAPI } from "@/api/user/illustration";
 import { GetIllustrationResponse } from "@/types/user/illustration";
 import IllustrationDetailTemplate from "@/components/user/illustrations/detail/illustrationDetailTemplate";

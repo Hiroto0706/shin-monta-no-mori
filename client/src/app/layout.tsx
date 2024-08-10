@@ -1,7 +1,6 @@
 import { Inter } from "next/font/google";
 import { metadata } from "@/components/common/metaData";
 export { metadata };
-import BackgroundImage from "@/components/common/backgroundImage";
 
 import "@/styles/globals.css";
 

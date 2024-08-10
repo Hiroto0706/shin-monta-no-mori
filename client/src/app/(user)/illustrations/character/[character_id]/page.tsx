@@ -1,11 +1,8 @@
 import axios from "axios";
 import { FetchIllustrationsResponse } from "@/types/user/illustration";
 import { FetchIllustrationsByCharacterAPI } from "@/api/user/illustration";
-import ListIllustrations from "@/components/user/illustrations/listIllustrations";
 import { GetCharacterAPI } from "@/api/user/character";
 import { GetCharacterResponse } from "@/types/user/characters";
-import Breadcrumb from "@/components/common/breadCrumb";
-import Link from "next/link";
 import IllustrationListByCharacterTemplate from "@/components/user/illustrations/list/illustrationListByCharacterTemplate";
 
 const fetchIllustrationsByCharacterID = async (
