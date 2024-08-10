@@ -6,6 +6,7 @@ import { GetCharacterAPI } from "@/api/user/character";
 import { GetCharacterResponse } from "@/types/user/characters";
 import Breadcrumb from "@/components/common/breadCrumb";
 import Link from "next/link";
+import IllustrationListByCharacterTemplate from "@/components/user/illustrations/list/illustrationListByCharacterTemplate";
 
 const fetchIllustrationsByCharacterID = async (
   character_id: number,
@@ -59,34 +60,11 @@ const FetchIllustrationsByCategoryID = async ({
   return (
     <>
       <div className="w-full max-w-[1100px]  2xl:max-w-[1600px] m-auto">
-        <Breadcrumb customString={getCharacterRes.character?.name} />
-        <h1 className="text-xl font-bold mb-6">
-          {getCharacterRes.character != null ? (
-            <>{`『${getCharacterRes.character.name}』でキャラクター検索`}</>
-          ) : (
-            <div>存在しないキャラクターを検索しています</div>
-          )}
-        </h1>
-
-        {fetchIllustrationsByCategoryIDRes.illustrations.length > 0 &&
-        getCharacterRes.character != null ? (
-          <ListIllustrations
-            initialIllustrations={
-              fetchIllustrationsByCategoryIDRes.illustrations
-            }
-            fetchType={{ characterID: params.character_id }}
-          />
-        ) : (
-          <div>
-            イラストが見つかりませんでした
-            <Link
-              href="/"
-              className="text-sm ml-4 underline border-blue-600 text-blue-600 cursor-pointer hover:text-blue-700 duration-200"
-            >
-              ホームに戻る
-            </Link>
-          </div>
-        )}
+        <IllustrationListByCharacterTemplate
+          illustrations={fetchIllustrationsByCategoryIDRes.illustrations}
+          characterID={params.character_id}
+          character={getCharacterRes.character}
+        />
       </div>
     </>
   );

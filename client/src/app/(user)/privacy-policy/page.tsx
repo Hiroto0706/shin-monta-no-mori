@@ -1,9 +1,18 @@
+"use client";
+
+import useSidebarStore from "@/store/sidebar";
 import Link from "next/link";
 
 const PrivacyPolicy = () => {
+  const { isShow } = useSidebarStore();
+
   return (
     <>
-      <div>
+      <div
+        className={`pl-0 duration-200 ${
+          isShow ? "md:pl-[calc(4rem+14rem)]" : "md:pl-[calc(4rem)]"
+        }`}
+      >
         <h1 className="text-3xl font-bold mb-6">プライバシーポリシー</h1>
         <p className="my-4 bg-gray-100 p-6 rounded-lg">
           当サイトをご利用いただき、ありがとうございます。

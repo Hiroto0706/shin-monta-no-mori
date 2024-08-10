@@ -1,11 +1,9 @@
 import axios from "axios";
 import { FetchIllustrationsResponse } from "@/types/user/illustration";
 import { FetchIllustrationsByCategoryAPI } from "@/api/user/illustration";
-import ListIllustrations from "@/components/user/illustrations/listIllustrations";
 import { GetChildCategoryResponse } from "@/types/user/categories";
 import { GetChildCategoryAPI } from "@/api/user/category";
-import Breadcrumb from "@/components/common/breadCrumb";
-import Link from "next/link";
+import IllustrationListByCategoryTemplate from "@/components/user/illustrations/list/illustrationListByCategoryTemplate";
 
 const fetchIllustrationsByCategoryID = async (
   category_id: number,
@@ -59,36 +57,11 @@ const FetchIllustrationsByCategoryID = async ({
   return (
     <>
       <div className="w-full max-w-[1100px]  2xl:max-w-[1600px] m-auto">
-        <Breadcrumb customString={getChildCategoryRes.child_category?.name} />
-        <h1 className="text-xl font-bold mb-6">
-          {getChildCategoryRes.child_category != null ? (
-            <>
-              {`『${getChildCategoryRes.child_category?.name}』でカテゴリ検索`}
-            </>
-          ) : (
-            <div>存在しないカテゴリを検索しています</div>
-          )}
-        </h1>
-
-        {fetchIllustrationsByCategoryIDRes.illustrations.length > 0 &&
-        getChildCategoryRes.child_category != null ? (
-          <ListIllustrations
-            initialIllustrations={
-              fetchIllustrationsByCategoryIDRes.illustrations
-            }
-            fetchType={{ categoryID: params.category_id }}
-          />
-        ) : (
-          <div>
-            イラストが見つかりませんでした{" "}
-            <Link
-              href="/"
-              className="text-sm ml-4 underline border-blue-600 text-blue-600 cursor-pointer hover:text-blue-700 duration-200"
-            >
-              ホームに戻る
-            </Link>
-          </div>
-        )}
+        <IllustrationListByCategoryTemplate
+          illustrations={fetchIllustrationsByCategoryIDRes.illustrations}
+          categoryID={params.category_id}
+          childCategory={getChildCategoryRes.child_category}
+        />
       </div>
     </>
   );

@@ -5,7 +5,7 @@ import { Category } from "@/types/category";
 import { Character } from "@/types/character";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import useSidebarStore from "@/store/sidebar";
 
 type Props = {
   links: {
@@ -27,12 +27,14 @@ const SidebarSub: React.FC<Props> = ({
   categories,
 }) => {
   const selectedLinkObj = links.find((link) => selectedLink === link.id);
-  const [showSidebarSub, setShowSidebarSub] = useState(true);
+  const { isShow, toggleIsShow } = useSidebarStore();
 
   return (
     <>
       <div
-        className={`fixed top-0 left-0 h-full w-72 bg-white transform duration-200 ${showSidebarSub ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed top-0 left-0 h-full w-72 bg-white transform duration-200 ${
+          isShow ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
         <div className="w-72 h-full overflow-y-scroll bg-gray-50 border-r border-gray-200 fixed top-0 left-0 pl-16 pt-16">
           <div className="p-4">
@@ -44,7 +46,10 @@ const SidebarSub: React.FC<Props> = ({
                     {categories != undefined && categories.length >= 0 ? (
                       <>
                         {categories.map((category) => (
-                          <div key={category.ParentCategory.id} className="mb-4">
+                          <div
+                            key={category.ParentCategory.id}
+                            className="mb-4"
+                          >
                             <div className="flex items-center my-2">
                               <Image
                                 src={category.ParentCategory.src}
@@ -96,7 +101,9 @@ const SidebarSub: React.FC<Props> = ({
                               width={36}
                               height={36}
                             />
-                            <span className="ml-2 text-sm">{character.name}</span>
+                            <span className="ml-2 text-sm">
+                              {character.name}
+                            </span>
                           </Link>
                         ))}
                       </>
@@ -114,10 +121,13 @@ const SidebarSub: React.FC<Props> = ({
       </div>
 
       <div
-        className={`text-xl text-gray-300 transform -translate-y-1/2 duration-200 cursor-pointer hover:text-gray-600 hover:font-bold fixed inset-y-1/2 ${showSidebarSub ? "left-72" : "left-20"}`}
-        onClick={() => setShowSidebarSub(!showSidebarSub)}>
-        {showSidebarSub ? <>&lang;</> : <>&rang;</>}
-      </div >
+        className={`text-xl text-gray-300 transform -translate-y-1/2 duration-200 cursor-pointer hover:text-gray-600 hover:font-bold fixed inset-y-1/2 ${
+          isShow ? "left-72" : "left-20"
+        }`}
+        onClick={() => toggleIsShow(!isShow)}
+      >
+        {isShow ? <>&lang;</> : <>&rang;</>}
+      </div>
     </>
   );
 };
