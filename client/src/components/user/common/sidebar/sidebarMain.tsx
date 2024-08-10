@@ -9,6 +9,7 @@ import {
   fetchCategories,
   fetchCharacters,
 } from "@/components/user/common/sidebar/sidebar";
+import useSidebarStore from "@/store/sidebar";
 
 type Props = {
   links: {
@@ -21,25 +22,22 @@ type Props = {
 };
 
 const SidebarMain: React.FC<Props> = ({ links }) => {
-  const [selectedLink, setSelectedLink] = useState<number | null>(null);
+  const [selectedLink, setSelectedLink] = useState<number>(0);
   const [categories, setCategories] = useState<Category[] | undefined>(
     undefined
   );
   const [characters, setCharacters] = useState<Character[] | undefined>(
     undefined
   );
+  const { isShow, toggleIsShow } = useSidebarStore();
 
   const setSidebarStatus = (id: number) => {
     setSelectedLink(id);
-    localStorage.setItem("sidebar_status", id.toString());
+    toggleIsShow(true);
   };
 
   useEffect(() => {
-    setSelectedLink(Number(localStorage.getItem("sidebar_status")));
-  }, []);
-
-  useEffect(() => {
-    if (selectedLink === 0 || selectedLink === null) {
+    if (selectedLink === 0) {
       fetchCategories().then((data) => {
         if (data) {
           setCategories(data);
@@ -71,7 +69,9 @@ const SidebarMain: React.FC<Props> = ({ links }) => {
                   <div className="flex flex-col items-center">
                     <Image
                       src={
-                        selectedLink == link.id ? link.icon_active : link.icon
+                        selectedLink == link.id && isShow
+                          ? link.icon_active
+                          : link.icon
                       }
                       alt={`${link.text}アイコン`}
                       height={28}
@@ -79,7 +79,7 @@ const SidebarMain: React.FC<Props> = ({ links }) => {
                     />
                     <span
                       className={`text-xs text-gray-600 ${
-                        selectedLink == link.id
+                        selectedLink == link.id && isShow
                           ? "text-green-600 font-bold"
                           : ""
                       }`}
