@@ -2,6 +2,8 @@ import axios from "axios";
 import { GetIllustrationAPI } from "@/api/user/illustration";
 import { GetIllustrationResponse } from "@/types/user/illustration";
 import IllustrationDetailTemplate from "@/components/user/illustrations/detail/illustrationDetailTemplate";
+import { generateMetaData } from "@/components/common/generateMetaData";
+export const generateMetadata = generateMetaData;
 
 const getIllustration = async (
   id: number
