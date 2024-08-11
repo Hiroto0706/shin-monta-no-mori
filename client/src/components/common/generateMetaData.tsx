@@ -21,14 +21,6 @@ export async function generateMetaData({ params }: { params: { id: number } }) {
   return {
     title: response.illustration?.Image.title,
     description: `『${response.illustration?.Image.title}』だよ。もんたの森では他にも可愛くてクセのある画像がたくさんあるよ。`,
-    icons: {
-      icon: [
-        {
-          url: "/src/app/favicon.ico",
-          href: "/src/app/favicon.ico",
-        },
-      ],
-    },
     openGraph: {
       images: [
         {
