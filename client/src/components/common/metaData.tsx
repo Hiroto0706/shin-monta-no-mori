@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     images: [
       {
-        url: "/site-image.png",
+        url: "https://storage.googleapis.com/shin-monta-no-mori/montanomori-top-image.png",
         width: 1200,
         height: 630,
         alt: "もんたの森のイメージ画像",
