@@ -21,7 +21,7 @@ export async function generateMetaData({ params }: { params: { id: number } }) {
 
   return {
     title: response.illustration?.Image.title,
-    description: `${response.illustration?.Image.title}の画像だよ。他にも可愛らしい画像があるから見ていってね。`,
+    description: `『${response.illustration?.Image.title}』だよ。もんたの森では他にも可愛くてクセのある画像がたくさんあるよ。`,
     icons: {
       icon: [
         {
