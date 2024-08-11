@@ -12,7 +12,7 @@ const SearchFormTop: React.FC<Props> = ({ child_categories }) => {
   return (
     <>
       <p className="text-md md:text-xl mb-2 md:mb-4 font-bold px-4 mb:px-0">
-        もんたの森はゆるーくてゆーもある無料イラストサイトです
+        もんたの森はゆるーくてゆーもあな無料イラストサイトです
       </p>
       <div className="w-full px-4">
         <SearchBox maxWidth={600} addClass="mb-2" />
