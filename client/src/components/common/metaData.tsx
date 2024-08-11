@@ -16,8 +16,6 @@ export const metadata: Metadata = {
     images: [
       {
         url: "https://storage.googleapis.com/shin-monta-no-mori/montanomori-top-image.png",
-        width: 1200,
-        height: 630,
         alt: "もんたの森のイメージ画像",
       },
     ],
