@@ -36,7 +36,7 @@ export async function generateMetaData({ params }: { params: { id: number } }) {
           url:
             response.illustration?.Image.original_src != undefined
               ? response.illustration.Image.original_src
-              : "https://storage.googleapis.com/shin-monta-no-mori/montanomori-top-image.png",
+              : "/site-image.png",
           alt:
             response.illustration?.Image.original_src != undefined
               ? response.illustration.Image.title
