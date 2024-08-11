@@ -1,5 +1,4 @@
 import axios from "axios";
-import type { Metadata } from "next";
 import { GetIllustrationAPI } from "@/api/user/illustration";
 import { GetIllustrationResponse } from "@/types/user/illustration";
 

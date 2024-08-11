@@ -1,6 +1,4 @@
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
+export const metadata = {
   title: "もんたの森｜ゆるーくてかわいい無料イラスト",
   description:
     "もんたの森は『もんた』が書いたイラストたちを無料で保存、コピーして使用することができる無料イラストサイトです。ゆるくてかわいいもの大好きな『もんた』が趣味で描いてる絵を暇な時にアップロードしています！",
@@ -15,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     images: [
       {
-        url: "https://storage.googleapis.com/shin-monta-no-mori/montanomori-top-image.png",
+        url: "/site-image.png",
         alt: "もんたの森のイメージ画像",
       },
     ],
