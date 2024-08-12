@@ -151,7 +151,7 @@ const Home = async () => {
     {
       name: "X (Twitter)",
       src: "/sns/twitter.png",
-      link: "https://x.com/hiroto_kadota",
+      link: "https://x.com/monta_no_mori",
     },
   ];
 
