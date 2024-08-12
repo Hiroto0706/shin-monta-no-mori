@@ -37,5 +37,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  nginx:
+    container_name: nginx
+    image: nginx:1.27.0-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+
 volumes:
   postgres_data:
