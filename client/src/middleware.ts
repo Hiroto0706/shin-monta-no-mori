@@ -4,6 +4,7 @@ import { VerifyAPI } from "@/api/auth";
 export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get("access_token")?.value;
 
+  // /login ページへのアクセスで accessToken がない場合、そのまま進める
   if (!accessToken) {
     if (request.nextUrl.pathname === "/login") {
       return NextResponse.next();
@@ -26,14 +27,26 @@ export async function middleware(request: NextRequest) {
 
     const data = await response.json();
     if (data.result) {
+      // /login にアクセスしていて、ログイン済みなら /admin にリダイレクト
+      if (request.nextUrl.pathname === "/login") {
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
       return NextResponse.next();
     } else {
-      return NextResponse.redirect(new URL("/login", request.url));
+      // すでに /login にいる場合、リダイレクトを避ける
+      if (request.nextUrl.pathname !== "/login") {
+        return NextResponse.redirect(new URL("/login", request.url));
+      }
     }
   } catch (error) {
     console.error(error);
-    return NextResponse.redirect(new URL("/login", request.url));
+    // エラー時にも、すでに /login にいる場合はリダイレクトを避ける
+    if (request.nextUrl.pathname !== "/login") {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
   }
+
+  return NextResponse.next();
 }
 
 export const config = {
