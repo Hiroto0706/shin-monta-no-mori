@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Illustration } from "@/types/illustration";
-import Image from "next/image";
 import InfiniteScroll from "react-infinite-scroller";
 import axios from "axios";
 import {
