@@ -37,7 +37,7 @@ const SidebarMain: React.FC<Props> = ({ links }) => {
   };
 
   useEffect(() => {
-    if (selectedLink === 0) {
+    if (selectedLink === 0 && categories == undefined) {
       fetchCategories().then((data) => {
         if (data) {
           setCategories(data);
@@ -45,7 +45,7 @@ const SidebarMain: React.FC<Props> = ({ links }) => {
       });
     }
 
-    if (selectedLink === 1) {
+    if (selectedLink === 1 && characters == undefined) {
       fetchCharacters().then((data) => {
         if (data) {
           setCharacters(data);
