@@ -13,7 +13,6 @@ services:
       - DB_HOST=db
     depends_on:
       - db
-    command: [ "/usr/local/bin/main" ]
 
   client:
     container_name: shin-monta-no-mori-client
@@ -23,7 +22,6 @@ services:
       - /app/node_modules
     ports:
       - "3000:3000"
-    command: [ "npm", "run", "dev" ]
 
   db:
     container_name: shin-monta-no-mori-db

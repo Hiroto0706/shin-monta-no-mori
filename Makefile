@@ -39,7 +39,7 @@ migratedown1:
 
 .PHONY: dc-up
 dc-up:
-	docker compose up --build
+	docker compose up -d
 
 .PHONY: dc-down
 dc-down:
