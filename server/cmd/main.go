@@ -41,7 +41,8 @@ func main() {
 	if err != nil {
 		log.Fatal("cannot create token maker : %w", err)
 	}
-	server := app.NewServer(config, store, token)
+	rdb := app.NewRedisClient(config)
+	server := app.NewServer(config, store, rdb, token)
 	server.Router.Use(app.CORSMiddleware(config))
 
 	// Userサイドのルート設定

@@ -13,19 +13,21 @@ import (
 
 // Server は、アプリケーション全体の設定、依存関係、およびルーターを保持する構造体
 type Server struct {
-	Config     util.Config
-	Store      *db.Store
-	Router     *gin.Engine
-	TokenMaker token.Maker
+	Config      util.Config
+	Store       *db.Store
+	RedisClient RedisClient
+	Router      *gin.Engine
+	TokenMaker  token.Maker
 }
 
 // NewServer は新しいサーバーインスタンスを作成
-func NewServer(config util.Config, store *db.Store, tokenMaker token.Maker) *Server {
+func NewServer(config util.Config, store *db.Store, redis RedisClient, tokenMaker token.Maker) *Server {
 	server := &Server{
-		Config:     config,
-		Store:      store,
-		Router:     gin.Default(),
-		TokenMaker: tokenMaker,
+		Config:      config,
+		Store:       store,
+		RedisClient: redis,
+		Router:      gin.Default(),
+		TokenMaker:  tokenMaker,
 	}
 
 	router := gin.Default()

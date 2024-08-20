@@ -94,6 +94,10 @@ test-reset:
 	docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
 	migrate -path server/internal/db/migration -database "$(TEST_DATABASE_URL)" -verbose up
 
+.PHONY: reset-redis
+reset-redis:
+	docker exec -it redis redis-cli FLUSHALL
+
 .PHONY: update-cors-setting
 update-cors-setting:
 	cd client/ && gsutil cors set cors-config.json gs://shin-monta-no-mori
