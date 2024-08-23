@@ -69,30 +69,13 @@ func TestListIllustrations(t *testing.T) {
 					},
 					Characters: []*model.Character{
 						{
-							Character: db.Character{
-								ID:            21001,
-								Name:          "test_character_name_21001",
-								Src:           "test_character_src_21001.com",
-								PriorityLevel: 2,
-							},
+							Character: db.Character{},
 						},
 					},
 					Categories: []*model.Category{
 						{
-							ParentCategory: db.ParentCategory{
-								ID:            21001,
-								Name:          "test_parent_category_name_21001",
-								Src:           "test_parent_category_src_21001.com",
-								PriorityLevel: 2,
-							},
-							ChildCategory: []db.ChildCategory{
-								{
-									ID:            21001,
-									Name:          "test_child_category_name_21001",
-									ParentID:      21001,
-									PriorityLevel: 2,
-								},
-							},
+							ParentCategory: db.ParentCategory{},
+							ChildCategory:  []db.ChildCategory{},
 						},
 					},
 				},
@@ -120,30 +103,13 @@ func TestListIllustrations(t *testing.T) {
 					},
 					Characters: []*model.Character{
 						{
-							Character: db.Character{
-								ID:            21001,
-								Name:          "test_character_name_21001",
-								Src:           "test_character_src_21001.com",
-								PriorityLevel: 2,
-							},
+							Character: db.Character{},
 						},
 					},
 					Categories: []*model.Category{
 						{
-							ParentCategory: db.ParentCategory{
-								ID:            21001,
-								Name:          "test_parent_category_name_21001",
-								Src:           "test_parent_category_src_21001.com",
-								PriorityLevel: 2,
-							},
-							ChildCategory: []db.ChildCategory{
-								{
-									ID:            21001,
-									Name:          "test_child_category_name_21001",
-									ParentID:      21001,
-									PriorityLevel: 2,
-								},
-							},
+							ParentCategory: db.ParentCategory{},
+							ChildCategory:  []db.ChildCategory{},
 						},
 					},
 				},
@@ -361,30 +327,13 @@ func TestSearchIllustrations(t *testing.T) {
 					},
 					Characters: []*model.Character{
 						{
-							Character: db.Character{
-								ID:            22001,
-								Name:          "test_character_name_22001",
-								Src:           "test_character_src_22001.com",
-								PriorityLevel: 2,
-							},
+							Character: db.Character{},
 						},
 					},
 					Categories: []*model.Category{
 						{
-							ParentCategory: db.ParentCategory{
-								ID:            22001,
-								Name:          "test_parent_category_name_22001",
-								Src:           "test_parent_category_src_22001.com",
-								PriorityLevel: 2,
-							},
-							ChildCategory: []db.ChildCategory{
-								{
-									ID:            22001,
-									Name:          "test_child_category_name_22001",
-									ParentID:      22001,
-									PriorityLevel: 2,
-								},
-							},
+							ParentCategory: db.ParentCategory{},
+							ChildCategory:  []db.ChildCategory{},
 						},
 					},
 				},
@@ -512,30 +461,13 @@ func TestListIllustrationsByCharacterID(t *testing.T) {
 					},
 					Characters: []*model.Character{
 						{
-							Character: db.Character{
-								ID:            24001,
-								Name:          "test_character_name_24001",
-								Src:           "test_character_src_24001.com",
-								PriorityLevel: 2,
-							},
+							Character: db.Character{},
 						},
 					},
 					Categories: []*model.Category{
 						{
-							ParentCategory: db.ParentCategory{
-								ID:            24001,
-								Name:          "test_parent_category_name_24001",
-								Src:           "test_parent_category_src_24001.com",
-								PriorityLevel: 2,
-							},
-							ChildCategory: []db.ChildCategory{
-								{
-									ID:            24001,
-									Name:          "test_child_category_name_24001",
-									ParentID:      24001,
-									PriorityLevel: 2,
-								},
-							},
+							ParentCategory: db.ParentCategory{},
+							ChildCategory:  []db.ChildCategory{},
 						},
 					},
 				},
@@ -651,30 +583,13 @@ func TestListIllustrationsByChildCategoryID(t *testing.T) {
 					},
 					Characters: []*model.Character{
 						{
-							Character: db.Character{
-								ID:            25001,
-								Name:          "test_character_name_25001",
-								Src:           "test_character_src_25001.com",
-								PriorityLevel: 2,
-							},
+							Character: db.Character{},
 						},
 					},
 					Categories: []*model.Category{
 						{
-							ParentCategory: db.ParentCategory{
-								ID:            25001,
-								Name:          "test_parent_category_name_25001",
-								Src:           "test_parent_category_src_25001.com",
-								PriorityLevel: 2,
-							},
-							ChildCategory: []db.ChildCategory{
-								{
-									ID:            25001,
-									Name:          "test_child_category_name_25001",
-									ParentID:      25001,
-									PriorityLevel: 2,
-								},
-							},
+							ParentCategory: db.ParentCategory{},
+							ChildCategory:  []db.ChildCategory{},
 						},
 					},
 				},
