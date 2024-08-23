@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -11,15 +12,19 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+// RedisClient インターフェースは、Redis クライアントの操作を定義します。
 type RedisClient interface {
-	GET(ctx context.Context, key string, i interface{}) error
-	SET(ctx context.Context, key string, i interface{}, expiration time.Duration) error
+	Get(ctx context.Context, key string, i interface{}) error
+	Set(ctx context.Context, key string, i interface{}, expiration time.Duration) error
+	Close() error
 }
 
+// RedisContext は、Redis クライアントを管理する構造体です。
 type RedisContext struct {
 	client *redis.Client
 }
 
+// NewRedisClient は、新しい Redis クライアントを作成します。
 func NewRedisClient(config util.Config) RedisClient {
 	rds := redis.NewClient(&redis.Options{
 		Addr: config.RedisAddress,
@@ -31,8 +36,10 @@ func NewRedisClient(config util.Config) RedisClient {
 	}
 }
 
-func (r *RedisContext) SET(ctx context.Context, key string, i interface{}, expiration time.Duration) error {
+// Set は、データを Redis に保存します。
+func (r *RedisContext) Set(ctx context.Context, key string, i interface{}, expiration time.Duration) error {
 	data, err := json.Marshal(i)
+
 	if err != nil {
 		return fmt.Errorf("failed to marshal data: %w", err)
 	}
@@ -44,9 +51,14 @@ func (r *RedisContext) SET(ctx context.Context, key string, i interface{}, expir
 	return nil
 }
 
-func (r *RedisContext) GET(ctx context.Context, key string, i interface{}) error {
+// Get は、Redis からデータを取得します。
+func (r *RedisContext) Get(ctx context.Context, key string, i interface{}) error {
 	data, err := r.client.Get(ctx, key).Result()
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return fmt.Errorf("key %s does not exist in Redis: %w", key, err)
+		}
+
 		return fmt.Errorf("failed to get data from Redis: %w", err)
 	}
 
@@ -55,4 +67,9 @@ func (r *RedisContext) GET(ctx context.Context, key string, i interface{}) error
 	}
 
 	return nil
+}
+
+// Close は、Redis クライアントを閉じます。
+func (r *RedisContext) Close() error {
+	return r.client.Close()
 }

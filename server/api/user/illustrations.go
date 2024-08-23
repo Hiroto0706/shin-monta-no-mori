@@ -2,7 +2,9 @@ package user
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"shin-monta-no-mori/internal/app"
 	db "shin-monta-no-mori/internal/db/sqlc"
@@ -10,6 +12,9 @@ import (
 	"shin-monta-no-mori/internal/domains/service"
 	"shin-monta-no-mori/pkg/lib/binder"
 	"strconv"
+	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 const (
@@ -40,6 +45,24 @@ func ListIllustrations(ctx *app.AppContext) {
 		return
 	}
 
+	// Redisのキャッシュキーを設定
+	cacheKey := fmt.Sprintf("illustrations_page_%d", req.Page)
+
+	// Redisからキャッシュを取得
+	var cachedResponse listIllustrationsResponse
+	err := ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
+	if err != nil && !errors.Is(err, redis.Nil) {
+		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
+		// TODO: loggerを追加する
+		log.Println("failed to redis err : %w", err)
+	}
+
+	if err == nil {
+		// キャッシュが存在する場合、それをレスポンスとして返す
+		ctx.JSON(http.StatusOK, cachedResponse)
+		return
+	}
+
 	arg := db.ListImageParams{
 		Limit:  int32(ctx.Server.Config.ImageFetchLimit),
 		Offset: int32(int(req.Page) * ctx.Server.Config.ImageFetchLimit),
@@ -56,6 +79,17 @@ func ListIllustrations(ctx *app.AppContext) {
 		il.Image = i
 
 		illustrations = append(illustrations, il)
+	}
+
+	// レスポンスをキャッシュに保存
+	response := listIllustrationsResponse{
+		Illustrations: illustrations,
+	}
+	// Redisへのセットが失敗しても処理を続行
+	// TODO: loggerを追加する
+	err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, 5*time.Minute)
+	if err != nil {
+		log.Println("failed redis data set : %w", err)
 	}
 
 	ctx.JSON(http.StatusOK, listIllustrationsResponse{

@@ -15,8 +15,8 @@ import (
 type Server struct {
 	Config      util.Config
 	Store       *db.Store
-	RedisClient RedisClient
 	Router      *gin.Engine
+	RedisClient RedisClient
 	TokenMaker  token.Maker
 }
 
@@ -25,8 +25,8 @@ func NewServer(config util.Config, store *db.Store, redis RedisClient, tokenMake
 	server := &Server{
 		Config:      config,
 		Store:       store,
-		RedisClient: redis,
 		Router:      gin.Default(),
+		RedisClient: redis,
 		TokenMaker:  tokenMaker,
 	}
 
