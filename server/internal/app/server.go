@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"shin-monta-no-mori/internal/cache"
 	db "shin-monta-no-mori/internal/db/sqlc"
 	"shin-monta-no-mori/pkg/token"
 	"shin-monta-no-mori/pkg/util"
@@ -13,19 +14,21 @@ import (
 
 // Server は、アプリケーション全体の設定、依存関係、およびルーターを保持する構造体
 type Server struct {
-	Config     util.Config
-	Store      *db.Store
-	Router     *gin.Engine
-	TokenMaker token.Maker
+	Config      util.Config
+	Store       *db.Store
+	Router      *gin.Engine
+	RedisClient cache.RedisClient
+	TokenMaker  token.Maker
 }
 
 // NewServer は新しいサーバーインスタンスを作成
-func NewServer(config util.Config, store *db.Store, tokenMaker token.Maker) *Server {
+func NewServer(config util.Config, store *db.Store, redis cache.RedisClient, tokenMaker token.Maker) *Server {
 	server := &Server{
-		Config:     config,
-		Store:      store,
-		Router:     gin.Default(),
-		TokenMaker: tokenMaker,
+		Config:      config,
+		Store:       store,
+		Router:      gin.Default(),
+		RedisClient: redis,
+		TokenMaker:  tokenMaker,
 	}
 
 	router := gin.Default()

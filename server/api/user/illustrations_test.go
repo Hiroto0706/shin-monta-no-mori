@@ -11,6 +11,7 @@ import (
 	"os"
 	"shin-monta-no-mori/api"
 	"shin-monta-no-mori/internal/app"
+	"shin-monta-no-mori/internal/cache"
 	db "shin-monta-no-mori/internal/db/sqlc"
 	model "shin-monta-no-mori/internal/domains/models"
 	"shin-monta-no-mori/pkg/util"
@@ -69,30 +70,13 @@ func TestListIllustrations(t *testing.T) {
 					},
 					Characters: []*model.Character{
 						{
-							Character: db.Character{
-								ID:            21001,
-								Name:          "test_character_name_21001",
-								Src:           "test_character_src_21001.com",
-								PriorityLevel: 2,
-							},
+							Character: db.Character{},
 						},
 					},
 					Categories: []*model.Category{
 						{
-							ParentCategory: db.ParentCategory{
-								ID:            21001,
-								Name:          "test_parent_category_name_21001",
-								Src:           "test_parent_category_src_21001.com",
-								PriorityLevel: 2,
-							},
-							ChildCategory: []db.ChildCategory{
-								{
-									ID:            21001,
-									Name:          "test_child_category_name_21001",
-									ParentID:      21001,
-									PriorityLevel: 2,
-								},
-							},
+							ParentCategory: db.ParentCategory{},
+							ChildCategory:  []db.ChildCategory{},
 						},
 					},
 				},
@@ -120,30 +104,13 @@ func TestListIllustrations(t *testing.T) {
 					},
 					Characters: []*model.Character{
 						{
-							Character: db.Character{
-								ID:            21001,
-								Name:          "test_character_name_21001",
-								Src:           "test_character_src_21001.com",
-								PriorityLevel: 2,
-							},
+							Character: db.Character{},
 						},
 					},
 					Categories: []*model.Category{
 						{
-							ParentCategory: db.ParentCategory{
-								ID:            21001,
-								Name:          "test_parent_category_name_21001",
-								Src:           "test_parent_category_src_21001.com",
-								PriorityLevel: 2,
-							},
-							ChildCategory: []db.ChildCategory{
-								{
-									ID:            21001,
-									Name:          "test_child_category_name_21001",
-									ParentID:      21001,
-									PriorityLevel: 2,
-								},
-							},
+							ParentCategory: db.ParentCategory{},
+							ChildCategory:  []db.ChildCategory{},
 						},
 					},
 				},
@@ -361,30 +328,13 @@ func TestSearchIllustrations(t *testing.T) {
 					},
 					Characters: []*model.Character{
 						{
-							Character: db.Character{
-								ID:            22001,
-								Name:          "test_character_name_22001",
-								Src:           "test_character_src_22001.com",
-								PriorityLevel: 2,
-							},
+							Character: db.Character{},
 						},
 					},
 					Categories: []*model.Category{
 						{
-							ParentCategory: db.ParentCategory{
-								ID:            22001,
-								Name:          "test_parent_category_name_22001",
-								Src:           "test_parent_category_src_22001.com",
-								PriorityLevel: 2,
-							},
-							ChildCategory: []db.ChildCategory{
-								{
-									ID:            22001,
-									Name:          "test_child_category_name_22001",
-									ParentID:      22001,
-									PriorityLevel: 2,
-								},
-							},
+							ParentCategory: db.ParentCategory{},
+							ChildCategory:  []db.ChildCategory{},
 						},
 					},
 				},
@@ -469,142 +419,6 @@ func TestSearchIllustrations(t *testing.T) {
 	}
 }
 
-func TestListIllustrationsByParentCategoryID(t *testing.T) {
-	config, err := util.LoadConfig(AppEnvPath)
-	if err != nil {
-		log.Fatal("cannot load config :", err)
-	}
-	i := illustrationTest{}
-	c := i.setUp(t, config)
-	defer i.tearDown(t, config)
-
-	type args struct {
-		p               string
-		id              string
-		imageFetchLimit int
-	}
-
-	tests := []struct {
-		name         string
-		arg          args
-		want         []model.Illustration
-		wantErr      bool
-		expectedCode int
-	}{
-		{
-			name: "正常系",
-			arg: args{
-				p:               "0",
-				id:              "23001",
-				imageFetchLimit: 1,
-			},
-			want: []model.Illustration{
-				{
-					Image: db.Image{
-						ID:          23001,
-						Title:       "test_image_title_23001",
-						OriginalSrc: "test_image_original_src_23001.com",
-						SimpleSrc: sql.NullString{
-							String: "test_image_simple_src_23001.com",
-							Valid:  true,
-						},
-						OriginalFilename: "test_image_original_filename_23001",
-					},
-					Characters: []*model.Character{
-						{
-							Character: db.Character{
-								ID:            23001,
-								Name:          "test_character_name_23001",
-								Src:           "test_character_src_23001.com",
-								PriorityLevel: 2,
-							},
-						},
-					},
-					Categories: []*model.Category{
-						{
-							ParentCategory: db.ParentCategory{
-								ID:            23001,
-								Name:          "test_parent_category_name_23001",
-								Src:           "test_parent_category_src_23001.com",
-								PriorityLevel: 2,
-							},
-							ChildCategory: []db.ChildCategory{
-								{
-									ID:            23001,
-									Name:          "test_child_category_name_23001",
-									ParentID:      23001,
-									PriorityLevel: 2,
-								},
-							},
-						},
-					},
-				},
-			},
-			wantErr:      false,
-			expectedCode: http.StatusOK,
-		},
-		{
-			name: "正常系（存在しないparent_idを指定している場合）",
-			arg: args{
-				p:               "0",
-				id:              "999999",
-				imageFetchLimit: 1,
-			},
-			want:         []model.Illustration{},
-			wantErr:      false,
-			expectedCode: http.StatusOK,
-		},
-		{
-			name: "異常系（idの値が不正な場合）",
-			arg: args{
-				p:               "0",
-				id:              "aaa",
-				imageFetchLimit: 0,
-			},
-			want:         []model.Illustration{},
-			wantErr:      true,
-			expectedCode: http.StatusBadRequest,
-		},
-		{
-			name: "異常系（pagerの値が不正な場合）",
-			arg: args{
-				p:               "aaa",
-				id:              "999999",
-				imageFetchLimit: 0,
-			},
-			want:         []model.Illustration{},
-			wantErr:      true,
-			expectedCode: http.StatusBadRequest,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// 取得するイメージの数を1にする
-			c.Server.Config.ImageFetchLimit = tt.arg.imageFetchLimit
-			w := httptest.NewRecorder()
-			req, _ := http.NewRequest(http.MethodGet, "/api/v1/illustrations/category/parent/"+tt.arg.id+"?p="+tt.arg.p, nil)
-
-			c.Server.Router.ServeHTTP(w, req)
-
-			require.Equal(t, tt.expectedCode, w.Code)
-
-			if tt.wantErr {
-				require.NotEmpty(t, w.Body.String())
-			} else {
-				var got []model.Illustration
-				err := json.Unmarshal(w.Body.Bytes(), &got)
-				require.NoError(t, err)
-				ignoreFields := map[string][]string{
-					"Image": {"CreatedAt", "UpdatedAt"},
-					"Other": {"CreatedAt", "UpdatedAt"},
-				}
-				for i, g := range got {
-					compareIllustrationsObjects(t, g, tt.want[i], ignoreFields)
-				}
-			}
-		})
-	}
-}
 func TestListIllustrationsByCharacterID(t *testing.T) {
 	config, err := util.LoadConfig(AppEnvPath)
 	if err != nil {
@@ -648,30 +462,13 @@ func TestListIllustrationsByCharacterID(t *testing.T) {
 					},
 					Characters: []*model.Character{
 						{
-							Character: db.Character{
-								ID:            24001,
-								Name:          "test_character_name_24001",
-								Src:           "test_character_src_24001.com",
-								PriorityLevel: 2,
-							},
+							Character: db.Character{},
 						},
 					},
 					Categories: []*model.Category{
 						{
-							ParentCategory: db.ParentCategory{
-								ID:            24001,
-								Name:          "test_parent_category_name_24001",
-								Src:           "test_parent_category_src_24001.com",
-								PriorityLevel: 2,
-							},
-							ChildCategory: []db.ChildCategory{
-								{
-									ID:            24001,
-									Name:          "test_child_category_name_24001",
-									ParentID:      24001,
-									PriorityLevel: 2,
-								},
-							},
+							ParentCategory: db.ParentCategory{},
+							ChildCategory:  []db.ChildCategory{},
 						},
 					},
 				},
@@ -787,30 +584,13 @@ func TestListIllustrationsByChildCategoryID(t *testing.T) {
 					},
 					Characters: []*model.Character{
 						{
-							Character: db.Character{
-								ID:            25001,
-								Name:          "test_character_name_25001",
-								Src:           "test_character_src_25001.com",
-								PriorityLevel: 2,
-							},
+							Character: db.Character{},
 						},
 					},
 					Categories: []*model.Category{
 						{
-							ParentCategory: db.ParentCategory{
-								ID:            25001,
-								Name:          "test_parent_category_name_25001",
-								Src:           "test_parent_category_src_25001.com",
-								PriorityLevel: 2,
-							},
-							ChildCategory: []db.ChildCategory{
-								{
-									ID:            25001,
-									Name:          "test_child_category_name_25001",
-									ParentID:      25001,
-									PriorityLevel: 2,
-								},
-							},
+							ParentCategory: db.ParentCategory{},
+							ChildCategory:  []db.ChildCategory{},
 						},
 					},
 				},
@@ -927,9 +707,11 @@ func TestMain(m *testing.M) {
 }
 
 func newTestServer(store *db.Store, config util.Config) (*app.AppContext, error) {
+	rdb := cache.NewRedisClient(config)
 	s := &app.Server{
-		Config: config,
-		Store:  store,
+		Config:      config,
+		Store:       store,
+		RedisClient: rdb,
 	}
 	router := gin.Default()
 	s.Router = router

@@ -3,9 +3,11 @@ package admin
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"shin-monta-no-mori/internal/app"
+	"shin-monta-no-mori/internal/cache"
 	db "shin-monta-no-mori/internal/db/sqlc"
 	model "shin-monta-no-mori/internal/domains/models"
 	"shin-monta-no-mori/internal/domains/service"
@@ -320,6 +322,13 @@ func CreateIllustration(ctx *app.AppContext) {
 
 	illustration := service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, image)
 
+	// redisキャッシュの削除
+	keyPattern := []string{cache.IllustrationsPrefix + "*"}
+	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
+	if err != nil {
+		log.Println("failed redis data delete : %w", err)
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"illustration": illustration,
 		"message":      "illustrationの作成に成功しました",
@@ -473,6 +482,16 @@ func EditIllustration(ctx *app.AppContext) {
 		return
 	}
 
+	// redisキャッシュの削除
+	keyPattern := []string{
+		cache.IllustrationsPrefix + "*",
+		cache.GetIllustrationKey(id),
+	}
+	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
+	if err != nil {
+		log.Println("failed redis data delete : %w", err)
+	}
+
 	illustration := service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, image)
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -556,6 +575,16 @@ func DeleteIllustration(ctx *app.AppContext) {
 	if txErr != nil {
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(txErr))
 		return
+	}
+
+	// redisキャッシュの削除
+	keyPattern := []string{
+		cache.IllustrationsPrefix + "*",
+		cache.GetIllustrationKey(id),
+	}
+	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
+	if err != nil {
+		log.Println("failed redis data delete : %w", err)
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{

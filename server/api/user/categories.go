@@ -1,13 +1,18 @@
 package user
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"shin-monta-no-mori/internal/app"
+	"shin-monta-no-mori/internal/cache"
 	db "shin-monta-no-mori/internal/db/sqlc"
 	model "shin-monta-no-mori/internal/domains/models"
 	"shin-monta-no-mori/pkg/lib/binder"
 	"strconv"
+
+	"github.com/redis/go-redis/v9"
 )
 
 const (
@@ -76,6 +81,25 @@ func ListCategories(ctx *app.AppContext) {
 // @param ctx AppContext
 // @Router /categories/all [get]
 func ListAllCategories(ctx *app.AppContext) {
+	// TODO: redis周りの処理は関数化したい
+	// Redisのキャッシュキーを設定
+	cacheKey := cache.GetCategoriesAllKey()
+
+	// Redisからキャッシュを取得
+	var cachedResponse listCategoriesResponse
+	err := ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
+	if err != nil && !errors.Is(err, redis.Nil) {
+		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
+		// TODO: loggerを追加する
+		log.Println("failed to redis err : %w", err)
+	}
+
+	if err == nil {
+		// キャッシュが存在する場合、それをレスポンスとして返す
+		ctx.JSON(http.StatusOK, cachedResponse)
+		return
+	}
+
 	pcates, err := ctx.Server.Store.ListAllParentCategories(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ctx.Server.Store.ListParentCategories : %w", err)))
@@ -93,6 +117,19 @@ func ListAllCategories(ctx *app.AppContext) {
 		categories[i] = model.Category{
 			ParentCategory: pcate,
 			ChildCategory:  ccates,
+		}
+	}
+
+	if len(categories) > 0 {
+		// レスポンスをキャッシュに保存
+		response := listCategoriesResponse{
+			Categories: categories,
+		}
+		// Redisへのセットが失敗しても処理を続行
+		// TODO: loggerを追加する
+		err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
+		if err != nil {
+			log.Println("failed redis data set : %w", err)
 		}
 	}
 

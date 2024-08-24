@@ -60,8 +60,8 @@ sqlc:
 .PHONY: test
 test:
 	# テスト実行環境の構築
-	docker exec shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
-	docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
+	docker exec db dropdb --username=postgres --if-exists shin-monta-no-mori-test
+	docker exec db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
 	migrate -path server/internal/db/migration -database "$(TEST_DATABASE_URL)" -verbose up
 	mkdir -p ./server/coverage
 
@@ -87,12 +87,19 @@ test:
 	cd server && go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
 	./tools/aggregate_coverage.sh ./server/coverage/report.txt
 
+	# キャッシュ削除
+	make reset-redis
+
 # テストが途中で失敗したなどの理由でテスト環境が汚れてしまった時に使う
 .PHONY: test-reset
 test-reset:
-	docker exec shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
-	docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
+	docker exec db dropdb --username=postgres --if-exists shin-monta-no-mori-test
+	docker exec db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
 	migrate -path server/internal/db/migration -database "$(TEST_DATABASE_URL)" -verbose up
+
+.PHONY: reset-redis
+reset-redis:
+	docker exec -it redis redis-cli FLUSHALL
 
 .PHONY: update-cors-setting
 update-cors-setting:

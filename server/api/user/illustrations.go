@@ -2,14 +2,19 @@ package user
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"shin-monta-no-mori/internal/app"
+	"shin-monta-no-mori/internal/cache"
 	db "shin-monta-no-mori/internal/db/sqlc"
 	model "shin-monta-no-mori/internal/domains/models"
 	"shin-monta-no-mori/internal/domains/service"
 	"shin-monta-no-mori/pkg/lib/binder"
 	"strconv"
+
+	"github.com/redis/go-redis/v9"
 )
 
 const (
@@ -40,7 +45,24 @@ func ListIllustrations(ctx *app.AppContext) {
 		return
 	}
 
-	illustrations := []*model.Illustration{}
+	// TODO: redis周りの処理は関数化したい
+	// Redisのキャッシュキーを設定
+	cacheKey := cache.GetIllustrationsListKey(int(req.Page))
+
+	// Redisからキャッシュを取得
+	var cachedResponse listIllustrationsResponse
+	err := ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
+	if err != nil && !errors.Is(err, redis.Nil) {
+		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
+		// TODO: loggerを追加する
+		log.Println("failed to redis err : %w", err)
+	}
+
+	if err == nil {
+		// キャッシュが存在する場合、それをレスポンスとして返す
+		ctx.JSON(http.StatusOK, cachedResponse)
+		return
+	}
 
 	arg := db.ListImageParams{
 		Limit:  int32(ctx.Server.Config.ImageFetchLimit),
@@ -52,10 +74,25 @@ func ListIllustrations(ctx *app.AppContext) {
 		return
 	}
 
+	illustrations := []*model.Illustration{}
 	for _, i := range images {
-		il := service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, i)
+		il := model.NewIllustration()
+		il.Image = i
 
 		illustrations = append(illustrations, il)
+	}
+
+	if len(illustrations) > 0 {
+		// レスポンスをキャッシュに保存
+		response := listIllustrationsResponse{
+			Illustrations: illustrations,
+		}
+		// Redisへのセットが失敗しても処理を続行
+		// TODO: loggerを追加する
+		err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
+		if err != nil {
+			log.Println("failed redis data set : %w", err)
+		}
 	}
 
 	ctx.JSON(http.StatusOK, listIllustrationsResponse{
@@ -85,6 +122,26 @@ func GetIllustration(ctx *app.AppContext) {
 		return
 	}
 
+	// TODO: redis周りの処理は関数化したい
+	// Redisのキャッシュキーを設定
+	cacheKey := cache.GetIllustrationKey(id)
+
+	// Redisからキャッシュを取得
+	var cachedResponse getIllustrationsResponse
+	err = ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
+	if err != nil && !errors.Is(err, redis.Nil) {
+		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
+		// TODO: loggerを追加する
+		log.Println("failed to redis err : %w", err)
+	}
+
+	if err == nil {
+		log.Println(cachedResponse)
+		// キャッシュが存在する場合、それをレスポンスとして返す
+		ctx.JSON(http.StatusOK, cachedResponse)
+		return
+	}
+
 	image, err := ctx.Server.Store.GetImage(ctx.Context, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -98,6 +155,17 @@ func GetIllustration(ctx *app.AppContext) {
 
 	illustration := &model.Illustration{}
 	illustration = service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, image)
+
+	// レスポンスをキャッシュに保存
+	response := getIllustrationsResponse{
+		Illustration: illustration,
+	}
+	// Redisへのセットが失敗しても処理を続行
+	// TODO: loggerを追加する
+	err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationWeek)
+	if err != nil {
+		log.Println("failed redis data set : %w", err)
+	}
 
 	ctx.JSON(http.StatusOK, getIllustrationsResponse{
 		Illustration: illustration,
@@ -128,6 +196,7 @@ func SearchIllustrations(ctx *app.AppContext) {
 		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
 		return
 	}
+
 	arg := db.SearchImagesParams{
 		Limit:  int32(ctx.Server.Config.ImageFetchLimit),
 		Offset: int32(req.Page * ctx.Server.Config.ImageFetchLimit),
@@ -145,7 +214,8 @@ func SearchIllustrations(ctx *app.AppContext) {
 
 	illustrations := []*model.Illustration{}
 	for _, i := range images {
-		il := service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, i)
+		il := model.NewIllustration()
+		il.Image = i
 
 		illustrations = append(illustrations, il)
 	}
@@ -176,7 +246,6 @@ func FetchRandomIllustrations(ctx *app.AppContext) {
 		return
 	}
 
-	illustrations := []*model.Illustration{}
 	arg := db.FetchRandomImageParams{
 		Limit: int32(req.Limit),
 		ID:    req.ExclusionID,
@@ -187,8 +256,10 @@ func FetchRandomIllustrations(ctx *app.AppContext) {
 		return
 	}
 
+	illustrations := []*model.Illustration{}
 	for _, i := range images {
-		il := service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, i)
+		il := model.NewIllustration()
+		il.Image = i
 
 		illustrations = append(illustrations, il)
 	}
@@ -226,6 +297,25 @@ func ListIllustrationsByCharacterID(ctx *app.AppContext) {
 		return
 	}
 
+	// TODO: redis周りの処理は関数化したい
+	// Redisのキャッシュキーを設定
+	cacheKey := cache.GetIllustrationsListByCharacterKey(charaID, int(req.Page))
+
+	// Redisからキャッシュを取得
+	var cachedResponse listIllustrationsResponse
+	err = ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
+	if err != nil && !errors.Is(err, redis.Nil) {
+		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
+		// TODO: loggerを追加する
+		log.Println("failed to redis err : %w", err)
+	}
+
+	if err == nil {
+		// キャッシュが存在する場合、それをレスポンスとして返す
+		ctx.JSON(http.StatusOK, cachedResponse)
+		return
+	}
+
 	// charaIDを元にimage_characters_relationsを取得する
 	arg := db.ListImageCharacterRelationsByCharacterIDWIthPaginationParams{
 		Limit:       int32(ctx.Server.Config.ImageFetchLimit),
@@ -257,81 +347,28 @@ func ListIllustrationsByCharacterID(ctx *app.AppContext) {
 
 	illustrations := []*model.Illustration{}
 	for _, i := range images {
-		il := service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, i)
+		il := model.NewIllustration()
+		il.Image = i
 
 		illustrations = append(illustrations, il)
+	}
+
+	if len(illustrations) > 0 {
+		// レスポンスをキャッシュに保存
+		response := listIllustrationsResponse{
+			Illustrations: illustrations,
+		}
+		// Redisへのセットが失敗しても処理を続行
+		// TODO: loggerを追加する
+		err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
+		if err != nil {
+			log.Println("failed redis data set : %w", err)
+		}
 	}
 
 	ctx.JSON(http.StatusOK, listIllustrationsResponse{
 		Illustrations: illustrations,
 	})
-}
-
-type listIllustrationsByParentCategoryIDRequest struct {
-	Page int64 `form:"p"`
-}
-
-// ListIllustrationsByParentCategoryID godoc
-// @Summary List illustrations by parent category ID
-// @Description Retrieves a paginated list of illustrations associated with a given parent category ID.
-// @Accept  json
-// @Produce  json
-// @Param   id   path   int  true  "ID of the parent category"
-// @Param   p    query  int  true  "Page number for pagination"
-// @Success 200 {array} models.Illustration "A list of illustrations"
-// @Failure 400 {object} app.ErrorResponse "Bad Request: The request is malformed or missing required fields."
-// @Failure 404 {object} app.ErrorResponse "Not Found: No illustrations found for the given parent category ID."
-// @Failure 500 {object} app.ErrorResponse "Internal Server Error: An error occurred on the server which prevented the completion of the request."
-// @Router /api/v1/illustrations/category/parent/{id} [get]
-func ListIllustrationsByParentCategoryID(ctx *app.AppContext) {
-	pCateID, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
-		return
-	}
-
-	var req listIllustrationsByParentCategoryIDRequest
-	if err := binder.BindQuery(ctx.Context, &req); err != nil {
-		return
-	}
-
-	// pCateIDを元にimage_parent_categories_relationsを取得する
-	arg := db.ListImageParentCategoryRelationsByParentCategoryIDWithPaginationParams{
-		Limit:            int32(ctx.Server.Config.ImageFetchLimit),
-		Offset:           int32(int(req.Page) * ctx.Server.Config.ImageFetchLimit),
-		ParentCategoryID: int64(pCateID),
-	}
-	icrs, err := ctx.Server.Store.ListImageParentCategoryRelationsByParentCategoryIDWithPagination(ctx, arg)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListImageParentCategoryRelationsByParentCategoryIDWithPagination : %w", err)))
-		return
-	}
-
-	// image_parent_categories_relationsを元にimageを取得する
-	images := []db.Image{}
-	for _, icr := range icrs {
-		image, err := ctx.Server.Store.GetImage(ctx, icr.ImageID)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetImage: %w", err)))
-				return
-			}
-
-			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
-			return
-		}
-
-		images = append(images, image)
-	}
-
-	illustrations := []*model.Illustration{}
-	for _, i := range images {
-		il := service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, i)
-
-		illustrations = append(illustrations, il)
-	}
-
-	ctx.JSON(http.StatusOK, illustrations)
 }
 
 type listIllustrationsByChildCategoryIDRequest struct {
@@ -356,9 +393,27 @@ func ListIllustrationsByChildCategoryID(ctx *app.AppContext) {
 		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
 		return
 	}
-
 	var req listIllustrationsByChildCategoryIDRequest
 	if err := binder.BindQuery(ctx.Context, &req); err != nil {
+		return
+	}
+
+	// TODO: redis周りの処理は関数化したい
+	// Redisのキャッシュキーを設定
+	cacheKey := cache.GetIllustrationsListByCategoryKey(cCateID, int(req.Page))
+
+	// Redisからキャッシュを取得
+	var cachedResponse listIllustrationsResponse
+	err = ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
+	if err != nil && !errors.Is(err, redis.Nil) {
+		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
+		// TODO: loggerを追加する
+		log.Println("failed to redis err : %w", err)
+	}
+
+	if err == nil {
+		// キャッシュが存在する場合、それをレスポンスとして返す
+		ctx.JSON(http.StatusOK, cachedResponse)
 		return
 	}
 
@@ -393,9 +448,23 @@ func ListIllustrationsByChildCategoryID(ctx *app.AppContext) {
 
 	illustrations := []*model.Illustration{}
 	for _, i := range images {
-		il := service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, i)
+		il := model.NewIllustration()
+		il.Image = i
 
 		illustrations = append(illustrations, il)
+	}
+
+	if len(illustrations) > 0 {
+		// レスポンスをキャッシュに保存
+		response := listIllustrationsResponse{
+			Illustrations: illustrations,
+		}
+		// Redisへのセットが失敗しても処理を続行
+		// TODO: loggerを追加する
+		err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
+		if err != nil {
+			log.Println("failed redis data set : %w", err)
+		}
 	}
 
 	ctx.JSON(http.StatusOK, listIllustrationsResponse{

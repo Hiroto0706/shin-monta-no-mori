@@ -15,6 +15,7 @@ import (
 
 	"shin-monta-no-mori/api"
 	"shin-monta-no-mori/internal/app"
+	"shin-monta-no-mori/internal/cache"
 	db "shin-monta-no-mori/internal/db/sqlc"
 	model "shin-monta-no-mori/internal/domains/models"
 	"shin-monta-no-mori/pkg/lib/password"
@@ -900,10 +901,12 @@ func newTestServer(store *db.Store, config util.Config) (*app.AppContext, error)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker : %w", err)
 	}
+	rdb := cache.NewRedisClient(config)
 	s := &app.Server{
-		Config:     config,
-		Store:      store,
-		TokenMaker: token,
+		Config:      config,
+		Store:       store,
+		TokenMaker:  token,
+		RedisClient: rdb,
 	}
 	router := gin.Default()
 	s.Router = router
