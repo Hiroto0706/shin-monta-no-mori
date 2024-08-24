@@ -7,12 +7,12 @@ import (
 	"log"
 	"net/http"
 	"shin-monta-no-mori/internal/app"
+	"shin-monta-no-mori/internal/cache"
 	db "shin-monta-no-mori/internal/db/sqlc"
 	model "shin-monta-no-mori/internal/domains/models"
 	"shin-monta-no-mori/internal/domains/service"
 	"shin-monta-no-mori/pkg/lib/binder"
 	"strconv"
-	"time"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -45,8 +45,9 @@ func ListIllustrations(ctx *app.AppContext) {
 		return
 	}
 
+	// TODO: redis周りの処理は関数化したい
 	// Redisのキャッシュキーを設定
-	cacheKey := fmt.Sprintf("illustrations_page_%d", req.Page)
+	cacheKey := cache.GetIllustrationsListKey(int(req.Page))
 
 	// Redisからキャッシュを取得
 	var cachedResponse listIllustrationsResponse
@@ -87,7 +88,7 @@ func ListIllustrations(ctx *app.AppContext) {
 	}
 	// Redisへのセットが失敗しても処理を続行
 	// TODO: loggerを追加する
-	err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, 5*time.Minute)
+	err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
 	if err != nil {
 		log.Println("failed redis data set : %w", err)
 	}
@@ -119,6 +120,26 @@ func GetIllustration(ctx *app.AppContext) {
 		return
 	}
 
+	// TODO: redis周りの処理は関数化したい
+	// Redisのキャッシュキーを設定
+	cacheKey := cache.GetIllustrationKey(id)
+
+	// Redisからキャッシュを取得
+	var cachedResponse getIllustrationsResponse
+	err = ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
+	if err != nil && !errors.Is(err, redis.Nil) {
+		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
+		// TODO: loggerを追加する
+		log.Println("failed to redis err : %w", err)
+	}
+
+	if err == nil {
+		log.Println(cachedResponse)
+		// キャッシュが存在する場合、それをレスポンスとして返す
+		ctx.JSON(http.StatusOK, cachedResponse)
+		return
+	}
+
 	image, err := ctx.Server.Store.GetImage(ctx.Context, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -132,6 +153,17 @@ func GetIllustration(ctx *app.AppContext) {
 
 	illustration := &model.Illustration{}
 	illustration = service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, image)
+
+	// レスポンスをキャッシュに保存
+	response := getIllustrationsResponse{
+		Illustration: illustration,
+	}
+	// Redisへのセットが失敗しても処理を続行
+	// TODO: loggerを追加する
+	err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationWeek)
+	if err != nil {
+		log.Println("failed redis data set : %w", err)
+	}
 
 	ctx.JSON(http.StatusOK, getIllustrationsResponse{
 		Illustration: illustration,

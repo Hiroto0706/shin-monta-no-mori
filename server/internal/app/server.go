@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"shin-monta-no-mori/internal/cache"
 	db "shin-monta-no-mori/internal/db/sqlc"
 	"shin-monta-no-mori/pkg/token"
 	"shin-monta-no-mori/pkg/util"
@@ -16,12 +17,12 @@ type Server struct {
 	Config      util.Config
 	Store       *db.Store
 	Router      *gin.Engine
-	RedisClient RedisClient
+	RedisClient cache.RedisClient
 	TokenMaker  token.Maker
 }
 
 // NewServer は新しいサーバーインスタンスを作成
-func NewServer(config util.Config, store *db.Store, redis RedisClient, tokenMaker token.Maker) *Server {
+func NewServer(config util.Config, store *db.Store, redis cache.RedisClient, tokenMaker token.Maker) *Server {
 	server := &Server{
 		Config:      config,
 		Store:       store,
