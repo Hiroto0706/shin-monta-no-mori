@@ -82,15 +82,17 @@ func ListIllustrations(ctx *app.AppContext) {
 		illustrations = append(illustrations, il)
 	}
 
-	// レスポンスをキャッシュに保存
-	response := listIllustrationsResponse{
-		Illustrations: illustrations,
-	}
-	// Redisへのセットが失敗しても処理を続行
-	// TODO: loggerを追加する
-	err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
-	if err != nil {
-		log.Println("failed redis data set : %w", err)
+	if len(illustrations) > 0 {
+		// レスポンスをキャッシュに保存
+		response := listIllustrationsResponse{
+			Illustrations: illustrations,
+		}
+		// Redisへのセットが失敗しても処理を続行
+		// TODO: loggerを追加する
+		err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
+		if err != nil {
+			log.Println("failed redis data set : %w", err)
+		}
 	}
 
 	ctx.JSON(http.StatusOK, listIllustrationsResponse{
@@ -351,15 +353,17 @@ func ListIllustrationsByCharacterID(ctx *app.AppContext) {
 		illustrations = append(illustrations, il)
 	}
 
-	// レスポンスをキャッシュに保存
-	response := listIllustrationsResponse{
-		Illustrations: illustrations,
-	}
-	// Redisへのセットが失敗しても処理を続行
-	// TODO: loggerを追加する
-	err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
-	if err != nil {
-		log.Println("failed redis data set : %w", err)
+	if len(illustrations) > 0 {
+		// レスポンスをキャッシュに保存
+		response := listIllustrationsResponse{
+			Illustrations: illustrations,
+		}
+		// Redisへのセットが失敗しても処理を続行
+		// TODO: loggerを追加する
+		err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
+		if err != nil {
+			log.Println("failed redis data set : %w", err)
+		}
 	}
 
 	ctx.JSON(http.StatusOK, listIllustrationsResponse{
@@ -450,15 +454,17 @@ func ListIllustrationsByChildCategoryID(ctx *app.AppContext) {
 		illustrations = append(illustrations, il)
 	}
 
-	// レスポンスをキャッシュに保存
-	response := listIllustrationsResponse{
-		Illustrations: illustrations,
-	}
-	// Redisへのセットが失敗しても処理を続行
-	// TODO: loggerを追加する
-	err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
-	if err != nil {
-		log.Println("failed redis data set : %w", err)
+	if len(illustrations) > 0 {
+		// レスポンスをキャッシュに保存
+		response := listIllustrationsResponse{
+			Illustrations: illustrations,
+		}
+		// Redisへのセットが失敗しても処理を続行
+		// TODO: loggerを追加する
+		err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
+		if err != nil {
+			log.Println("failed redis data set : %w", err)
+		}
 	}
 
 	ctx.JSON(http.StatusOK, listIllustrationsResponse{

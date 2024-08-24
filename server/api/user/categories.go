@@ -120,15 +120,17 @@ func ListAllCategories(ctx *app.AppContext) {
 		}
 	}
 
-	// レスポンスをキャッシュに保存
-	response := listCategoriesResponse{
-		Categories: categories,
-	}
-	// Redisへのセットが失敗しても処理を続行
-	// TODO: loggerを追加する
-	err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
-	if err != nil {
-		log.Println("failed redis data set : %w", err)
+	if len(categories) > 0 {
+		// レスポンスをキャッシュに保存
+		response := listCategoriesResponse{
+			Categories: categories,
+		}
+		// Redisへのセットが失敗しても処理を続行
+		// TODO: loggerを追加する
+		err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
+		if err != nil {
+			log.Println("failed redis data set : %w", err)
+		}
 	}
 
 	ctx.JSON(http.StatusOK, listCategoriesResponse{Categories: categories})

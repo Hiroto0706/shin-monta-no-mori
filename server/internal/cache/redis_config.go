@@ -23,6 +23,10 @@ const (
 	// カテゴリ
 	categoriesPrefix     = "categories_list"
 	categoriesListAllKey = categoriesPrefix + "_all"
+
+	// キャラクター
+	charactersPrefix     = "characters_list"
+	charactersListAllKey = charactersPrefix + "_all"
 )
 
 func GetIllustrationsListKey(offset int) string {
@@ -43,4 +47,8 @@ func GetIllustrationsListByCategoryKey(id, offset int) string {
 
 func GetCategoriesAllKey() string {
 	return categoriesListAllKey
+}
+
+func GetCharactersAllKey() string {
+	return charactersListAllKey
 }
