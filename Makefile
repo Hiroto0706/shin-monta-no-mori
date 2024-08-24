@@ -87,6 +87,9 @@ test:
 	cd server && go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
 	./tools/aggregate_coverage.sh ./server/coverage/report.txt
 
+	# キャッシュ削除
+	make reset-redis
+
 # テストが途中で失敗したなどの理由でテスト環境が汚れてしまった時に使う
 .PHONY: test-reset
 test-reset:
