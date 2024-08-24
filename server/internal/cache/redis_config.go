@@ -12,10 +12,13 @@ const (
 	CacheDurationHalfDay = 12 * time.Hour
 	CacheDurationHour    = 1 * time.Hour
 
-	illustrationGetKey                = "illustration_%d"
-	illustrationsListKey              = "illustrations_list_offset_%d"
-	illustrationsListByCharacterIDKey = "illustrations_list_by_character_%d_%d"
-	illustrationsListByCategoryIDKey  = "illustrations_list_by_category_%d_%d"
+	// イラストのキー
+	illustrationGetKey = "illustration_%d"
+
+	IllustrationsPrefix               = "illustrations_list"
+	illustrationsListKey              = IllustrationsPrefix + "_offset_%d"
+	illustrationsListByCharacterIDKey = IllustrationsPrefix + "_by_character_%d_%d"
+	illustrationsListByCategoryIDKey  = IllustrationsPrefix + "_by_category_%d_%d"
 )
 
 func GetIllustrationsListKey(offset int) string {
