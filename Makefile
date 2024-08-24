@@ -90,8 +90,8 @@ test:
 # テストが途中で失敗したなどの理由でテスト環境が汚れてしまった時に使う
 .PHONY: test-reset
 test-reset:
-	docker exec shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
-	docker exec shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
+	docker exec db dropdb --username=postgres --if-exists shin-monta-no-mori-test
+	docker exec db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
 	migrate -path server/internal/db/migration -database "$(TEST_DATABASE_URL)" -verbose up
 
 .PHONY: reset-redis
