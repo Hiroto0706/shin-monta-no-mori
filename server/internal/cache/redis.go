@@ -28,8 +28,9 @@ type RedisContext struct {
 // NewRedisClient は、新しい Redis クライアントを作成します。
 func NewRedisClient(config util.Config) RedisClient {
 	rds := redis.NewClient(&redis.Options{
-		Addr: config.RedisAddress,
-		DB:   config.RedisDB,
+		Addr:     config.RedisAddress,
+		DB:       config.RedisDbNumber,
+		Password: config.RedisPassword,
 	})
 
 	return &RedisContext{

@@ -35,8 +35,9 @@ type Config struct {
 	SeedURL      string `mapstructure:"SEED_URL"`
 
 	// Redis
-	RedisAddress string `mapstructure:"REDIS_ADDRESS"`
-	RedisDB      int    `mapstructure:"REDIS_DB"`
+	RedisAddress  string `mapstructure:"REDIS_ADDRESS"`
+	RedisDbNumber int    `mapstructure:"REDIS_DBNUMBER"`
+	RedisPassword string `mapstructure:"REDIS_PASSWORD"`
 
 	// CloudStorage
 	BucketName         string `mapstructure:"BUCKET_NAME"`
