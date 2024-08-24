@@ -194,6 +194,7 @@ func SearchIllustrations(ctx *app.AppContext) {
 		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
 		return
 	}
+
 	arg := db.SearchImagesParams{
 		Limit:  int32(ctx.Server.Config.ImageFetchLimit),
 		Offset: int32(req.Page * ctx.Server.Config.ImageFetchLimit),
@@ -294,6 +295,25 @@ func ListIllustrationsByCharacterID(ctx *app.AppContext) {
 		return
 	}
 
+	// TODO: redis周りの処理は関数化したい
+	// Redisのキャッシュキーを設定
+	cacheKey := cache.GetIllustrationsListByCharacterKey(charaID, int(req.Page))
+
+	// Redisからキャッシュを取得
+	var cachedResponse listIllustrationsResponse
+	err = ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
+	if err != nil && !errors.Is(err, redis.Nil) {
+		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
+		// TODO: loggerを追加する
+		log.Println("failed to redis err : %w", err)
+	}
+
+	if err == nil {
+		// キャッシュが存在する場合、それをレスポンスとして返す
+		ctx.JSON(http.StatusOK, cachedResponse)
+		return
+	}
+
 	// charaIDを元にimage_characters_relationsを取得する
 	arg := db.ListImageCharacterRelationsByCharacterIDWIthPaginationParams{
 		Limit:       int32(ctx.Server.Config.ImageFetchLimit),
@@ -331,6 +351,17 @@ func ListIllustrationsByCharacterID(ctx *app.AppContext) {
 		illustrations = append(illustrations, il)
 	}
 
+	// レスポンスをキャッシュに保存
+	response := listIllustrationsResponse{
+		Illustrations: illustrations,
+	}
+	// Redisへのセットが失敗しても処理を続行
+	// TODO: loggerを追加する
+	err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
+	if err != nil {
+		log.Println("failed redis data set : %w", err)
+	}
+
 	ctx.JSON(http.StatusOK, listIllustrationsResponse{
 		Illustrations: illustrations,
 	})
@@ -358,9 +389,27 @@ func ListIllustrationsByChildCategoryID(ctx *app.AppContext) {
 		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(fmt.Errorf("failed to parse 'id' number from from path parameter : %w", err)))
 		return
 	}
-
 	var req listIllustrationsByChildCategoryIDRequest
 	if err := binder.BindQuery(ctx.Context, &req); err != nil {
+		return
+	}
+
+	// TODO: redis周りの処理は関数化したい
+	// Redisのキャッシュキーを設定
+	cacheKey := cache.GetIllustrationsListByCategoryKey(cCateID, int(req.Page))
+
+	// Redisからキャッシュを取得
+	var cachedResponse listIllustrationsResponse
+	err = ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
+	if err != nil && !errors.Is(err, redis.Nil) {
+		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
+		// TODO: loggerを追加する
+		log.Println("failed to redis err : %w", err)
+	}
+
+	if err == nil {
+		// キャッシュが存在する場合、それをレスポンスとして返す
+		ctx.JSON(http.StatusOK, cachedResponse)
 		return
 	}
 
@@ -399,6 +448,17 @@ func ListIllustrationsByChildCategoryID(ctx *app.AppContext) {
 		il.Image = i
 
 		illustrations = append(illustrations, il)
+	}
+
+	// レスポンスをキャッシュに保存
+	response := listIllustrationsResponse{
+		Illustrations: illustrations,
+	}
+	// Redisへのセットが失敗しても処理を続行
+	// TODO: loggerを追加する
+	err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
+	if err != nil {
+		log.Println("failed redis data set : %w", err)
 	}
 
 	ctx.JSON(http.StatusOK, listIllustrationsResponse{
