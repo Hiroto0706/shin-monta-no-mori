@@ -11,6 +11,7 @@ import (
 	"os"
 	"shin-monta-no-mori/api"
 	"shin-monta-no-mori/internal/app"
+	"shin-monta-no-mori/internal/cache"
 	db "shin-monta-no-mori/internal/db/sqlc"
 	model "shin-monta-no-mori/internal/domains/models"
 	"shin-monta-no-mori/pkg/util"
@@ -706,9 +707,11 @@ func TestMain(m *testing.M) {
 }
 
 func newTestServer(store *db.Store, config util.Config) (*app.AppContext, error) {
+	rdb := cache.NewRedisClient(config)
 	s := &app.Server{
-		Config: config,
-		Store:  store,
+		Config:      config,
+		Store:       store,
+		RedisClient: rdb,
 	}
 	router := gin.Default()
 	s.Router = router
