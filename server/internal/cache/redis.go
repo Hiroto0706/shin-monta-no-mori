@@ -17,7 +17,7 @@ import (
 type RedisClient interface {
 	Get(ctx context.Context, key string, i interface{}) error
 	Set(ctx context.Context, key string, i interface{}, expiration time.Duration) error
-	Del(ctx context.Context, key string) error
+	Del(ctx context.Context, key []string) error
 }
 
 // RedisContext は、Redis クライアントを管理する構造体です。
@@ -71,18 +71,20 @@ func (r *RedisContext) Get(ctx context.Context, key string, i interface{}) error
 }
 
 // Del は、指定されたキーパターンを含むすべてのキーを Redis から削除します。
-func (r *RedisContext) Del(ctx context.Context, pattern string) error {
-	iter := r.client.Scan(ctx, 0, pattern, 0).Iterator()
+func (r *RedisContext) Del(ctx context.Context, patterns []string) error {
 	var errs []string
-	for iter.Next(ctx) {
-		key := iter.Val()
-		if err := r.client.Del(ctx, key).Err(); err != nil {
-			errs = append(errs, fmt.Sprintf("failed to delete key %s: %v", key, err))
+	for _, pattern := range patterns {
+		iter := r.client.Scan(ctx, 0, pattern, 0).Iterator()
+		for iter.Next(ctx) {
+			key := iter.Val()
+			if err := r.client.Del(ctx, key).Err(); err != nil {
+				errs = append(errs, fmt.Sprintf("failed to delete key %s: %v", key, err))
+			}
 		}
-	}
 
-	if err := iter.Err(); err != nil {
-		errs = append(errs, fmt.Sprintf("failed to iterate keys with pattern %s: %v", pattern, err))
+		if err := iter.Err(); err != nil {
+			errs = append(errs, fmt.Sprintf("failed to iterate keys with pattern %s: %v", pattern, err))
+		}
 	}
 
 	if len(errs) > 0 {
