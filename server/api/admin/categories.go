@@ -3,9 +3,11 @@ package admin
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"shin-monta-no-mori/internal/app"
+	"shin-monta-no-mori/internal/cache"
 	db "shin-monta-no-mori/internal/db/sqlc"
 	model "shin-monta-no-mori/internal/domains/models"
 	"shin-monta-no-mori/internal/domains/service"
@@ -300,6 +302,13 @@ func CreateParentCategory(ctx *app.AppContext) {
 		return
 	}
 
+	// redisキャッシュの削除
+	keyPattern := []string{cache.CategoriesPrefix + "*"}
+	err := ctx.Server.RedisClient.Del(ctx, keyPattern)
+	if err != nil {
+		log.Println("failed redis data delete : %w", err)
+	}
+
 	ctx.JSON(http.StatusOK, createParentCategoryResponse{
 		ParentCategory: parentCategory,
 		Message:        "parent_categoryの作成に成功しました",
@@ -394,6 +403,13 @@ func EditParentCategory(ctx *app.AppContext) {
 		return
 	}
 
+	// redisキャッシュの削除
+	keyPattern := []string{cache.CategoriesPrefix + "*"}
+	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
+	if err != nil {
+		log.Println("failed redis data delete : %w", err)
+	}
+
 	ctx.JSON(http.StatusOK, editParentCategoryResponse{
 		ParentCategory: pcate,
 		Message:        "parent_categoryの編集に成功しました",
@@ -474,6 +490,13 @@ func DeleteParentCategory(ctx *app.AppContext) {
 		return
 	}
 
+	// redisキャッシュの削除
+	keyPattern := []string{cache.CategoriesPrefix + "*"}
+	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
+	if err != nil {
+		log.Println("failed redis data delete : %w", err)
+	}
+
 	ctx.JSON(http.StatusOK, deleteParentCategoryResponse{
 		Message: "parent_categoryの削除に成功しました",
 	})
@@ -552,6 +575,13 @@ func CreateChildCategory(ctx *app.AppContext) {
 		return
 	}
 
+	// redisキャッシュの削除
+	keyPattern := []string{cache.CategoriesPrefix + "*"}
+	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
+	if err != nil {
+		log.Println("failed redis data delete : %w", err)
+	}
+
 	ctx.JSON(http.StatusOK, createChildCategoryResponse{
 		ChildCategory: childCategory,
 		Message:       "child_categoryの作成に成功しました",
@@ -626,6 +656,13 @@ func EditChildCategory(ctx *app.AppContext) {
 		return
 	}
 
+	// redisキャッシュの削除
+	keyPattern := []string{cache.CategoriesPrefix + "*"}
+	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
+	if err != nil {
+		log.Println("failed redis data delete : %w", err)
+	}
+
 	ctx.JSON(http.StatusOK, editChildCategoryResponse{
 		ChildCategory: ccate,
 		Message:       "child_categoryの編集に成功しました",
@@ -664,6 +701,13 @@ func DeleteChildCategory(ctx *app.AppContext) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to DeleteChildCategory : %w", err)))
 		return
+	}
+
+	// redisキャッシュの削除
+	keyPattern := []string{cache.CategoriesPrefix + "*"}
+	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
+	if err != nil {
+		log.Println("failed redis data delete : %w", err)
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{

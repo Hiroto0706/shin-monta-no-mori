@@ -3,9 +3,11 @@ package admin
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"shin-monta-no-mori/internal/app"
+	"shin-monta-no-mori/internal/cache"
 	db "shin-monta-no-mori/internal/db/sqlc"
 	"shin-monta-no-mori/internal/domains/service"
 	"shin-monta-no-mori/pkg/lib/binder"
@@ -241,6 +243,13 @@ func CreateCharacter(ctx *app.AppContext) {
 		return
 	}
 
+	// redisキャッシュの削除
+	keyPattern := []string{cache.CharactersPrefix + "*"}
+	err := ctx.Server.RedisClient.Del(ctx, keyPattern)
+	if err != nil {
+		log.Println("failed redis data delete : %w", err)
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"character": character,
 		"message":   "キャラクターの作成に成功しました",
@@ -330,6 +339,13 @@ func EditCharacter(ctx *app.AppContext) {
 		return
 	}
 
+	// redisキャッシュの削除
+	keyPattern := []string{cache.CharactersPrefix + "*"}
+	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
+	if err != nil {
+		log.Println("failed redis data delete : %w", err)
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"character": character,
 		"message":   "characterの編集に成功しました",
@@ -385,6 +401,13 @@ func DeleteCharacter(ctx *app.AppContext) {
 	if txErr != nil {
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("DeleteCharacter transaction was failed : %w", txErr)))
 		return
+	}
+
+	// redisキャッシュの削除
+	keyPattern := []string{cache.CharactersPrefix + "*"}
+	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
+	if err != nil {
+		log.Println("failed redis data delete : %w", err)
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
