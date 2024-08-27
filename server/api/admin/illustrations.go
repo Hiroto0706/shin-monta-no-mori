@@ -3,7 +3,6 @@ package admin
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"shin-monta-no-mori/internal/app"
@@ -17,6 +16,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 const (
@@ -326,7 +326,7 @@ func CreateIllustration(ctx *app.AppContext) {
 	keyPattern := []string{cache.IllustrationsPrefix + "*"}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		log.Println("failed redis data delete : %w", err)
+		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -489,7 +489,7 @@ func EditIllustration(ctx *app.AppContext) {
 	}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		log.Println("failed redis data delete : %w", err)
+		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
 	}
 
 	illustration := service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, image)
@@ -584,7 +584,7 @@ func DeleteIllustration(ctx *app.AppContext) {
 	}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		log.Println("failed redis data delete : %w", err)
+		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{

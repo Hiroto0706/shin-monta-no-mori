@@ -3,7 +3,6 @@ package user
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"shin-monta-no-mori/internal/app"
 	"shin-monta-no-mori/internal/cache"
@@ -13,6 +12,7 @@ import (
 	"strconv"
 
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 )
 
 const (
@@ -90,8 +90,7 @@ func ListAllCategories(ctx *app.AppContext) {
 	err := ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
 	if err != nil && !errors.Is(err, redis.Nil) {
 		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
-		// TODO: loggerを追加する
-		log.Println("failed to redis err : %w", err)
+		ctx.Server.Logger.Info("failed to redis err", zap.String("redis_key", cacheKey), zap.Error(err))
 	}
 
 	if err == nil {
@@ -126,10 +125,9 @@ func ListAllCategories(ctx *app.AppContext) {
 			Categories: categories,
 		}
 		// Redisへのセットが失敗しても処理を続行
-		// TODO: loggerを追加する
 		err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
 		if err != nil {
-			log.Println("failed redis data set : %w", err)
+			ctx.Server.Logger.Warn("failed redis data set", zap.String("redis_key", cacheKey), zap.Error(err))
 		}
 	}
 

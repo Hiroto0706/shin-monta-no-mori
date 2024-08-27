@@ -3,7 +3,6 @@ package admin
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"shin-monta-no-mori/internal/app"
@@ -17,6 +16,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 const (
@@ -306,7 +306,7 @@ func CreateParentCategory(ctx *app.AppContext) {
 	keyPattern := []string{cache.CategoriesPrefix + "*"}
 	err := ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		log.Println("failed redis data delete : %w", err)
+		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, createParentCategoryResponse{
@@ -407,7 +407,7 @@ func EditParentCategory(ctx *app.AppContext) {
 	keyPattern := []string{cache.CategoriesPrefix + "*"}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		log.Println("failed redis data delete : %w", err)
+		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, editParentCategoryResponse{
@@ -494,7 +494,7 @@ func DeleteParentCategory(ctx *app.AppContext) {
 	keyPattern := []string{cache.CategoriesPrefix + "*"}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		log.Println("failed redis data delete : %w", err)
+		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, deleteParentCategoryResponse{
@@ -579,7 +579,7 @@ func CreateChildCategory(ctx *app.AppContext) {
 	keyPattern := []string{cache.CategoriesPrefix + "*"}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		log.Println("failed redis data delete : %w", err)
+		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, createChildCategoryResponse{
@@ -660,7 +660,7 @@ func EditChildCategory(ctx *app.AppContext) {
 	keyPattern := []string{cache.CategoriesPrefix + "*"}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		log.Println("failed redis data delete : %w", err)
+		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, editChildCategoryResponse{
@@ -707,7 +707,7 @@ func DeleteChildCategory(ctx *app.AppContext) {
 	keyPattern := []string{cache.CategoriesPrefix + "*"}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		log.Println("failed redis data delete : %w", err)
+		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{

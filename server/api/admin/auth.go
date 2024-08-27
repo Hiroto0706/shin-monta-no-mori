@@ -2,7 +2,6 @@ package admin
 
 import (
 	"database/sql"
-	"log"
 	"net/http"
 
 	"shin-monta-no-mori/internal/app"
@@ -10,6 +9,7 @@ import (
 	"shin-monta-no-mori/pkg/lib/password"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type (
@@ -94,13 +94,13 @@ type verifyRequest struct {
 func VerifyAccessToken(ctx *app.AppContext) {
 	var req verifyRequest
 	if err := ctx.ShouldBind(&req); err != nil {
-		log.Println(err)
+		ctx.Server.Logger.Info("failed to bind accessToken", zap.Error(err))
 		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
 		return
 	}
 	_, err := ctx.Server.TokenMaker.VerifyToken(req.AccessToken)
 	if err != nil {
-		log.Println(err)
+		ctx.Server.Logger.Info("failed to verifyToken", zap.Error(err))
 		ctx.JSON(http.StatusUnauthorized, app.ErrorResponse(err))
 		return
 	}
