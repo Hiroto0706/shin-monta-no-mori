@@ -22,7 +22,6 @@ func SetUserRouters(s *app.Server) {
 		characters := v1.Group("/characters")
 		{
 			characters.GET("/:id", app.HandlerFuncWrapper(s, user.GetCharacter))
-			characters.GET("/list", app.HandlerFuncWrapper(s, user.ListCharacters))
 			characters.GET("/list/all", app.HandlerFuncWrapper(s, user.ListAllCharacters))
 		}
 		categories := v1.Group("/categories")

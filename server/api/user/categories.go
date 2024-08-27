@@ -50,7 +50,8 @@ func ListCategories(ctx *app.AppContext) {
 	}
 	pcates, err := ctx.Server.Store.ListParentCategories(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ctx.Server.Store.ListParentCategories : %w", err)))
+		ctx.Server.Logger.Error("failed to ListParentCategories", zap.Int32("offset", arg.Offset), zap.Error(err))
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListParentCategories : %w", err)))
 		return
 	}
 
@@ -58,6 +59,7 @@ func ListCategories(ctx *app.AppContext) {
 	for i, pcate := range pcates {
 		ccates, err := ctx.Server.Store.GetChildCategoriesByParentID(ctx, pcate.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to GetChildCategoriesByParentID", zap.Int64("parent_category_id", pcate.ID), zap.Error(err))
 			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
 			return
 		}
@@ -101,7 +103,8 @@ func ListAllCategories(ctx *app.AppContext) {
 
 	pcates, err := ctx.Server.Store.ListAllParentCategories(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ctx.Server.Store.ListParentCategories : %w", err)))
+		ctx.Server.Logger.Error("failed to ListAllParentCategories", zap.Error(err))
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListAllParentCategories : %w", err)))
 		return
 	}
 
@@ -109,6 +112,7 @@ func ListAllCategories(ctx *app.AppContext) {
 	for i, pcate := range pcates {
 		ccates, err := ctx.Server.Store.GetChildCategoriesByParentID(ctx, pcate.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to GetChildCategoriesByParentID", zap.Int64("parent_category_id", pcate.ID), zap.Error(err))
 			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
 			return
 		}
@@ -155,6 +159,7 @@ func ListChildCategories(ctx *app.AppContext) {
 	}
 	childCategories, err := ctx.Server.Store.ListChildCategories(ctx, arg)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to ListChildCategories", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListChildCategories : %w", err)))
 		return
 	}
@@ -186,7 +191,8 @@ func GetChildCategory(ctx *app.AppContext) {
 	}
 	childCategory, err := ctx.Server.Store.GetChildCategory(ctx, int64(id))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListChildCategories : %w", err)))
+		ctx.Server.Logger.Error("failed to GetChildCategory", zap.Int("child_category_id", id), zap.Error(err))
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategory : %w", err)))
 		return
 	}
 

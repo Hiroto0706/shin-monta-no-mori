@@ -142,6 +142,7 @@ func GetIllustration(ctx *app.AppContext) {
 			return
 		}
 
+		ctx.Server.Logger.Error("failed to GetImage", zap.Int("id", id), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 		return
 	}
@@ -200,6 +201,7 @@ func SearchIllustrations(ctx *app.AppContext) {
 
 	images, err := ctx.Server.Store.SearchImages(ctx, arg)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to SearchImages", zap.String("query", req.Query), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to SearchImages : %w", err)))
 		return
 	}
@@ -244,6 +246,7 @@ func FetchRandomIllustrations(ctx *app.AppContext) {
 	}
 	images, err := ctx.Server.Store.FetchRandomImage(ctx, arg)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to FetchRandomImage", zap.Int("exclusion_id", int(req.ExclusionID)), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to FetchRandomImage : %w", err)))
 		return
 	}
@@ -330,6 +333,7 @@ func ListIllustrationsByCharacterID(ctx *app.AppContext) {
 				return
 			}
 
+			ctx.Server.Logger.Error("failed to GetImage", zap.Int64("image_id", icr.ImageID), zap.Int("character_id", charaID), zap.Error(err))
 			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 			return
 		}
@@ -415,6 +419,7 @@ func ListIllustrationsByChildCategoryID(ctx *app.AppContext) {
 	}
 	icrs, err := ctx.Server.Store.ListImageChildCategoryRelationsByChildCategoryIDWithPagination(ctx, arg)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to ListImageChildCategoryRelationsByChildCategoryIDWithPagination", zap.Int("child_category_id", cCateID), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListImageChildCategoryRelationsByChildCategoryIDWithPagination : %w", err)))
 		return
 	}
@@ -429,6 +434,7 @@ func ListIllustrationsByChildCategoryID(ctx *app.AppContext) {
 				return
 			}
 
+			ctx.Server.Logger.Error("failed to GetImage", zap.Int64("image_id", icr.ImageID), zap.Int("child_category_id", cCateID), zap.Error(err))
 			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 			return
 		}
