@@ -46,6 +46,7 @@ type listIllustrationsResponse struct {
 func ListIllustrations(ctx *app.AppContext) {
 	var req listIllustrationsRequest
 	if err := binder.BindQuery(ctx.Context, &req); err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
 		return
 	}
 
@@ -57,6 +58,10 @@ func ListIllustrations(ctx *app.AppContext) {
 	}
 	images, err := ctx.Server.Store.ListImage(ctx, arg)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to ListImage",
+			zap.Int("offset", int(req.Page)),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListImage : %w", err)))
 		return
 	}
@@ -69,6 +74,9 @@ func ListIllustrations(ctx *app.AppContext) {
 
 	totalCount, err := ctx.Server.Store.CountImages(ctx)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to CountImages",
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CountImages : %w", err)))
 		return
 	}
@@ -110,6 +118,10 @@ func GetIllustration(ctx *app.AppContext) {
 			return
 		}
 
+		ctx.Server.Logger.Error("failed to GetImage",
+			zap.Int("illustration_id", id),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 		return
 	}
@@ -157,6 +169,11 @@ func SearchIllustrations(ctx *app.AppContext) {
 
 	images, err := ctx.Server.Store.SearchImages(ctx, arg)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to SearchImages",
+			zap.String("query", req.Query),
+			zap.Int("page", req.Page),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to SearchImages : %w", err)))
 		return
 	}
@@ -173,6 +190,11 @@ func SearchIllustrations(ctx *app.AppContext) {
 		Valid:  true,
 	})
 	if err != nil {
+		ctx.Server.Logger.Error("failed to CountSearchImages",
+			zap.String("query", req.Query),
+			zap.Int("page", req.Page),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CountSearchImages : %w", err)))
 		return
 	}
@@ -228,6 +250,11 @@ func CreateIllustration(ctx *app.AppContext) {
 		if req.Filename != "" {
 			originalSrc, err = service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
 			if err != nil {
+				ctx.Server.Logger.Error("failed to UploadImage",
+					zap.String("title", req.Title),
+					zap.String("filename", req.Filename),
+					zap.Error(err),
+				)
 				return fmt.Errorf("failed to UploadImage: %w", err)
 			}
 		}
@@ -236,6 +263,11 @@ func CreateIllustration(ctx *app.AppContext) {
 		if req.Filename != "" && req.SimpleImageFile.Size != 0 {
 			simpleSrc, err = service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
 			if err != nil {
+				ctx.Server.Logger.Error("failed to UploadImage for simpl image",
+					zap.String("title", req.Title),
+					zap.String("filename", req.Filename),
+					zap.Error(err),
+				)
 				return fmt.Errorf("failed to UploadImage for simpl image : %w", err)
 			}
 		}
@@ -254,6 +286,13 @@ func CreateIllustration(ctx *app.AppContext) {
 
 		image, err = ctx.Server.Store.CreateImage(ctx, arg)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to CreateImage",
+				zap.String("title", req.Title),
+				zap.String("filename", req.Filename),
+				zap.String("original_src", originalSrc),
+				zap.String("simple_src", simpleSrc),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to CreateImage: %w", err)
 		}
 
@@ -265,6 +304,14 @@ func CreateIllustration(ctx *app.AppContext) {
 			}
 			_, err := ctx.Server.Store.CreateImageCharacterRelations(ctx, arg)
 			if err != nil {
+				ctx.Server.Logger.Error("failed to CreateImageCharacterRelations",
+					zap.String("title", req.Title),
+					zap.String("filename", req.Filename),
+					zap.String("original_src", originalSrc),
+					zap.String("simple_src", simpleSrc),
+					zap.Int("character_id", int(c_id)),
+					zap.Error(err),
+				)
 				return fmt.Errorf("failed to CreateImageCharacterRelations: %w", err)
 			}
 		}
@@ -285,6 +332,14 @@ func CreateIllustration(ctx *app.AppContext) {
 
 			_, err := ctx.Server.Store.CreateImageParentCategoryRelations(ctx, arg)
 			if err != nil {
+				ctx.Server.Logger.Error("failed to CreateImageParentCategoryRelations",
+					zap.String("title", req.Title),
+					zap.String("filename", req.Filename),
+					zap.String("original_src", originalSrc),
+					zap.String("simple_src", simpleSrc),
+					zap.Int("parent_category_id", int(pc_id)),
+					zap.Error(err),
+				)
 				return fmt.Errorf("failed to CreateImageParentCategoryRelations: %w", err)
 			}
 		}
@@ -297,6 +352,14 @@ func CreateIllustration(ctx *app.AppContext) {
 			}
 			_, err := ctx.Server.Store.CreateImageChildCategoryRelations(ctx, arg)
 			if err != nil {
+				ctx.Server.Logger.Error("failed to CreateImageChildCategoryRelations",
+					zap.String("title", req.Title),
+					zap.String("filename", req.Filename),
+					zap.String("original_src", originalSrc),
+					zap.String("simple_src", simpleSrc),
+					zap.Int("child_category_id", int(cc_id)),
+					zap.Error(err),
+				)
 				return fmt.Errorf("failed to CreateImageChildCategoryRelations: %w", err)
 			}
 		}
@@ -305,10 +368,16 @@ func CreateIllustration(ctx *app.AppContext) {
 	})
 
 	if txErr != nil {
+		ctx.Server.Logger.Error("CreateImage transaction was failed",
+			zap.String("title", req.Title),
+			zap.String("filename", req.Filename),
+			zap.Error(txErr),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("CreateImage transaction was failed : %w", txErr)))
 		return
 	}
 
+	// イラスト一覧を最新にするためにillustrationsを取得
 	image, err := ctx.Server.Store.GetImage(ctx, int64(image.ID))
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -316,6 +385,12 @@ func CreateIllustration(ctx *app.AppContext) {
 			return
 		}
 
+		ctx.Server.Logger.Error("failed to GetImage",
+			zap.Int("illustration_id", int(image.ID)),
+			zap.String("title", req.Title),
+			zap.String("filename", req.Filename),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 		return
 	}
@@ -326,7 +401,7 @@ func CreateIllustration(ctx *app.AppContext) {
 	keyPattern := []string{cache.IllustrationsPrefix + "*"}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
+		ctx.Server.Logger.Warn("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -382,6 +457,13 @@ func EditIllustration(ctx *app.AppContext) {
 			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 			return
 		}
+		ctx.Server.Logger.Error("failed to GetImage",
+			zap.Int("illustration_id", id),
+			zap.String("title", req.Title),
+			zap.String("filename", req.Filename),
+			zap.Bool("is_delete_simple_image", req.IsDeleteSimpleImage),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 		return
 	}
@@ -395,12 +477,28 @@ func EditIllustration(ctx *app.AppContext) {
 		if image.OriginalFilename != req.Filename || req.OriginalImageFile.Filename != "" {
 			err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, image.OriginalSrc)
 			if err != nil {
+				ctx.Server.Logger.Error("failed to DeleteImageSrc",
+					zap.Int("illustration_id", id),
+					zap.String("title", req.Title),
+					zap.String("filename", req.Filename),
+					zap.String("original_src", originalSrc),
+					zap.Bool("is_delete_simple_image", req.IsDeleteSimpleImage),
+					zap.Error(err),
+				)
 				return fmt.Errorf("failed to DeleteImageSrc : %w", err)
 			}
 
 			originalSrc, err = service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "original_image_file", req.Filename, IMAGE_TYPE_IMAGE, false)
 			if err != nil {
-				return fmt.Errorf("failed to UploadImage : %w", err)
+				ctx.Server.Logger.Error("failed to UploadImage",
+					zap.Int("illustration_id", id),
+					zap.String("title", req.Title),
+					zap.String("filename", req.Filename),
+					zap.String("original_src", originalSrc),
+					zap.Bool("is_delete_simple_image", req.IsDeleteSimpleImage),
+					zap.Error(err),
+				)
+				return fmt.Errorf("failed to UploadImage: %w", err)
 			}
 		}
 
@@ -415,6 +513,14 @@ func EditIllustration(ctx *app.AppContext) {
 			if simpleSrc != "" {
 				err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, simpleSrc)
 				if err != nil {
+					ctx.Server.Logger.Error("failed to DeleteImageSrc fro simple image",
+						zap.Int("illustration_id", id),
+						zap.String("title", req.Title),
+						zap.String("filename", req.Filename),
+						zap.String("simple_src", simpleSrc),
+						zap.Bool("is_delete_simple_image", req.IsDeleteSimpleImage),
+						zap.Error(err),
+					)
 					return fmt.Errorf("failed to DeleteImageSrc fro simple : %w", err)
 				}
 			}
@@ -422,6 +528,14 @@ func EditIllustration(ctx *app.AppContext) {
 			if req.SimpleImageFile.Filename != "" {
 				simpleSrc, err = service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "simple_image_file", req.Filename, IMAGE_TYPE_IMAGE, true)
 				if err != nil {
+					ctx.Server.Logger.Error("failed to UploadImage fro simple image",
+						zap.Int("illustration_id", id),
+						zap.String("title", req.Title),
+						zap.String("filename", req.Filename),
+						zap.String("simple_src", simpleSrc),
+						zap.Bool("is_delete_simple_image", req.IsDeleteSimpleImage),
+						zap.Error(err),
+					)
 					return fmt.Errorf("failed to UploadImage for simple image : %w", err)
 				}
 			}
@@ -430,6 +544,14 @@ func EditIllustration(ctx *app.AppContext) {
 		if req.IsDeleteSimpleImage {
 			err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, simpleSrc)
 			if err != nil {
+				ctx.Server.Logger.Error("failed to DeleteImageSrc fro simple image",
+					zap.Int("illustration_id", id),
+					zap.String("title", req.Title),
+					zap.String("filename", req.Filename),
+					zap.String("simple_src", simpleSrc),
+					zap.Bool("is_delete_simple_image", req.IsDeleteSimpleImage),
+					zap.Error(err),
+				)
 				return fmt.Errorf("failed to DeleteImageSrc for simple image : %w", err)
 			}
 			simpleSrc = ""
@@ -452,6 +574,15 @@ func EditIllustration(ctx *app.AppContext) {
 		}
 		image, err = ctx.Server.Store.UpdateImage(ctx, arg)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to UpdateImage",
+				zap.Int("illustration_id", id),
+				zap.String("title", req.Title),
+				zap.String("filename", req.Filename),
+				zap.String("original_src", originalSrc),
+				zap.String("simple_src", simpleSrc),
+				zap.Bool("is_delete_simple_image", req.IsDeleteSimpleImage),
+				zap.Error(err),
+			)
 			return err
 		}
 
@@ -459,18 +590,39 @@ func EditIllustration(ctx *app.AppContext) {
 		// image_character_relationsのUpdate処理
 		err = service.UpdateImageCharacterRelationsIDs(ctx.Context, ctx.Server.Store, image.ID, req.Characters)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to UpdateImageCharacterRelationsIDs",
+				zap.Int("illustration_id", id),
+				zap.String("title", req.Title),
+				zap.String("filename", req.Filename),
+				zap.Bool("is_delete_simple_image", req.IsDeleteSimpleImage),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to server.UpdateImageCharacterRelationsIDs: %w", err)
 		}
 
 		// image_parent_category_relationsのUpdate処理
 		err = service.UpdateImageParentCategoryRelationsIDs(ctx.Context, ctx.Server.Store, image.ID, req.ParentCategories)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to UpdateImageParentCategoryRelationsIDs",
+				zap.Int("illustration_id", id),
+				zap.String("title", req.Title),
+				zap.String("filename", req.Filename),
+				zap.Bool("is_delete_simple_image", req.IsDeleteSimpleImage),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to server.UpdateImageParentCategoryRelationsIDs: %w", err)
 		}
 
 		// image_child_category_relationsのUpdate処理
 		err = service.UpdateImageChildCategoryRelationsIDs(ctx.Context, ctx.Server.Store, image.ID, req.ChildCategories)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to UpdateImageChildCategoryRelationsIDs",
+				zap.Int("illustration_id", id),
+				zap.String("title", req.Title),
+				zap.String("filename", req.Filename),
+				zap.Bool("is_delete_simple_image", req.IsDeleteSimpleImage),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to server.UpdateImageChildCategoryRelationsIDs: %w", err)
 		}
 
@@ -478,6 +630,13 @@ func EditIllustration(ctx *app.AppContext) {
 	})
 
 	if txErr != nil {
+		ctx.Server.Logger.Error("EditImage transaction was failed",
+			zap.Int("illustration_id", id),
+			zap.String("title", req.Title),
+			zap.String("filename", req.Filename),
+			zap.Bool("is_delete_simple_image", req.IsDeleteSimpleImage),
+			zap.Error(txErr),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(txErr))
 		return
 	}
@@ -489,7 +648,7 @@ func EditIllustration(ctx *app.AppContext) {
 	}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
+		ctx.Server.Logger.Warn("failed redis data delete", zap.Error(err))
 	}
 
 	illustration := service.FetchRelationInfoForIllustrations(ctx.Context, ctx.Server.Store, image)
@@ -526,7 +685,10 @@ func DeleteIllustration(ctx *app.AppContext) {
 			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 			return
 		}
-
+		ctx.Server.Logger.Error("failed to GetImage",
+			zap.Int("illustration_id", id),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 		return
 	}
@@ -534,12 +696,22 @@ func DeleteIllustration(ctx *app.AppContext) {
 	txErr := ctx.Server.Store.ExecTx(ctx.Request.Context(), func(q *db.Queries) error {
 		err = service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, image.OriginalSrc)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to DeleteImageSrc",
+				zap.Int("illustration_id", id),
+				zap.String("original_src", image.OriginalSrc),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to DeleteImageSrc : %w", err)
 		}
 
 		if image.SimpleSrc.String != "" {
 			err = service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, image.SimpleSrc.String)
 			if err != nil {
+				ctx.Server.Logger.Error("failed to DeleteImageSrc for simple image",
+					zap.Int("illustration_id", id),
+					zap.String("simple_src", image.SimpleFilename.String),
+					zap.Error(err),
+				)
 				return fmt.Errorf("failed to DeleteImageSrc for simple image : %w", err)
 			}
 		}
@@ -548,24 +720,40 @@ func DeleteIllustration(ctx *app.AppContext) {
 		// image_child_category_relationsを削除
 		err = ctx.Server.Store.DeleteAllImageChildCategoryRelationsByImageID(ctx, image.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to DeleteAllImageChildCategoryRelationsByImageID",
+				zap.Int("illustration_id", id),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to DeleteAllImageChildCategoryRelationsByImageID: %w", err)
 		}
 
 		// image_parent_category_relationsを削除
 		err = ctx.Server.Store.DeleteAllImageParentCategoryRelationsByImageID(ctx, image.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to DeleteAllImageParentCategoryRelationsByImageID",
+				zap.Int("illustration_id", id),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to DeleteAllImageParentCategoryRelationsByImageID: %w", err)
 		}
 
 		// image_character_relationsを削除
 		err = ctx.Server.Store.DeleteAllImageCharacterRelationsByImageID(ctx, image.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to DeleteAllImageCharacterRelationsByImageID",
+				zap.Int("illustration_id", id),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to DeleteAllImageCharacterRelationsByImageID: %w", err)
 		}
 
 		// Imageを削除
 		err = ctx.Server.Store.DeleteImage(ctx, image.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to DeleteImage",
+				zap.Int("illustration_id", id),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to DeleteImage: %w", err)
 		}
 
@@ -573,6 +761,10 @@ func DeleteIllustration(ctx *app.AppContext) {
 	})
 
 	if txErr != nil {
+		ctx.Server.Logger.Error("DeleteImage transaction was failed",
+			zap.Int("illustration_id", id),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(txErr))
 		return
 	}
@@ -584,7 +776,7 @@ func DeleteIllustration(ctx *app.AppContext) {
 	}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
+		ctx.Server.Logger.Warn("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{

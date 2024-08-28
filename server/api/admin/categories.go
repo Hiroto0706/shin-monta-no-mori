@@ -23,7 +23,6 @@ const (
 	IMAGE_TYPE_CATEGORY = "category"
 )
 
-// TODO: 将来的にpager機能を持たせた方がいいかも？
 type listCategoriesRequest struct {
 	Page int64 `form:"p"`
 }
@@ -46,7 +45,8 @@ type listCategoriesResponse struct {
 func ListAllCategories(ctx *app.AppContext) {
 	pcates, err := ctx.Server.Store.ListAllParentCategories(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ctx.Server.Store.ListParentCategories : %w", err)))
+		ctx.Server.Logger.Error("failed to ListParentCategories", zap.Error(err))
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListParentCategories : %w", err)))
 		return
 	}
 
@@ -54,6 +54,7 @@ func ListAllCategories(ctx *app.AppContext) {
 	for i, pcate := range pcates {
 		ccates, err := ctx.Server.Store.GetChildCategoriesByParentID(ctx, pcate.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to GetChildCategoriesByParentID", zap.Int("parent_category_id", int(pcate.ID)), zap.Error(err))
 			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
 			return
 		}
@@ -80,6 +81,7 @@ func ListAllCategories(ctx *app.AppContext) {
 func ListCategories(ctx *app.AppContext) {
 	var req listCategoriesRequest
 	if err := binder.BindQuery(ctx.Context, &req); err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
 		return
 	}
 
@@ -89,7 +91,8 @@ func ListCategories(ctx *app.AppContext) {
 	}
 	pcates, err := ctx.Server.Store.ListParentCategories(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ctx.Server.Store.ListParentCategories : %w", err)))
+		ctx.Server.Logger.Error("failed to ListParentCategories", zap.Error(err))
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListParentCategories : %w", err)))
 		return
 	}
 
@@ -102,6 +105,7 @@ func ListCategories(ctx *app.AppContext) {
 				return
 			}
 
+			ctx.Server.Logger.Error("failed to GetChildCategoriesByParentID", zap.Int("parent_category_id", int(pcate.ID)), zap.Error(err))
 			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
 			return
 		}
@@ -114,6 +118,7 @@ func ListCategories(ctx *app.AppContext) {
 
 	totalCount, err := ctx.Server.Store.CountParentCategories(ctx)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to CountParentCategories", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CountParentCategories : %w", err)))
 		return
 	}
@@ -154,13 +159,14 @@ func GetCategory(ctx *app.AppContext) {
 			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetParentCategory: %w", err)))
 			return
 		}
-
+		ctx.Server.Logger.Error("failed to GetParentCategory", zap.Int("parent_category_id", id), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetParentCategory : %w", err)))
 		return
 	}
 
 	ccates, err := ctx.Server.Store.GetChildCategoriesByParentID(ctx, pcate.ID)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to GetChildCategoriesByParentID", zap.Int("parent_category_id", id), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
 		return
 	}
@@ -205,6 +211,7 @@ func SearchCategories(ctx *app.AppContext) {
 	}
 	pcates, err := ctx.Server.Store.SearchParentCategories(ctx, q)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to SearchParentCategories", zap.String("query", req.Query), zap.Int("page", req.Page), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to SearchParentCategories : %w", err)))
 		return
 	}
@@ -213,6 +220,7 @@ func SearchCategories(ctx *app.AppContext) {
 	for i, pcate := range pcates {
 		ccates, err := ctx.Server.Store.GetChildCategoriesByParentID(ctx, pcate.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to GetChildCategoriesByParentID", zap.Int("parent_category_id", int(pcate.ID)), zap.String("query", req.Query), zap.Int("page", req.Page), zap.Error(err))
 			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
 			return
 		}
@@ -228,6 +236,7 @@ func SearchCategories(ctx *app.AppContext) {
 		Valid:  true,
 	})
 	if err != nil {
+		ctx.Server.Logger.Error("failed to CountSearchParentCategories", zap.String("query", req.Query), zap.Int("page", req.Page), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CountSearchParentCategories : %w", err)))
 		return
 	}
@@ -276,6 +285,12 @@ func CreateParentCategory(ctx *app.AppContext) {
 	txErr := ctx.Server.Store.ExecTx(ctx.Request.Context(), func(q *db.Queries) error {
 		src, err := service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "image_file", req.Filename, IMAGE_TYPE_CATEGORY, false)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to UploadImageSrc",
+				zap.String("name", req.Name),
+				zap.String("filename", req.Filename),
+				zap.Int("priority_level", int(req.PriorityLevel)),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to UploadImage: %w", err)
 		}
 
@@ -291,6 +306,12 @@ func CreateParentCategory(ctx *app.AppContext) {
 
 		parentCategory, err = ctx.Server.Store.CreateParentCategory(ctx, arg)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to CreateParentCategory",
+				zap.String("name", req.Name),
+				zap.String("filename", req.Filename),
+				zap.Int("priority_level", int(req.PriorityLevel)),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to CreateParentCategory: %w", err)
 		}
 
@@ -298,6 +319,12 @@ func CreateParentCategory(ctx *app.AppContext) {
 	})
 
 	if txErr != nil {
+		ctx.Server.Logger.Error("CreateParentCategory transaction was failed",
+			zap.String("name", req.Name),
+			zap.String("filename", req.Filename),
+			zap.Int("priority_level", int(req.PriorityLevel)),
+			zap.Error(txErr),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("CreateParentCategory transaction was failed : %w", txErr)))
 		return
 	}
@@ -306,7 +333,7 @@ func CreateParentCategory(ctx *app.AppContext) {
 	keyPattern := []string{cache.CategoriesPrefix + "*"}
 	err := ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
+		ctx.Server.Logger.Warn("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, createParentCategoryResponse{
@@ -360,6 +387,13 @@ func EditParentCategory(ctx *app.AppContext) {
 			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetParentCategory : %w", err)))
 			return
 		}
+		ctx.Server.Logger.Error("failed to GetParentCategory",
+			zap.Int("parent_category_id", id),
+			zap.String("name", req.Name),
+			zap.String("filename", req.Filename),
+			zap.Int("priority_level", int(req.PriorityLevel)),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetParentCategory : %w", err)))
 		return
 	}
@@ -369,11 +403,27 @@ func EditParentCategory(ctx *app.AppContext) {
 		if pcate.Filename.String != req.Filename {
 			err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, pcate.Src)
 			if err != nil {
+				ctx.Server.Logger.Error("failed to DeleteImageSrc",
+					zap.Int("parent_category_id", id),
+					zap.String("name", req.Name),
+					zap.String("filename", req.Filename),
+					zap.String("src", src),
+					zap.Int("priority_level", int(req.PriorityLevel)),
+					zap.Error(err),
+				)
 				return err
 			}
 
 			src, err = service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "image_file", req.Filename, IMAGE_TYPE_CATEGORY, false)
 			if err != nil {
+				ctx.Server.Logger.Error("failed to UploadImageSrc",
+					zap.Int("parent_category_id", id),
+					zap.String("name", req.Name),
+					zap.String("filename", req.Filename),
+					zap.String("src", src),
+					zap.Int("priority_level", int(req.PriorityLevel)),
+					zap.Error(err),
+				)
 				return err
 			}
 		}
@@ -392,6 +442,14 @@ func EditParentCategory(ctx *app.AppContext) {
 
 		pcate, err = ctx.Server.Store.UpdateParentCategory(ctx, arg)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to UpdateParentCategory",
+				zap.Int("parent_category_id", id),
+				zap.String("name", req.Name),
+				zap.String("filename", req.Filename),
+				zap.String("src", src),
+				zap.Int("priority_level", int(req.PriorityLevel)),
+				zap.Error(err),
+			)
 			return err
 		}
 
@@ -399,6 +457,13 @@ func EditParentCategory(ctx *app.AppContext) {
 	})
 
 	if txErr != nil {
+		ctx.Server.Logger.Error("EditParentCategory transaction was failed",
+			zap.Int("parent_category_id", id),
+			zap.String("name", req.Name),
+			zap.String("filename", req.Filename),
+			zap.Int("priority_level", int(req.PriorityLevel)),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("EditParentCategory transaction was failed : %w", txErr)))
 		return
 	}
@@ -407,7 +472,7 @@ func EditParentCategory(ctx *app.AppContext) {
 	keyPattern := []string{cache.CategoriesPrefix + "*"}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
+		ctx.Server.Logger.Warn("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, editParentCategoryResponse{
@@ -443,6 +508,10 @@ func DeleteParentCategory(ctx *app.AppContext) {
 			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetParentCategory : %w", err)))
 			return
 		}
+		ctx.Server.Logger.Error("failed to GetParentCategory",
+			zap.Int("parent_category_id", id),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetParentCategory : %w", err)))
 		return
 	}
@@ -450,23 +519,40 @@ func DeleteParentCategory(ctx *app.AppContext) {
 	txErr := ctx.Server.Store.ExecTx(ctx.Request.Context(), func(q *db.Queries) error {
 		err = service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, pcate.Src)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to DeleteImageSrc",
+				zap.Int("parent_category_id", id),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to DeleteImageSrc: %w", err)
 		}
 
 		// images_parent_category_relationsの削除
 		err = ctx.Server.Store.DeleteAllImageParentCategoryRelationsByParentCategoryID(ctx, pcate.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to DeleteAllImageParentCategoryRelationsByParentCategoryID",
+				zap.Int("parent_category_id", id),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to DeleteAllImageParentCategoryRelationsByParentCategoryID : %w", err)
 		}
 
 		// parent_category_idと関連するimage_child_category_relationsの削除
 		ccates, err := ctx.Server.Store.GetChildCategoriesByParentID(ctx, pcate.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to GetChildCategoriesByParentID",
+				zap.Int("parent_category_id", id),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to GetChildCategoriesByParentID: %w", err)
 		}
 		for _, ccate := range ccates {
 			err = ctx.Server.Store.DeleteAllImageChildCategoryRelationsByChildCategoryID(ctx, ccate.ID)
 			if err != nil {
+				ctx.Server.Logger.Error("failed to DeleteAllImageChildCategoryRelationsByChildCategoryID",
+					zap.Int("parent_category_id", id),
+					zap.Int("child_category_id", int(ccate.ID)),
+					zap.Error(err),
+				)
 				return fmt.Errorf("failed to DeleteAllImageChildCategoryRelationsByChildCategoryID: %w", err)
 			}
 		}
@@ -474,18 +560,30 @@ func DeleteParentCategory(ctx *app.AppContext) {
 		// 関係するchild_categoriesの全削除
 		err = ctx.Server.Store.DeleteAllChildCategoriesByParentCategoryID(ctx, pcate.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to DeleteAllChildCategoriesByParentCategoryID",
+				zap.Int("parent_category_id", id),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to DeleteAllChildCategoriesByParentCategoryID : %w", err)
 		}
 
 		// parent_categoryの削除
 		err = ctx.Server.Store.DeleteParentCategory(ctx, pcate.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to DeleteParentCategory",
+				zap.Int("parent_category_id", id),
+				zap.Error(err),
+			)
 			return fmt.Errorf("failed to DeleteParentCategory : %w", err)
 		}
 
 		return nil
 	})
 	if txErr != nil {
+		ctx.Server.Logger.Error("DeleteParentCategory transaction was failed",
+			zap.Int("parent_category_id", id),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("DeleteParentCategory transaction was failed : %w", txErr)))
 		return
 	}
@@ -494,7 +592,7 @@ func DeleteParentCategory(ctx *app.AppContext) {
 	keyPattern := []string{cache.CategoriesPrefix + "*"}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
+		ctx.Server.Logger.Warn("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, deleteParentCategoryResponse{
@@ -526,6 +624,10 @@ func GetChildCategory(ctx *app.AppContext) {
 
 	child_category, err := ctx.Server.Store.GetChildCategory(ctx, int64(id))
 	if err != nil {
+		ctx.Server.Logger.Error("failed to GetChildCategory",
+			zap.Int("child_category_id", id),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategory : %w", err)))
 		return
 	}
@@ -571,6 +673,12 @@ func CreateChildCategory(ctx *app.AppContext) {
 	}
 	childCategory, err := ctx.Server.Store.CreateChildCategory(ctx, arg)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to CreateChildCategory",
+			zap.String("name", req.Name),
+			zap.Int("parent_category_id", req.ParentID),
+			zap.Int("priority_level", int(req.PriorityLevel)),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CreateChildCategory : %w", err)))
 		return
 	}
@@ -579,7 +687,7 @@ func CreateChildCategory(ctx *app.AppContext) {
 	keyPattern := []string{cache.CategoriesPrefix + "*"}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
+		ctx.Server.Logger.Warn("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, createChildCategoryResponse{
@@ -630,6 +738,13 @@ func EditChildCategory(ctx *app.AppContext) {
 			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetChildCategory : %w", err)))
 			return
 		}
+		ctx.Server.Logger.Error("failed to GetChildCategory",
+			zap.Int("child_category_id", id),
+			zap.String("name", req.Name),
+			zap.Int("parent_category_id", req.ParentID),
+			zap.Int("priority_level", int(req.PriorityLevel)),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategory : %w", err)))
 		return
 	}
@@ -645,6 +760,13 @@ func EditChildCategory(ctx *app.AppContext) {
 
 		ccate, err = ctx.Server.Store.UpdateChildCategory(ctx, arg)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to UpdateChildCategory",
+				zap.Int("child_category_id", id),
+				zap.String("name", req.Name),
+				zap.Int("parent_category_id", req.ParentID),
+				zap.Int("priority_level", int(req.PriorityLevel)),
+				zap.Error(err),
+			)
 			return err
 		}
 
@@ -652,6 +774,13 @@ func EditChildCategory(ctx *app.AppContext) {
 	})
 
 	if txErr != nil {
+		ctx.Server.Logger.Error("EditChildCategory transaction was failed",
+			zap.Int("child_category_id", id),
+			zap.String("name", req.Name),
+			zap.Int("parent_category_id", req.ParentID),
+			zap.Int("priority_level", int(req.PriorityLevel)),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("EditChildCategory transaction was failed : %w", txErr)))
 		return
 	}
@@ -660,7 +789,7 @@ func EditChildCategory(ctx *app.AppContext) {
 	keyPattern := []string{cache.CategoriesPrefix + "*"}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
+		ctx.Server.Logger.Warn("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, editChildCategoryResponse{
@@ -693,6 +822,10 @@ func DeleteChildCategory(ctx *app.AppContext) {
 			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetChildCategory : %w", err)))
 			return
 		}
+		ctx.Server.Logger.Error("failed to GetChildCategory",
+			zap.Int("child_category_id", id),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategory : %w", err)))
 		return
 	}
@@ -707,7 +840,7 @@ func DeleteChildCategory(ctx *app.AppContext) {
 	keyPattern := []string{cache.CategoriesPrefix + "*"}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		ctx.Server.Logger.Error("failed redis data delete", zap.Error(err))
+		ctx.Server.Logger.Warn("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
