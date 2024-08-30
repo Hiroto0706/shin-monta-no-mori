@@ -4,57 +4,19 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"shin-monta-no-mori/internal/app"
 	"shin-monta-no-mori/internal/cache"
 	db "shin-monta-no-mori/internal/db/sqlc"
-	"shin-monta-no-mori/pkg/lib/binder"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 )
 
 const (
 	IMAGE_TYPE_CHARACTER = "character"
 )
-
-type listCharactersRequest struct {
-	Page int64 `form:"p"`
-}
-
-// ListCharacters godoc
-// @Summary List characters
-// @Description Retrieves a paginated list of characters based on the provided page number.
-// @Accept  json
-// @Produce  json
-// @Param   p     query   int64  true  "Page number for pagination"
-// @Success 200   {object} gin/H  "Returns a list of characters"
-// @Failure 400   {object} request/JSONResponse{data=string} "Bad Request: Error in data binding or validation"
-// @Failure 500   {object} request/JSONResponse{data=string} "Internal Server Error: Failed to list the characters"
-// @Router /api/v1/characters/list [get]
-func ListCharacters(ctx *app.AppContext) {
-	var req listCharactersRequest
-	if err := binder.BindQuery(ctx.Context, &req); err != nil {
-		return
-	}
-
-	arg := db.ListCharactersParams{
-		Limit:  int32(ctx.Server.Config.CharacterFetchLimit),
-		Offset: int32(int(req.Page) * ctx.Server.Config.CharacterFetchLimit),
-	}
-
-	characters, err := ctx.Server.Store.ListCharacters(ctx, arg)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListCharacters : %w", err)))
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"characters": characters,
-	})
-}
 
 type listAllCharactersResponse struct {
 	Characters []db.Character `json:"characters"`
@@ -80,8 +42,7 @@ func ListAllCharacters(ctx *app.AppContext) {
 	err := ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
 	if err != nil && !errors.Is(err, redis.Nil) {
 		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
-		// TODO: loggerを追加する
-		log.Println("failed to redis err : %w", err)
+		ctx.Server.Logger.Info("failed to redis err", zap.String("redis_key", cacheKey), zap.Error(err))
 	}
 
 	if err == nil {
@@ -92,6 +53,7 @@ func ListAllCharacters(ctx *app.AppContext) {
 
 	characters, err := ctx.Server.Store.ListAllCharacters(ctx)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to ListAllCharacters", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListAllCharacters : %w", err)))
 		return
 	}
@@ -102,10 +64,9 @@ func ListAllCharacters(ctx *app.AppContext) {
 			Characters: characters,
 		}
 		// Redisへのセットが失敗しても処理を続行
-		// TODO: loggerを追加する
 		err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
 		if err != nil {
-			log.Println("failed redis data set : %w", err)
+			ctx.Server.Logger.Warn("failed redis data set", zap.String("redis_key", cacheKey), zap.Error(err))
 		}
 	}
 
@@ -143,6 +104,7 @@ func GetCharacter(ctx *app.AppContext) {
 			return
 		}
 
+		ctx.Server.Logger.Error("failed to GetCharacter", zap.Int("character_id", id), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetCharacter : %w", err)))
 		return
 	}

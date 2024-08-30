@@ -3,7 +3,6 @@ package user
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"shin-monta-no-mori/internal/app"
 	"shin-monta-no-mori/internal/cache"
@@ -13,6 +12,7 @@ import (
 	"strconv"
 
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 )
 
 const (
@@ -50,7 +50,8 @@ func ListCategories(ctx *app.AppContext) {
 	}
 	pcates, err := ctx.Server.Store.ListParentCategories(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ctx.Server.Store.ListParentCategories : %w", err)))
+		ctx.Server.Logger.Error("failed to ListParentCategories", zap.Int32("offset", arg.Offset), zap.Error(err))
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListParentCategories : %w", err)))
 		return
 	}
 
@@ -58,6 +59,7 @@ func ListCategories(ctx *app.AppContext) {
 	for i, pcate := range pcates {
 		ccates, err := ctx.Server.Store.GetChildCategoriesByParentID(ctx, pcate.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to GetChildCategoriesByParentID", zap.Int64("parent_category_id", pcate.ID), zap.Error(err))
 			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
 			return
 		}
@@ -90,8 +92,7 @@ func ListAllCategories(ctx *app.AppContext) {
 	err := ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
 	if err != nil && !errors.Is(err, redis.Nil) {
 		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
-		// TODO: loggerを追加する
-		log.Println("failed to redis err : %w", err)
+		ctx.Server.Logger.Info("failed to redis err", zap.String("redis_key", cacheKey), zap.Error(err))
 	}
 
 	if err == nil {
@@ -102,7 +103,8 @@ func ListAllCategories(ctx *app.AppContext) {
 
 	pcates, err := ctx.Server.Store.ListAllParentCategories(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ctx.Server.Store.ListParentCategories : %w", err)))
+		ctx.Server.Logger.Error("failed to ListAllParentCategories", zap.Error(err))
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListAllParentCategories : %w", err)))
 		return
 	}
 
@@ -110,6 +112,7 @@ func ListAllCategories(ctx *app.AppContext) {
 	for i, pcate := range pcates {
 		ccates, err := ctx.Server.Store.GetChildCategoriesByParentID(ctx, pcate.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to GetChildCategoriesByParentID", zap.Int64("parent_category_id", pcate.ID), zap.Error(err))
 			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategoriesByParentID : %w", err)))
 			return
 		}
@@ -126,10 +129,9 @@ func ListAllCategories(ctx *app.AppContext) {
 			Categories: categories,
 		}
 		// Redisへのセットが失敗しても処理を続行
-		// TODO: loggerを追加する
 		err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
 		if err != nil {
-			log.Println("failed redis data set : %w", err)
+			ctx.Server.Logger.Warn("failed redis data set", zap.String("redis_key", cacheKey), zap.Error(err))
 		}
 	}
 
@@ -157,6 +159,7 @@ func ListChildCategories(ctx *app.AppContext) {
 	}
 	childCategories, err := ctx.Server.Store.ListChildCategories(ctx, arg)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to ListChildCategories", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListChildCategories : %w", err)))
 		return
 	}
@@ -188,7 +191,8 @@ func GetChildCategory(ctx *app.AppContext) {
 	}
 	childCategory, err := ctx.Server.Store.GetChildCategory(ctx, int64(id))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListChildCategories : %w", err)))
+		ctx.Server.Logger.Error("failed to GetChildCategory", zap.Int("child_category_id", id), zap.Error(err))
+		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetChildCategory : %w", err)))
 		return
 	}
 

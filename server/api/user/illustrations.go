@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"shin-monta-no-mori/internal/app"
 	"shin-monta-no-mori/internal/cache"
@@ -15,6 +14,7 @@ import (
 	"strconv"
 
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 )
 
 const (
@@ -53,9 +53,7 @@ func ListIllustrations(ctx *app.AppContext) {
 	var cachedResponse listIllustrationsResponse
 	err := ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
 	if err != nil && !errors.Is(err, redis.Nil) {
-		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
-		// TODO: loggerを追加する
-		log.Println("failed to redis err : %w", err)
+		ctx.Server.Logger.Info("failed to redis err", zap.String("redis_key", cacheKey), zap.Error(err))
 	}
 
 	if err == nil {
@@ -83,15 +81,13 @@ func ListIllustrations(ctx *app.AppContext) {
 	}
 
 	if len(illustrations) > 0 {
-		// レスポンスをキャッシュに保存
 		response := listIllustrationsResponse{
 			Illustrations: illustrations,
 		}
 		// Redisへのセットが失敗しても処理を続行
-		// TODO: loggerを追加する
 		err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
 		if err != nil {
-			log.Println("failed redis data set : %w", err)
+			ctx.Server.Logger.Warn("failed redis data set", zap.String("redis_key", cacheKey), zap.Error(err))
 		}
 	}
 
@@ -131,13 +127,10 @@ func GetIllustration(ctx *app.AppContext) {
 	err = ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
 	if err != nil && !errors.Is(err, redis.Nil) {
 		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
-		// TODO: loggerを追加する
-		log.Println("failed to redis err : %w", err)
+		ctx.Server.Logger.Info("failed to redis err", zap.String("redis_key", cacheKey), zap.Error(err))
 	}
 
 	if err == nil {
-		log.Println(cachedResponse)
-		// キャッシュが存在する場合、それをレスポンスとして返す
 		ctx.JSON(http.StatusOK, cachedResponse)
 		return
 	}
@@ -149,6 +142,7 @@ func GetIllustration(ctx *app.AppContext) {
 			return
 		}
 
+		ctx.Server.Logger.Error("failed to GetImage", zap.Int("id", id), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 		return
 	}
@@ -161,10 +155,9 @@ func GetIllustration(ctx *app.AppContext) {
 		Illustration: illustration,
 	}
 	// Redisへのセットが失敗しても処理を続行
-	// TODO: loggerを追加する
 	err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationWeek)
 	if err != nil {
-		log.Println("failed redis data set : %w", err)
+		ctx.Server.Logger.Warn("failed redis data set", zap.String("redis_key", cacheKey), zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, getIllustrationsResponse{
@@ -208,6 +201,7 @@ func SearchIllustrations(ctx *app.AppContext) {
 
 	images, err := ctx.Server.Store.SearchImages(ctx, arg)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to SearchImages", zap.String("query", req.Query), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to SearchImages : %w", err)))
 		return
 	}
@@ -252,6 +246,7 @@ func FetchRandomIllustrations(ctx *app.AppContext) {
 	}
 	images, err := ctx.Server.Store.FetchRandomImage(ctx, arg)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to FetchRandomImage", zap.Int("exclusion_id", int(req.ExclusionID)), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to FetchRandomImage : %w", err)))
 		return
 	}
@@ -306,8 +301,7 @@ func ListIllustrationsByCharacterID(ctx *app.AppContext) {
 	err = ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
 	if err != nil && !errors.Is(err, redis.Nil) {
 		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
-		// TODO: loggerを追加する
-		log.Println("failed to redis err : %w", err)
+		ctx.Server.Logger.Info("failed to redis err", zap.String("redis_key", cacheKey), zap.Error(err))
 	}
 
 	if err == nil {
@@ -324,6 +318,7 @@ func ListIllustrationsByCharacterID(ctx *app.AppContext) {
 	}
 	icrs, err := ctx.Server.Store.ListImageCharacterRelationsByCharacterIDWIthPagination(ctx, arg)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to ListImageCharacterRelationsByCharacterID", zap.Int("character_id", charaID), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListImageCharacterRelationsByCharacterID : %w", err)))
 		return
 	}
@@ -338,6 +333,7 @@ func ListIllustrationsByCharacterID(ctx *app.AppContext) {
 				return
 			}
 
+			ctx.Server.Logger.Error("failed to GetImage", zap.Int64("image_id", icr.ImageID), zap.Int("character_id", charaID), zap.Error(err))
 			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 			return
 		}
@@ -359,10 +355,9 @@ func ListIllustrationsByCharacterID(ctx *app.AppContext) {
 			Illustrations: illustrations,
 		}
 		// Redisへのセットが失敗しても処理を続行
-		// TODO: loggerを追加する
 		err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
 		if err != nil {
-			log.Println("failed redis data set : %w", err)
+			ctx.Server.Logger.Warn("failed redis data set", zap.String("redis_key", cacheKey), zap.Error(err))
 		}
 	}
 
@@ -407,8 +402,7 @@ func ListIllustrationsByChildCategoryID(ctx *app.AppContext) {
 	err = ctx.Server.RedisClient.Get(ctx.Context, cacheKey, &cachedResponse)
 	if err != nil && !errors.Is(err, redis.Nil) {
 		// キャッシュの取得に失敗したが、デフォルトの動作としてDBからデータを取得する処理を続ける
-		// TODO: loggerを追加する
-		log.Println("failed to redis err : %w", err)
+		ctx.Server.Logger.Info("failed to redis err", zap.String("redis_key", cacheKey), zap.Error(err))
 	}
 
 	if err == nil {
@@ -425,6 +419,7 @@ func ListIllustrationsByChildCategoryID(ctx *app.AppContext) {
 	}
 	icrs, err := ctx.Server.Store.ListImageChildCategoryRelationsByChildCategoryIDWithPagination(ctx, arg)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to ListImageChildCategoryRelationsByChildCategoryIDWithPagination", zap.Int("child_category_id", cCateID), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListImageChildCategoryRelationsByChildCategoryIDWithPagination : %w", err)))
 		return
 	}
@@ -439,6 +434,7 @@ func ListIllustrationsByChildCategoryID(ctx *app.AppContext) {
 				return
 			}
 
+			ctx.Server.Logger.Error("failed to GetImage", zap.Int64("image_id", icr.ImageID), zap.Int("child_category_id", cCateID), zap.Error(err))
 			ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetImage : %w", err)))
 			return
 		}
@@ -460,10 +456,9 @@ func ListIllustrationsByChildCategoryID(ctx *app.AppContext) {
 			Illustrations: illustrations,
 		}
 		// Redisへのセットが失敗しても処理を続行
-		// TODO: loggerを追加する
 		err = ctx.Server.RedisClient.Set(ctx.Context, cacheKey, response, cache.CacheDurationDay)
 		if err != nil {
-			log.Println("failed redis data set : %w", err)
+			ctx.Server.Logger.Warn("failed redis data set", zap.String("redis_key", cacheKey), zap.Error(err))
 		}
 	}
 

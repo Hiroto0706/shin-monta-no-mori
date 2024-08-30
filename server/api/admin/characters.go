@@ -3,7 +3,6 @@ package admin
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"shin-monta-no-mori/internal/app"
@@ -16,6 +15,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 const (
@@ -45,6 +45,7 @@ type listCharactersResponse struct {
 func ListCharacters(ctx *app.AppContext) {
 	var req listCharactersRequest
 	if err := binder.BindQuery(ctx.Context, &req); err != nil {
+		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
 		return
 	}
 
@@ -54,12 +55,14 @@ func ListCharacters(ctx *app.AppContext) {
 	}
 	characters, err := ctx.Server.Store.ListCharacters(ctx, arg)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to ListAllCharacters", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListAllCharacters : %w", err)))
 		return
 	}
 
 	totalCount, err := ctx.Server.Store.CountCharacters(ctx)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to CountCharacters", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CountCharacters : %w", err)))
 		return
 	}
@@ -89,6 +92,7 @@ type listAllCharactersResponse struct {
 func ListAllCharacters(ctx *app.AppContext) {
 	characters, err := ctx.Server.Store.ListAllCharacters(ctx)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to ListAllCharacters", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to ListAllCharacters : %w", err)))
 		return
 	}
@@ -130,6 +134,7 @@ func SearchCharacters(ctx *app.AppContext) {
 	}
 	characters, err := ctx.Server.Store.SearchCharacters(ctx, arg)
 	if err != nil {
+		ctx.Server.Logger.Error("failed to SearchCharacters", zap.Int("page", req.Page), zap.String("query", req.Query), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to SearchCharacters : %w", err)))
 		return
 	}
@@ -139,6 +144,7 @@ func SearchCharacters(ctx *app.AppContext) {
 		Valid:  true,
 	})
 	if err != nil {
+		ctx.Server.Logger.Error("failed to CountSearchCharacters", zap.Int("page", req.Page), zap.String("query", req.Query), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to CountSearchCharacters : %w", err)))
 		return
 	}
@@ -180,6 +186,7 @@ func GetCharacter(ctx *app.AppContext) {
 			return
 		}
 
+		ctx.Server.Logger.Error("failed to GetCharacter", zap.Int("character_id", id), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetCharacter : %w", err)))
 		return
 	}
@@ -221,6 +228,7 @@ func CreateCharacter(ctx *app.AppContext) {
 		var src string
 		src, err := service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "image_file", req.Filename, IMAGE_TYPE_CHARACTER, false)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to UploadImage", zap.String("name", req.Name), zap.Int16("name", req.PriorityLevel), zap.Error(err))
 			return fmt.Errorf("failed to UploadImage: %w", err)
 		}
 
@@ -232,6 +240,7 @@ func CreateCharacter(ctx *app.AppContext) {
 		}
 		character, err = ctx.Server.Store.CreateCharacter(ctx, arg)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to CreateCharacter", zap.String("name", req.Name), zap.Int16("name", req.PriorityLevel), zap.Error(err))
 			return fmt.Errorf("failed to CreateCharacter: %w", err)
 		}
 
@@ -239,6 +248,7 @@ func CreateCharacter(ctx *app.AppContext) {
 	})
 
 	if txErr != nil {
+		ctx.Server.Logger.Error("CreateCharacter transaction was failed", zap.Error(txErr))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("CreateCharacter transaction was failed : %w", txErr)))
 		return
 	}
@@ -247,7 +257,7 @@ func CreateCharacter(ctx *app.AppContext) {
 	keyPattern := []string{cache.CharactersPrefix + "*"}
 	err := ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		log.Println("failed redis data delete : %w", err)
+		ctx.Server.Logger.Warn("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -296,6 +306,7 @@ func EditCharacter(ctx *app.AppContext) {
 			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetCharacter : %w", err)))
 			return
 		}
+		ctx.Server.Logger.Error("failed to GetCharacter", zap.Int("character_id", id), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetCharacter : %w", err)))
 		return
 	}
@@ -305,11 +316,13 @@ func EditCharacter(ctx *app.AppContext) {
 		if character.Filename.String != req.Filename || req.ImageFile.Filename != "" {
 			err := service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, character.Src)
 			if err != nil {
+				ctx.Server.Logger.Error("failed to DeleteImageSrc", zap.Int("character_id", id), zap.Error(err))
 				return fmt.Errorf("failed to DeleteImageSrc : %w", err)
 			}
 
 			src, err = service.UploadImageSrc(ctx.Context, &ctx.Server.Config, "image_file", req.Filename, IMAGE_TYPE_CHARACTER, false)
 			if err != nil {
+				ctx.Server.Logger.Error("failed to UploadImage", zap.Int("character_id", id), zap.Error(err))
 				return fmt.Errorf("failed to UploadImage : %w", err)
 			}
 		}
@@ -328,6 +341,7 @@ func EditCharacter(ctx *app.AppContext) {
 
 		character, err = ctx.Server.Store.UpdateCharacter(ctx, arg)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to UpdateCharacter", zap.Int("character_id", id), zap.Error(err))
 			return err
 		}
 
@@ -335,6 +349,7 @@ func EditCharacter(ctx *app.AppContext) {
 	})
 
 	if txErr != nil {
+		ctx.Server.Logger.Error("EditCharacter transaction was failed", zap.Int("character_id", id), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("EditCharacter transaction was failed : %w", txErr)))
 		return
 	}
@@ -343,7 +358,7 @@ func EditCharacter(ctx *app.AppContext) {
 	keyPattern := []string{cache.CharactersPrefix + "*"}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		log.Println("failed redis data delete : %w", err)
+		ctx.Server.Logger.Warn("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -375,6 +390,7 @@ func DeleteCharacter(ctx *app.AppContext) {
 			ctx.JSON(http.StatusNotFound, app.ErrorResponse(fmt.Errorf("failed to GetCharacter : %w", err)))
 			return
 		}
+		ctx.Server.Logger.Error("failed to GetCharacter", zap.Int("character_id", id), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("failed to GetCharacter : %w", err)))
 		return
 	}
@@ -382,23 +398,27 @@ func DeleteCharacter(ctx *app.AppContext) {
 	txErr := ctx.Server.Store.ExecTx(ctx.Request.Context(), func(q *db.Queries) error {
 		err = service.DeleteImageSrc(ctx.Context, &ctx.Server.Config, character.Src)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to DeleteImageSrc", zap.Int("character_id", id), zap.Error(err))
 			return fmt.Errorf("failed to DeleteImageSrc: %w", err)
 		}
 
 		// images_character_relationsの削除
 		err = ctx.Server.Store.DeleteAllImageCharacterRelationsByCharacterID(ctx, character.ID)
 		if err != nil {
+			ctx.Server.Logger.Error("failed to DeleteAllImageCharacterRelationsByCharacterID", zap.Int("character_id", id), zap.Error(err))
 			return fmt.Errorf("failed to DeleteAllImageCharacterRelationsByCharacterID : %w", err)
 		}
 
 		err = ctx.Server.Store.DeleteCharacter(ctx, int64(id))
 		if err != nil {
+			ctx.Server.Logger.Error("failed to DeleteCharacter", zap.Int("character_id", id), zap.Error(err))
 			return fmt.Errorf("failed to DeleteCharacter: %w", err)
 		}
 		return nil
 	})
 
 	if txErr != nil {
+		ctx.Server.Logger.Error("DeleteCharacter transaction was failed", zap.Int("character_id", id), zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(fmt.Errorf("DeleteCharacter transaction was failed : %w", txErr)))
 		return
 	}
@@ -407,7 +427,7 @@ func DeleteCharacter(ctx *app.AppContext) {
 	keyPattern := []string{cache.CharactersPrefix + "*"}
 	err = ctx.Server.RedisClient.Del(ctx, keyPattern)
 	if err != nil {
-		log.Println("failed redis data delete : %w", err)
+		ctx.Server.Logger.Warn("failed redis data delete", zap.Error(err))
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{

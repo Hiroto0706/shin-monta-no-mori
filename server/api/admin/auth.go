@@ -2,7 +2,6 @@ package admin
 
 import (
 	"database/sql"
-	"log"
 	"net/http"
 
 	"shin-monta-no-mori/internal/app"
@@ -10,6 +9,7 @@ import (
 	"shin-monta-no-mori/pkg/lib/password"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type (
@@ -36,15 +36,26 @@ func Login(ctx *app.AppContext) {
 			ctx.JSON(http.StatusNotFound, app.ErrorResponse(err))
 			return
 		}
+		ctx.Server.Logger.Error("failed to GetOperatorByEmail",
+			zap.String("email", req.Email),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(err))
 		return
 	}
 
 	if err = password.CheckPassword(req.Password, operator.HashedPassword); err != nil {
+		ctx.Server.Logger.Info("failed to CheckPassword",
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusUnauthorized, app.ErrorResponse(err))
 		return
 	}
 	if err = password.CheckEmail(req.Email, operator.Email); err != nil {
+		ctx.Server.Logger.Info("failed to CheckEmail",
+			zap.String("email", req.Email),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusUnauthorized, app.ErrorResponse(err))
 		return
 	}
@@ -55,6 +66,10 @@ func Login(ctx *app.AppContext) {
 		ctx.Server.Config.AccessTokenDuration,
 	)
 	if err != nil {
+		ctx.Server.Logger.Info("failed to CreateToken",
+			zap.String("email", req.Email),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(err))
 		return
 	}
@@ -64,6 +79,10 @@ func Login(ctx *app.AppContext) {
 		ctx.Server.Config.RefreshTokenDuration,
 	)
 	if err != nil {
+		ctx.Server.Logger.Info("failed to CreateToken",
+			zap.String("email", req.Email),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(err))
 		return
 	}
@@ -76,6 +95,11 @@ func Login(ctx *app.AppContext) {
 		ExpiresAt:    refreshPayload.ExpiredAt,
 	})
 	if err != nil {
+		ctx.Server.Logger.Info("failed to CreateSessionParams",
+			zap.String("operator_name", operator.Name),
+			zap.String("email", req.Email),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusInternalServerError, app.ErrorResponse(err))
 		return
 	}
@@ -94,13 +118,13 @@ type verifyRequest struct {
 func VerifyAccessToken(ctx *app.AppContext) {
 	var req verifyRequest
 	if err := ctx.ShouldBind(&req); err != nil {
-		log.Println(err)
+		ctx.Server.Logger.Info("failed to bind accessToken", zap.Error(err))
 		ctx.JSON(http.StatusBadRequest, app.ErrorResponse(err))
 		return
 	}
 	_, err := ctx.Server.TokenMaker.VerifyToken(req.AccessToken)
 	if err != nil {
-		log.Println(err)
+		ctx.Server.Logger.Info("failed to VerifyToken", zap.Error(err))
 		ctx.JSON(http.StatusUnauthorized, app.ErrorResponse(err))
 		return
 	}

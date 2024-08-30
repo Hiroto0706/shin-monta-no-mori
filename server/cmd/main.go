@@ -7,6 +7,7 @@ import (
 	"shin-monta-no-mori/internal/app"
 	"shin-monta-no-mori/internal/cache"
 	db "shin-monta-no-mori/internal/db/sqlc"
+	"shin-monta-no-mori/pkg/lib/logger"
 	"shin-monta-no-mori/pkg/token"
 	"shin-monta-no-mori/pkg/util"
 
@@ -43,7 +44,8 @@ func main() {
 		log.Fatal("cannot create token maker : %w", err)
 	}
 	rdb := cache.NewRedisClient(config)
-	server := app.NewServer(config, store, rdb, token)
+	logger := logger.New()
+	server := app.NewServer(config, store, rdb, logger, token)
 	server.Router.Use(app.CORSMiddleware(config))
 
 	// Userサイドのルート設定
