@@ -108,6 +108,13 @@ func Login(ctx *app.AppContext) {
 		AccessToken: accessToken,
 	}
 
+	ctx.Server.Logger.Info("login success",
+		zap.Int64("operator_id", operator.ID),
+		zap.String("operator_name", operator.Name),
+		zap.String("email", req.Email),
+		zap.Error(err),
+	)
+
 	ctx.JSON(http.StatusOK, rsp)
 }
 
