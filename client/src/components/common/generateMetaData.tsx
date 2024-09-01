@@ -18,22 +18,33 @@ const getIllustration = async (
 export async function generateMetaData({ params }: { params: { id: number } }) {
   const response = await getIllustration(params.id);
 
+  const title = response.illustration?.Image.title;
+  const description = `『${title}』だよ。もんたの森では他にも可愛くてクセのある画像がたくさんあるよ。`;
+  const imageUrl =
+    response.illustration?.Image.original_src != undefined
+      ? response.illustration.Image.original_src
+      : "/site-image.png";
+  const imageAlt =
+    response.illustration?.Image.original_src != undefined
+      ? title
+      : "もんたの森のイメージ画像";
   return {
-    title: response.illustration?.Image.title,
-    description: `『${response.illustration?.Image.title}』だよ。もんたの森では他にも可愛くてクセのある画像がたくさんあるよ。`,
+    title,
+    description,
     openGraph: {
       images: [
         {
-          url:
-            response.illustration?.Image.original_src != undefined
-              ? response.illustration.Image.original_src
-              : "/site-image.png",
-          alt:
-            response.illustration?.Image.original_src != undefined
-              ? response.illustration.Image.title
-              : "もんたの森のイメージ画像",
+          url: imageUrl,
+          alt: imageAlt,
         },
       ],
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+      image: imageUrl,
+      image_alt: imageAlt,
     },
   };
 }
