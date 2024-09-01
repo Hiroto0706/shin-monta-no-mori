@@ -65,7 +65,9 @@ jobs:
           # テスト結果の集計・出力
           go tool cover -func=./coverage/coverage.out > ./coverage/report.txt
           go tool cover -html=./coverage/coverage.out -o ./coverage/coverage.html
-          ../tools/aggregate_coverage.sh ./coverage/report.txt
+
+          cd ..
+          ./tools/aggregate_coverage.sh ./server/coverage/report.txt > ./server/coverage/summary.txt
           echo "COVERAGE_REPORT<<EOF" >> $GITHUB_ENV
           cat ./server/coverage/summary.txt >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
