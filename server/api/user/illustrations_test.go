@@ -14,6 +14,7 @@ import (
 	"shin-monta-no-mori/internal/cache"
 	db "shin-monta-no-mori/internal/db/sqlc"
 	model "shin-monta-no-mori/internal/domains/models"
+	"shin-monta-no-mori/pkg/lib/logger"
 	"shin-monta-no-mori/pkg/util"
 	"testing"
 
@@ -708,10 +709,12 @@ func TestMain(m *testing.M) {
 
 func newTestServer(store *db.Store, config util.Config) (*app.AppContext, error) {
 	rdb := cache.NewRedisClient(config)
+	logger := logger.New()
 	s := &app.Server{
 		Config:      config,
 		Store:       store,
 		RedisClient: rdb,
+		Logger:      logger,
 	}
 	router := gin.Default()
 	s.Router = router
