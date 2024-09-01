@@ -26,7 +26,7 @@ jobs:
       - name: Launch services
         env:
           ENVIRONMENT: test
-        run: docker compose up -d
+        run: docker compose -f ./docker-compose.ci.yml up -d
 
       - name: Install Migrate Tool
         run: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
