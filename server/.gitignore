@@ -2,6 +2,9 @@
 /coverage
 fly.toml
 
+/pkg/util/seedingPrddata.go
+/pkg/util/seedingTestdata.go
+
 /internal/db/migration/000017_insert_default_user.down.sql
 /internal/db/migration/000017_insert_default_user.up.sql
 /internal/db/migration/000018_insert_prd_default_user.down.sql

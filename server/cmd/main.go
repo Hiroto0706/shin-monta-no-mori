@@ -30,11 +30,17 @@ func main() {
 	}
 
 	// DBのマイグレーションを実行
-	if config.Environment == "prd" {
-		runDBMigration(config.MigrationURL, config.DBUrl)
-	}
+	runDBMigration(config.MigrationURL, config.DBUrl)
 
 	store := db.NewStore(conn)
+	// // DBのシードファイルを実行
+	// store := db.NewStore(conn)
+	// if config.Environment == "prd" {
+	// 	util.SeedingForPrd(store)
+	// } else {
+	// 	util.SeedingForDev(store)
+	// }
+
 	token, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		log.Fatal("cannot create token maker : %w", err)
