@@ -1,4 +1,8 @@
 /tmp
-/pkg/util/seedingPrddata.go
 /coverage
 fly.toml
+
+/internal/db/migration/000017_insert_default_user.down.sql
+/internal/db/migration/000017_insert_default_user.up.sql
+/internal/db/migration/000018_insert_prd_default_user.down.sql
+/internal/db/migration/000018_insert_prd_default_user.up.sql

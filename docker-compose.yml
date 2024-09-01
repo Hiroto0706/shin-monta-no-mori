@@ -8,12 +8,14 @@ services:
       - ./server:/app
     ports:
       - "8080:8080"
+    env_file:
+      - ./server/app.env
     environment:
       - GO111MODULE=on
-      - DB_HOST=db
     depends_on:
       - db
       - redis
+      - migrate
 
   client:
     container_name: client
@@ -30,14 +32,12 @@ services:
     image: postgres:14-alpine
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_DB: shin-monta-no-mori
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+    env_file:
+      - ./server/app.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-q", "-U", "postgres" ]
+      test: [ "CMD-SHELL", "pg_isready", "-q", "-U", "${DB_USER:-postgres}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -50,6 +50,21 @@ services:
       - 6379:6379
     volumes:
       - redis_data:/var/lib/redis/data
+
+  migrate:
+    container_name: migrate
+    image: migrate/migrate:latest
+    env_file:
+      - ./server/app.env
+    command: [
+      "-path", "migrations",
+      "-database", "postgres://${DB_USER:-postgres}:${DB_PASSWORD:-password}@${DB_HOST:-db}:5432/${DB_NAME:-shin-monta-no-mori}?sslmode=disable",
+      "up"
+    ]
+    volumes:
+      - ./server/internal/db/migration:/migrations
+    depends_on:
+      - db
 
 volumes:
   postgres_data:
