@@ -5,7 +5,7 @@ services:
     container_name: server
     build:
       context: ./server
-      dockerfile: ./server/Dockerfile.prd
+      dockerfile: ./Dockerfile.prd
     volumes:
       - ./server:/app
     ports:
