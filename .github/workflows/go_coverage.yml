@@ -73,7 +73,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Stop and remove services
-        run: docker-compose down
+        run: docker compose -f ./docker-compose.ci.yml down
 
       - name: Post coverage results to PR
         uses: peter-evans/create-or-update-comment@v3
