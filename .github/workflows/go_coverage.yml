@@ -54,8 +54,8 @@ jobs:
           go test ./internal/domains/... -coverprofile=./coverage/domains.out
 
           # カバレッジファイルの結合
-          echo "mode: set" > ./server/coverage/coverage.out
-          tail -n +2 ./server/coverage/api_admin.out >> ./coverage/coverage.out
+          echo "mode: set" > ./coverage/coverage.out
+          tail -n +2 ./coverage/api_admin.out >> ./coverage/coverage.out
           tail -n +2 ./coverage/api_user.out >> ./coverage/coverage.out
           tail -n +2 ./coverage/api_middleware.out >> ./coverage/coverage.out
           tail -n +2 ./coverage/pkg.out >> ./coverage/coverage.out
