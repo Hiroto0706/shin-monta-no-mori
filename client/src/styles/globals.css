@@ -38,3 +38,31 @@
     background-size: 70px 70px;
   }
 }
+
+.resize-bar {
+  input[type="range"] {
+    -webkit-appearance: none; /* スライダーのデフォルトスタイルを無効化 */
+    width: 100%;
+    height: 6px;
+    border-radius: 5px;
+    background: #e5e7eb; /* トラックの背景色 */
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #17a34a; /* つまみの色 */
+    cursor: pointer;
+    border-radius: 50%;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #17a34a; /* つまみの色 */
+    cursor: pointer;
+    border-radius: 50%;
+  }
+}
