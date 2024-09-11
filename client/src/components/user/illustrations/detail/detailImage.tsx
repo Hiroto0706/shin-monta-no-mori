@@ -100,12 +100,22 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
     const newSize = parseInt(e.target.value);
     setSize(newSize);
 
-    // 画像のリサイズを行い、Blob URLを更新
-    const src = isSimpleImg
+    resizedImageUrl(newSize, isSimpleImg);
+  };
+
+  // resizedImageUrl は画像のリサイズを行い、Blob URLを更新
+  const resizedImageUrl = async (newSize: number, srcStatus: boolean) => {
+    const src = srcStatus
       ? illustration.Image.simple_src.String
       : illustration.Image.original_src;
     const resizedImageUrl = await resizeImageAndCenter(src, newSize);
     setResizedSrc(resizedImageUrl);
+  };
+
+  // toggleImageSrc はoriginal_src と simple_src の表示の切り替えをおこなす
+  const toggleImageSrc = (newSrcStatus: boolean) => {
+    setIsSimpleImg(newSrcStatus);
+    resizedImageUrl(size, newSrcStatus);
   };
 
   const siteUrl = "https://www.montanomori.com/";
@@ -144,7 +154,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                   className={`p-2 rounded-lg w-1/2 flex justify-center font-bold text-lg cursor-pointer ${
                     !isSimpleImg && "bg-green-600 text-white"
                   }`}
-                  onClick={() => setIsSimpleImg(false)}
+                  onClick={() => toggleImageSrc(false)}
                 >
                   オリジナル
                 </div>
@@ -152,7 +162,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                   className={`p-2 rounded-lg w-1/2 flex justify-center font-bold text-lg cursor-pointer ${
                     isSimpleImg && "bg-green-600 text-white"
                   }`}
-                  onClick={() => setIsSimpleImg(true)}
+                  onClick={() => toggleImageSrc(true)}
                 >
                   シンプル
                 </div>
@@ -253,7 +263,8 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                     </span>
                   </button>
                 </div>
-                {/* spの時の画像保存ボタン */}
+                {/* FIXME: sp時の画像保存ボタンは画像リサイズしたとしてもデフォルトの画像を返すようになっている */}
+                {/* spの時の画像保存ボタン
                 <Link
                   href={
                     !isSimpleImg
@@ -269,7 +280,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                     width={24}
                     height={24}
                   />
-                </Link>
+                </Link> */}
                 <p className="text-sm">
                   ダウンロードボタンをクリックすると、
                   <Link
