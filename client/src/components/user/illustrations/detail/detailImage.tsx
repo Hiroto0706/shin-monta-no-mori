@@ -12,45 +12,79 @@ type Props = {
   illustration: Illustration;
 };
 
-export const downloadImage = async (src: string) => {
+const resizeImageAndCenter = async (
+  src: string,
+  sizePercentage: number
+): Promise<string | null> => {
+  const response = await axios.get(src, { responseType: "blob" });
+  const blob = response.data;
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  const image = await createImageBitmap(blob);
+
+  const sizeMultiplier = sizePercentage / 100;
+  const resizedWidth = image.width * sizeMultiplier;
+  const resizedHeight = image.height * sizeMultiplier;
+
+  // キャンバスのサイズを1200px * 1200pxに固定
+  const canvasSize = 1200;
+  canvas.width = canvasSize;
+  canvas.height = canvasSize;
+
+  // 中央にリサイズした画像を配置するためのオフセットを計算
+  const offsetX = (canvasSize - resizedWidth) / 2;
+  const offsetY = (canvasSize - resizedHeight) / 2;
+
+  ctx?.clearRect(0, 0, canvas.width, canvas.height);
+  ctx?.drawImage(image, offsetX, offsetY, resizedWidth, resizedHeight);
+
+  return new Promise<string | null>((resolve) => {
+    canvas.toBlob((newBlob) => {
+      if (newBlob) {
+        resolve(URL.createObjectURL(newBlob)); // Blob URLを返す
+      } else {
+        resolve(null);
+      }
+    }, blob.type);
+  });
+};
+
+const downloadImage = async (src: string, sizePercentage: number) => {
   try {
-    const response = await axios.get(src, {
-      responseType: "blob",
-    });
-    const fileName = src.substring(src.lastIndexOf("/") + 1);
-    saveAs(response.data, fileName);
+    const resizedBlobUrl = await resizeImageAndCenter(src, sizePercentage);
+    if (resizedBlobUrl) {
+      const fileName = src.substring(src.lastIndexOf("/") + 1);
+      const a = document.createElement("a");
+      a.href = resizedBlobUrl;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(resizedBlobUrl);
+    }
   } catch (error) {
     console.error("Image download failed", error);
   }
 };
 
-export const copyImageToClipboard = async (
+const copyImageToClipboard = async (
   src: string,
+  sizePercentage: number,
   setIsCopied: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   try {
-    const response = await axios.get(src, { responseType: "blob" });
-    const blob = response.data;
-
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const image = await createImageBitmap(blob);
-    canvas.width = image.width;
-    canvas.height = image.height;
-    if (ctx) {
-      ctx.drawImage(image, 0, 0);
+    const resizedBlobUrl = await resizeImageAndCenter(src, sizePercentage);
+    if (resizedBlobUrl) {
+      const response = await fetch(resizedBlobUrl);
+      const blob = await response.blob();
+      const clipboardItem = new ClipboardItem({
+        [blob.type]: blob,
+      });
+      await navigator.clipboard.write([clipboardItem]);
+      setIsCopied(true);
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 3000); // 3秒後にテキストを戻す
     }
-
-    canvas.toBlob(async (newBlob) => {
-      if (newBlob) {
-        const clipboardItem = new ClipboardItem({ [newBlob.type]: newBlob });
-        await navigator.clipboard.write([clipboardItem]);
-        setIsCopied(true);
-        setTimeout(() => {
-          setIsCopied(false);
-        }, 3000); // 3秒後にテキストを戻す
-      }
-    }, blob.type);
   } catch (err) {
     console.error("Failed to copy on clipboard", err);
   }
@@ -58,7 +92,22 @@ export const copyImageToClipboard = async (
 
 const DetailImage: React.FC<Props> = ({ illustration }) => {
   const [isSimpleImg, setIsSimpleImg] = useState(false);
-  const [isCopied, setIsCopied] = useState<boolean>(false);
+  const [isCopied, setIsCopied] = useState(false);
+  const [size, setSize] = useState(100);
+  const [resizedSrc, setResizedSrc] = useState<string | null>(null);
+
+  const handleSliderChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newSize = parseInt(e.target.value);
+    setSize(newSize);
+
+    // 画像のリサイズを行い、Blob URLを更新
+    const src = isSimpleImg
+      ? illustration.Image.simple_src.String
+      : illustration.Image.original_src;
+    const resizedImageUrl = await resizeImageAndCenter(src, newSize);
+    setResizedSrc(resizedImageUrl);
+  };
+
   const siteUrl = "https://www.montanomori.com/";
 
   return (
@@ -71,18 +120,18 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
               style={{ paddingTop: "100%" }}
             >
               <div className="absolute inset-0 m-4">
-                {!isSimpleImg ? (
+                {resizedSrc ? (
                   <Image
                     className="absolute inset-0 object-cover w-full h-full"
-                    src={illustration.Image.original_src}
+                    src={resizedSrc}
                     alt={illustration.Image.original_filename}
                     fill
                   />
                 ) : (
                   <Image
                     className="absolute inset-0 object-cover w-full h-full"
-                    src={illustration.Image.simple_src.String}
-                    alt={illustration.Image.simple_filename.String}
+                    src={illustration.Image.original_src}
+                    alt={illustration.Image.original_filename}
                     fill
                   />
                 )}
@@ -109,6 +158,28 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                 </div>
               </div>
             )}
+
+            <div className="my-2 flex justify-between items-center resize-bar">
+              <label className="w-[20%] min-w-[60px] max-w-[70px] flex justify-between pr-2 text-lg">
+                <span>{size}</span>
+                <span className="text-gray-400">%</span>
+              </label>
+              <input
+                className="w-[80%] rounded-full"
+                type="range"
+                min="10"
+                max="100"
+                step="10"
+                value={size}
+                onChange={handleSliderChange}
+                // sizeは10%が最低値のため -10 している。また、100 / 90 は 90% を 100% に正規化している
+                style={{
+                  background: `linear-gradient(to right, #17a34a ${
+                    (size - 10) * (100 / 90)
+                  }%, #E5E7EB ${(size - 10) * (100 / 90)}%)`,
+                }}
+              />
+            </div>
           </div>
 
           <div className="w-full lg:w-3/5 mt-8 lg:mt-0 lg:ml-8">
@@ -140,7 +211,8 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                       downloadImage(
                         isSimpleImg
                           ? illustration.Image.simple_src.String
-                          : illustration.Image.original_src
+                          : illustration.Image.original_src,
+                        size
                       )
                     }
                   >
@@ -159,6 +231,7 @@ const DetailImage: React.FC<Props> = ({ illustration }) => {
                         isSimpleImg
                           ? illustration.Image.simple_src.String
                           : illustration.Image.original_src,
+                        size,
                         setIsCopied
                       )
                     }
