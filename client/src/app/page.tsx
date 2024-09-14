@@ -392,7 +392,7 @@ const Home = async () => {
                   <div key={character.id} className="my-2 flex items-center">
                     <Link
                       key={character.id}
-                      href={`/illustrations/category/${character.id}`}
+                      href={`/illustrations/character/${character.id}`}
                       className="mr-4 hover:bg-gray-200 duration-200 py-2 px-2 cursor-pointer rounded-full flex items-center"
                     >
                       <Image
