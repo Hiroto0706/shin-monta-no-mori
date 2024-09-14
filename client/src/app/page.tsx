@@ -383,6 +383,33 @@ const Home = async () => {
             </>
           )}
         </section>
+
+        <section className="border-t border-gray-200 py-12">
+          {fetchCharactersRes.characters.length > 0 && (
+            <>
+              <div className="flex flex-wrap">
+                {fetchCharactersRes.characters.map((character, index) => (
+                  <div key={character.id} className="my-2 flex items-center">
+                    <Link
+                      key={character.id}
+                      href={`/illustrations/category/${character.id}`}
+                      className="mr-4 hover:bg-gray-200 duration-200 py-2 px-2 cursor-pointer rounded-full flex items-center"
+                    >
+                      <Image
+                        className="border border-gray-200 rounded-full bg-white shadow"
+                        src={character.src}
+                        alt={character.filename.String}
+                        width={36}
+                        height={36}
+                      />
+                      <span className="ml-4">{character.name}</span>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </section>
       </div>
 
       <Footer sns={sns} />
