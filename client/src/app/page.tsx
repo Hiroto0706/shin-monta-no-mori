@@ -95,25 +95,25 @@ const Home = async () => {
     {
       title: "おりじなりてぃ",
       description: "もんたの森の絵は\nクセが強くて他と被らない",
-      src: "/top-yahhoi.png",
+      src: "/top/top-yahhoi.png",
       alt: "おりじなりてぃのある画像",
     },
     {
       title: "ゆるいでざいん",
       description: "もんたの森ではゆーるい\nデザインを大切にしています",
-      src: "/top-normal.png",
+      src: "/top/top-normal.png",
       alt: "ゆるいでざいんな画像",
     },
     {
       title: "はんようせいがある",
       description: "使える場面の多いイラストを\n描くことを心がけています",
-      src: "/top-sumasenn.png",
+      src: "/top/top-sumasenn.png",
       alt: "つかえるばめんがおおい画像",
     },
     {
       title: "くせつよもある",
       description: "にっちな場面でしか使えない\nイラストも描いています",
-      src: "/top-nikuway.png",
+      src: "/top/top-nikuway.png",
       alt: "くせつよもあるな画像",
     },
   ];
@@ -122,21 +122,21 @@ const Home = async () => {
     {
       name: "イラストの依頼",
       description: "もんたがオリジナルイラストを描かせていただきます",
-      src: "/top-request.png",
+      src: "/top/top-request.png",
       link: "https://forms.gle/gfvuc6GwiURxJNR68",
       color: "bg-blue-50",
     },
     {
       name: "お問い合わせ",
       description: "もんたの森に関する「ちょっとわかんない」ことはこちらへ",
-      src: "/top-inquiry.png",
+      src: "/top/top-inquiry.png",
       link: "https://forms.gle/THqHAigzTZa7J9D28",
       color: "bg-yellow-50",
     },
     {
       name: "フォーラム",
       description: "バグの報告、機能リクエストなどはこちらへ",
-      src: "/top-forum.png",
+      src: "/top/top-forum.png",
       link: "https://forms.gle/i4Fp9Xoeq4fkMEc88",
       color: "bg-red-50",
     },
@@ -164,6 +164,22 @@ const Home = async () => {
       />
 
       <div className="max-w-[1100px] m-auto mt-24 px-4 md:px-12">
+        <section className="mb-24">
+          <div className="relative w-full max-w-[600px] aspect-[3/2] m-auto">
+            <Link
+              href="https://store.line.me/emojishop/product/66ece5ac61b93a07d864a1a5/ja"
+              target="_blank"
+            >
+              <Image
+                src="/promotions/20240924_montanomori_emoji.svg"
+                alt="もんたの森のLINE絵文字プロモーション"
+                fill
+                style={{ objectFit: "cover" }}
+              />
+            </Link>
+          </div>
+        </section>
+
         <section className="mb-40">
           <h2 className="text-2xl font-bold mb-6 text-black">新着イラスト</h2>
 
@@ -242,7 +258,7 @@ const Home = async () => {
             <div className="relative w-full" style={{ paddingTop: "100%" }}>
               <Image
                 className="absolute w-full h-full object-contain"
-                src="/example-line.svg"
+                src="/top/example-line.svg"
                 alt="lineでの使用例"
                 fill
               />
@@ -251,7 +267,7 @@ const Home = async () => {
             <div className="relative w-full" style={{ paddingTop: "100%" }}>
               <Image
                 className="absolute w-full h-full object-contain"
-                src="/example-slack.svg"
+                src="/top/example-slack.svg"
                 alt="slackでの使用例"
                 fill
               />
@@ -259,7 +275,7 @@ const Home = async () => {
             <div className="relative w-full" style={{ paddingTop: "100%" }}>
               <Image
                 className="absolute w-full h-full object-contain"
-                src="/example-slide.svg"
+                src="/top/example-slide.svg"
                 alt="slideでの使用例"
                 fill
               />
@@ -267,7 +283,7 @@ const Home = async () => {
             <div className="relative w-full" style={{ paddingTop: "100%" }}>
               <Image
                 className="absolute w-full h-full object-contain"
-                src="/example-icons.svg"
+                src="/top/example-icons.svg"
                 alt="iconでの使用例"
                 fill
               />

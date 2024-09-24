@@ -13,7 +13,7 @@ const NotFoundPage = () => {
           <div className="p-4 md:p-12 flex justify-center items-center flex-col">
             <Image
               className="my-4"
-              src="/top-sumasenn.png"
+              src="/top/top-sumasenn.png"
               alt="not foundイメージ"
               width={100}
               height={100}
