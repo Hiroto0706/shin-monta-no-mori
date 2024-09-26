@@ -164,7 +164,7 @@ const Home = async () => {
       />
 
       <div className="max-w-[1100px] m-auto mt-24 px-4 md:px-12">
-        <section className="mb-24">
+        {/* <section className="mb-24">
           <div className="relative w-full max-w-[600px] aspect-[3/2] m-auto">
             <Link
               href="https://store.line.me/emojishop/product/66ece5ac61b93a07d864a1a5/ja"
@@ -178,7 +178,7 @@ const Home = async () => {
               />
             </Link>
           </div>
-        </section>
+        </section> */}
 
         <section className="mb-40">
           <h2 className="text-2xl font-bold mb-6 text-black">新着イラスト</h2>
