@@ -14,9 +14,9 @@ const IllustrationCard: React.FC<Props> = ({ illustration }) => {
     const now: Date = new Date();
     const creationTime: Date = new Date(createdAtStr);
 
-    const oneDay: number = 24 * 60 * 60 * 1000;
+    const oneWeek: number = 24 * 60 * 60 * 1000 * 7;
     const diff: number = Math.floor(now.getTime() - creationTime.getTime());
-    return diff < oneDay;
+    return diff < oneWeek;
   };
 
   return (

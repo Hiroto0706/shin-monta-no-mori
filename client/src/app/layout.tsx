@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import { metadata } from "@/components/common/metaData";
 export { metadata };
 
@@ -12,11 +13,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="jp" className="text-gray-600">
-      <body className={inter.className}>
-        <div>{children}</div>
-        {/* <BackgroundImage /> */}
-      </body>
-    </html>
+    <>
+      <Analytics />
+      <html lang="jp" className="text-gray-600">
+        <body className={inter.className}>
+          <div>{children}</div>
+          {/* <BackgroundImage /> */}
+        </body>
+      </html>
+    </>
   );
 }
