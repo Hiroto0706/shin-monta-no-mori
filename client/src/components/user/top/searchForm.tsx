@@ -18,7 +18,7 @@ const SearchFormTop: React.FC<Props> = ({ child_categories }) => {
         <SearchBox maxWidth={600} addClass="mb-2" />
       </div>
       <div className="flex flex-wrap items-center w-full md:max-w-[600px] px-4 md:px-0">
-        {child_categories.slice(0, 5).map((child_category) => (
+        {child_categories.slice(0, 8).map((child_category) => (
           <Link
             href={`illustrations/category/${child_category.id}`}
             key={child_category.id}
