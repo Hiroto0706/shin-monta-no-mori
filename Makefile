@@ -3,15 +3,15 @@ TEST_DATABASE_URL=postgresql://postgres:password@localhost:5432/shin-monta-no-mo
 
 .PHONY: createdb
 createdb:
-	docker exec -it shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori
-	docker exec -it shin-monta-no-mori-db dropdb --username=postgres --if-exists shin-monta-no-mori-test
-	docker exec -it shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori
-	docker exec -it shin-monta-no-mori-db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
+	docker exec -it db dropdb --username=postgres --if-exists shin-monta-no-mori
+	docker exec -it db dropdb --username=postgres --if-exists shin-monta-no-mori-test
+	docker exec -it db createdb --username=postgres --owner=postgres shin-monta-no-mori
+	docker exec -it db createdb --username=postgres --owner=postgres shin-monta-no-mori-test
 
 .PHONY: dropdb
 dropdb:
-	docker exec -it shin-monta-no-mori-db dropdb --username=postgres  shin-monta-no-mori
-	docker exec -it shin-monta-no-mori-db dropdb --username=postgres shin-monta-no-mori-test
+	docker exec -it db dropdb --username=postgres  shin-monta-no-mori
+	docker exec -it db dropdb --username=postgres shin-monta-no-mori-test
 
 .PHONY: new_migration
 new_migration:
