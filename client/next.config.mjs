@@ -3,7 +3,7 @@ const nextConfig = {
   images: {
     domains: ['storage.googleapis.com'],
   },
-  staticPageGenerationTimeout: 480,
+  staticPageGenerationTimeout: 960,
 };
 
 export default nextConfig;
